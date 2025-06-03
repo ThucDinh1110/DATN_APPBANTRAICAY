@@ -1,17 +1,17 @@
 import 'package:apptraicay/dangky.dart';
-import 'package:apptraicay/quenmatkhau.dart';
-import 'package:apptraicay/trangchu.dart';
+import 'package:apptraicay/dangnhap.dart';
+import 'package:apptraicay/matkhaumoi.dart';
 import 'package:apptraicay/welcome.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class forgotpasswordPage extends StatefulWidget {
+  const forgotpasswordPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<forgotpasswordPage> createState() => _forgotpasswordPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _forgotpasswordPageState extends State<forgotpasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,26 +25,10 @@ class _LoginPageState extends State<LoginPage> {
             child: IconButton(
               icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 6, 0, 0), size: 30),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => WelcomePage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
               },
             ),
           ),
-
-          Positioned(
-            top: 40,
-            right: 16,
-            child: TextButton(
-              onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => SignupPage()));
-              }, 
-              child: Text(
-                "Sign Up",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold
-                ),
-              ))),
 
           // Phần khung trắng đăng nhập
           Center(
@@ -67,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      "Log In",
+                      "Forgot Password",
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -84,14 +68,14 @@ class _LoginPageState extends State<LoginPage> {
                     TextField(
                       obscureText: true,
                       decoration: const InputDecoration(
-                        labelText: "Password",
+                        labelText: "Email",
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => newpasswordPage()));
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
@@ -100,15 +84,10 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         backgroundColor: Colors.green,
                       ),
-                      child: const Text("Log In"),
+                      child: const Text("Send"),
                     ),
                     const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => forgotpasswordPage()));
-                      },
-                      child: const Text("Forgot password?"),
-                    ),
+                    
                   ],
                 ),
               ),
