@@ -94,15 +94,11 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-<<<<<<< HEAD
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => HomeManagementPage()));
-=======
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (context) => HomePage()),
+                          MaterialPageRoute(builder: (context) => HomeManagementPage()),
                           (Route<dynamic> route) => false,
                         );
->>>>>>> 1bf6a8d (Cap nhat cua thuc lan 2)
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
