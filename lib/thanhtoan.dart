@@ -65,17 +65,7 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildCard(
-              title: "Thông Tin Người Nhận",
-              icon: Icons.person,
-              child: Column(
-                children: [
-                  _buildTextField("Tên Người Nhận", tenController),
-                  _buildTextField("Số Điện Thoại", sdtController, keyboardType: TextInputType.phone),
-                  _buildTextField("Địa Chỉ", diachiController, maxLines: 3),
-                ],
-              ),
-            ),
+           
             const SizedBox(height: 15),
             _buildCard(
               title: "Phương Thức Thanh Toán",
