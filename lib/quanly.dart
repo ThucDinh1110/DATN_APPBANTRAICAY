@@ -1,3 +1,4 @@
+import 'package:apptraicay/qlssanpham.dart';
 import 'package:flutter/material.dart';
 
 class HomeManagementPage extends StatefulWidget {
@@ -52,7 +53,14 @@ class _HomeManagementPageState extends State<HomeManagementPage> {
               label: "Quản lý đơn hàng",
               color: const Color(0xFF26A69A), // xanh biển đậm tươi
               onTap: () {
+                
                 print("Quản lý đơn hàng");
+                 Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => QuanLyDonHangAdmin(),
+                            ),
+                          );
               },
             ),
           ],
