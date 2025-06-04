@@ -1,4 +1,5 @@
 import 'package:apptraicay/dangky.dart';
+import 'package:apptraicay/quanly.dart';
 import 'package:apptraicay/quenmatkhau.dart';
 import 'package:apptraicay/trangchu.dart';
 import 'package:apptraicay/welcome.dart';
@@ -91,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => HomeManagementPage()));
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),

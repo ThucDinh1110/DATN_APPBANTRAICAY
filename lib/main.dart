@@ -1,5 +1,6 @@
 import 'package:apptraicay/dangnhap.dart';
 import 'package:apptraicay/giohang.dart';
+import 'package:apptraicay/quanly.dart';
 import 'package:apptraicay/welcome.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,7 @@ class MainApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: Giohang()
+        body: LoginPage()
       ),
     );
   }

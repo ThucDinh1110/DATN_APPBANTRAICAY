@@ -1,3 +1,4 @@
+import 'package:apptraicay/thanhtoan.dart';
 import 'package:flutter/material.dart';
 
 class ProductItemModel {
@@ -23,23 +24,88 @@ class Giohang extends StatefulWidget {
 
 class _GiohangState extends State<Giohang> {
   final TextEditingController tk_sp = TextEditingController();
-  List<ProductItemModel> productsInCart = [
+
+  List<ProductItemModel> choThanhToan = [
     ProductItemModel(id: 1, productName: "Táo", price: 10000, quantity: 2),
     ProductItemModel(id: 2, productName: "Chuối", price: 8000, quantity: 3),
-    ProductItemModel(id: 3, productName: "Xoài", price: 15000, quantity: 1),
-    ProductItemModel(id: 4, productName: "Mận", price: 12000, quantity: 4),
   ];
+  List<ProductItemModel> choDuyet = [
+    ProductItemModel(id: 3, productName: "Xoài", price: 15000, quantity: 1),
+  ];
+  List<ProductItemModel> daDuyet = [];
+  List<ProductItemModel> dangGiao = [];
+  List<ProductItemModel> daMua = [];
 
-  void _removeProduct(int index) {
+  void _removeProductFromCart(int index) {
     setState(() {
-      productsInCart.removeAt(index);
+      choThanhToan.removeAt(index);
     });
   }
 
   void _updateProductQuantity(int index, int newQuantity) {
     setState(() {
-      productsInCart[index].quantity = newQuantity;
+      choThanhToan[index].quantity = newQuantity;
     });
+  }
+
+  Widget _buildOrderStatusList(String title, List<ProductItemModel> items,
+      {bool allowCancel = false}) {
+    return items.isEmpty
+        ? Center(child: Text("Không có đơn nào trong mục '$title'"))
+        : ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                child: ListTile(
+                  leading: const Icon(Icons.receipt_long, color: Colors.orange),
+                  title: Text(item.productName),
+                  subtitle:
+                      Text('Số lượng: ${item.quantity} | Giá: ${item.price}đ'),
+                  trailing: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                     
+                      if (allowCancel)
+                        TextButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Hủy đơn hàng"),
+                                content: const Text(
+                                    "Bạn có chắc muốn hủy đơn này không?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    child: const Text("Không"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        items.removeAt(index);
+                                      });
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text("Hủy đơn",
+                                        style:
+                                            TextStyle(color: Colors.redAccent)),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          child: const Text("Hủy đơn",
+                              style: TextStyle(color: Colors.red)),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
   }
 
   @override
@@ -48,16 +114,28 @@ class _GiohangState extends State<Giohang> {
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.lightGreen,
+          backgroundColor: Colors.white,
           title: const Text("Giỏ hàng"),
+          bottom: const TabBar(
+            isScrollable: true,
+            labelColor: Colors.orangeAccent,
+            unselectedLabelColor: Colors.black,
+            indicatorColor: Colors.orange,
+            tabs: [
+              Tab(text: 'Chờ thanh toán'),
+              Tab(text: 'Chờ duyệt'),
+              Tab(text: 'Đã duyệt'),
+              Tab(text: 'Đang giao'),
+              Tab(text: 'Đã mua'),
+            ],
+          ),
         ),
-        backgroundColor: Colors.white,
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Tìm kiếm + giỏ hàng
-              Row(
+        body: Column(
+          children: [
+            // Tìm kiếm + giỏ hàng
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
                 children: [
                   Expanded(
                     child: Container(
@@ -102,7 +180,7 @@ class _GiohangState extends State<Giohang> {
                             shape: BoxShape.circle,
                           ),
                           child: Text(
-                            '${productsInCart.fold(0, (sum, item) => sum + item.quantity)}',
+                            '${choThanhToan.fold(0, (sum, item) => sum + item.quantity)}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -114,146 +192,134 @@ class _GiohangState extends State<Giohang> {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              Container(
-                color: Colors.white,
-                child: const TabBar(
-                  isScrollable: true,
-                  labelColor: Colors.orange,
-                  unselectedLabelColor: Colors.black,
-                  indicatorColor: Colors.orange,
-                  tabs: [
-                    Tab(text: 'Chờ thanh toán'),
-                    Tab(text: 'Chờ duyệt'),
-                    Tab(text: 'Đã duyệt'),
-                    Tab(text: 'Đang giao'),
-                    Tab(text: 'Đã mua'),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    // Tab 1: Giỏ hàng
-                    Column(
-                      children: [
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: productsInCart.length,
-                            itemBuilder: (context, index) {
-                              final product = productsInCart[index];
-                              final backgroundColor = index.isEven
-                                  ? Colors.tealAccent
-                                  : Colors.lightGreen.shade50;
+            ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  // Tab 1: Chờ thanh toán
+                  Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: choThanhToan.length,
+                          itemBuilder: (context, index) {
+                            final product = choThanhToan[index];
+                            final backgroundColor = index.isEven
+                                ? Colors.tealAccent.shade100
+                                : Colors.lightGreen.shade50;
 
-                              return Dismissible(
-                                key: Key(product.productName),
-                                direction: DismissDirection.endToStart,
-                                onDismissed: (direction) {
-                                  _removeProduct(index);
-                                },
-                                background: Container(
-                                  color: Colors.red,
-                                  alignment: Alignment.centerRight,
-                                  padding: const EdgeInsets.only(right: 16.0),
-                                  child: const Icon(Icons.delete,
-                                      color: Colors.white),
+                            return Dismissible(
+                              key: Key(product.productName),
+                              direction: DismissDirection.endToStart,
+                              onDismissed: (direction) {
+                                _removeProductFromCart(index);
+                              },
+                              background: Container(
+                                color: Colors.red,
+                                alignment: Alignment.centerRight,
+                                padding: const EdgeInsets.only(right: 16.0),
+                                child: const Icon(Icons.delete,
+                                    color: Colors.white),
+                              ),
+                              child: Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 4.0),
+                                decoration: BoxDecoration(
+                                  color: backgroundColor,
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Container(
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 4.0),
-                                  decoration: BoxDecoration(
-                                    color: backgroundColor,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: ListTile(
-                                    title: Text(product.productName),
-                                    subtitle: Text(
-                                        'Giá: ${product.price}đ x ${product.quantity}'),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.remove),
-                                          onPressed: () {
-                                            if (product.quantity > 1) {
-                                              _updateProductQuantity(index,
-                                                  product.quantity - 1);
-                                            }
-                                          },
-                                        ),
-                                        Text('${product.quantity}'),
-                                        IconButton(
-                                          icon: const Icon(Icons.add),
-                                          onPressed: () {
+                                child: ListTile(
+                                  title: Text(product.productName),
+                                  subtitle: Text(
+                                      'Giá: ${product.price}đ x ${product.quantity}'),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.remove),
+                                        onPressed: () {
+                                          if (product.quantity > 1) {
                                             _updateProductQuantity(index,
-                                                product.quantity + 1);
-                                          },
-                                        ),
-                                      ],
-                                    ),
+                                                product.quantity - 1);
+                                          }
+                                        },
+                                      ),
+                                      Text('${product.quantity}'),
+                                      IconButton(
+                                        icon: const Icon(Icons.add),
+                                        onPressed: () {
+                                          _updateProductQuantity(index,
+                                              product.quantity + 1);
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              );
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Tổng cộng:',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            '${choThanhToan.fold<double>(0.0, (sum, item) => sum + item.price * item.quantity)}đ',
+                            style: const TextStyle(
+                                fontSize: 18, color: Colors.red),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {},
+                            child: const Text("Mua tiếp"),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              if (choThanhToan.isNotEmpty) {
+                                setState(() {
+                                  choDuyet.addAll(choThanhToan);
+                                  choThanhToan.clear();
+                                });
+                              Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ThanhToanScreen()),);
+                              }
                             },
+                            child: const Text("Thanh toán"),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Text(
-                              'Tổng cộng:',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              '${productsInCart.fold<double>(0.0, (sum, item) => sum + item.price * item.quantity)}đ',
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.red),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {},
-                                child: const Text("Mua tiếp"),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (productsInCart.isNotEmpty) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (_) => const AlertDialog(
-                                        title: Text("Thanh toán"),
-                                        content:
-                                            Text("Đã thanh toán thành công!"),
-                                      ),
-                                    );
-                                  }
-                                },
-                                child: const Text("Thanh toán"),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Các tab còn lại
-                    const Center(child: Text("Chờ duyệt")),
-                    const Center(child: Text("Đã duyệt")),
-                    const Center(child: Text("Đang giao")),
-                    const Center(child: Text("Đã mua")),
-                  ],
-                ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+
+                  // Tab 2: Chờ duyệt (có nút hủy đơn)
+                  _buildOrderStatusList("Chờ duyệt", choDuyet,
+                      allowCancel: true),
+
+                  // Tab 3: Đã duyệt
+                  _buildOrderStatusList("Đã duyệt", daDuyet),
+
+                  // Tab 4: Đang giao
+                  _buildOrderStatusList("Đang giao", dangGiao),
+
+                  // Tab 5: Đã mua
+                  _buildOrderStatusList("Đã mua", daMua),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
