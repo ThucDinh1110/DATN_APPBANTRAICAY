@@ -41,20 +41,24 @@ class _WelcomePageState extends State<WelcomePage> {
                 SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => LoginPage()));
                   },
                   child: Text("Log In"),
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green, minimumSize: Size(double.infinity, 50)),
+                      backgroundColor: Colors.green,
+                      minimumSize: Size(double.infinity, 50)),
                 ),
                 SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => SignupPage()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => SignupPage()));
                   },
                   child: Text("Sign Up"),
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.lightGreen, minimumSize: Size(double.infinity, 50)),
+                      backgroundColor: Colors.lightGreen,
+                      minimumSize: Size(double.infinity, 50)),
                 ),
               ],
             ),

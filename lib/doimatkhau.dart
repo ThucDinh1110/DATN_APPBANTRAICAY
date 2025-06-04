@@ -1,15 +1,18 @@
+import 'package:apptraicay/dangky.dart';
 import 'package:apptraicay/dangnhap.dart';
+import 'package:apptraicay/matkhaumoi.dart';
+import 'package:apptraicay/trangchu.dart';
 import 'package:apptraicay/welcome.dart';
 import 'package:flutter/material.dart';
 
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+class changepasswordPage extends StatefulWidget {
+  const changepasswordPage({super.key});
 
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  State<changepasswordPage> createState() => _changepasswordPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
+class _changepasswordPageState extends State<changepasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,26 +27,13 @@ class _SignupPageState extends State<SignupPage> {
               icon: const Icon(Icons.arrow_back,
                   color: Color.fromARGB(255, 6, 0, 0), size: 30),
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => WelcomePage()));
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (context) => HomePage()),
+                    (Route<dynamic> route) => false,
+                    );
               },
             ),
           ),
-          Positioned(
-              top: 40,
-              right: 16,
-              child: TextButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => LoginPage()));
-                  },
-                  child: Text(
-                    "Log In",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
-                  ))),
 
           // Phần khung trắng đăng nhập
           Center(
@@ -66,7 +56,7 @@ class _SignupPageState extends State<SignupPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      "Sign Up",
+                      "Change Password",
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -75,21 +65,7 @@ class _SignupPageState extends State<SignupPage> {
                     const SizedBox(height: 24),
                     TextField(
                       decoration: const InputDecoration(
-                        labelText: "Username",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      decoration: const InputDecoration(
-                        labelText: "Phone",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      decoration: const InputDecoration(
-                        labelText: "Email",
+                        labelText: "password",
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -97,20 +73,46 @@ class _SignupPageState extends State<SignupPage> {
                     TextField(
                       obscureText: true,
                       decoration: const InputDecoration(
-                        labelText: "Password",
+                        labelText: "new password",
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
+                      obscureText: true,
                       decoration: const InputDecoration(
-                        labelText: "Address",
+                        labelText: "re-enter new password",
                         border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        // Hiện dialog
+                        await showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Thành công'),
+                            content: const Text('Bạn đã đổi mật khẩu thành công.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // đóng dialog
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        // Sau khi dialog đóng thì chuyển trang
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const HomePage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 14),
@@ -119,7 +121,7 @@ class _SignupPageState extends State<SignupPage> {
                         ),
                         backgroundColor: Colors.green,
                       ),
-                      child: const Text("Log In"),
+                      child: const Text("Xác nhận"),
                     ),
                     const SizedBox(height: 16),
                   ],

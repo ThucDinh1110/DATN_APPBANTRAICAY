@@ -24,28 +24,30 @@ class _LoginPageState extends State<LoginPage> {
             top: 40,
             left: 16,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 6, 0, 0), size: 30),
+              icon: const Icon(Icons.arrow_back,
+                  color: Color.fromARGB(255, 6, 0, 0), size: 30),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => WelcomePage()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => WelcomePage()));
               },
             ),
           ),
 
           Positioned(
-            top: 40,
-            right: 16,
-            child: TextButton(
-              onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => SignupPage()));
-              }, 
-              child: Text(
-                "Sign Up",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold
-                ),
-              ))),
+              top: 40,
+              right: 16,
+              child: TextButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => SignupPage()));
+                  },
+                  child: Text(
+                    "Sign Up",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
+                  ))),
 
           // Phần khung trắng đăng nhập
           Center(
@@ -92,10 +94,19 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
+<<<<<<< HEAD
                         Navigator.push(context, MaterialPageRoute(builder: (context) => HomeManagementPage()));
+=======
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                          (Route<dynamic> route) => false,
+                        );
+>>>>>>> 1bf6a8d (Cap nhat cua thuc lan 2)
                       },
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -106,7 +117,10 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => forgotpasswordPage()));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => forgotpasswordPage()));
                       },
                       child: const Text("Forgot password?"),
                     ),

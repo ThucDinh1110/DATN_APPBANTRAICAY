@@ -54,9 +54,15 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> with SingleTick
             top: 40,
             left: 16,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 6, 0, 0), size: 30),
+              icon: const Icon(Icons.arrow_back,
+                  color: Color.fromARGB(255, 6, 0, 0), size: 30),
               onPressed: () {
+<<<<<<< HEAD
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+=======
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => LoginPage()));
+>>>>>>> 1bf6a8d (Cap nhat cua thuc lan 2)
               },
             ),
           ),
@@ -80,6 +86,7 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> with SingleTick
                         blurRadius: 10,
                         offset: Offset(0, 4),
                       ),
+<<<<<<< HEAD
                     ],
                   ),
                   child: Column(
@@ -90,8 +97,55 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> with SingleTick
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
+=======
+                    ),
+                    const SizedBox(height: 24),
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: "Phone",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        labelText: "Email",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Gửi xác nhận thành công'),
+                            content: const Text('Vui lòng nhập lại mật khẩu mới.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // đóng dialog
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => newpasswordPage()));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+>>>>>>> 1bf6a8d (Cap nhat cua thuc lan 2)
                         ),
                       ),
+<<<<<<< HEAD
                       const SizedBox(height: 24),
                       TextField(
                         decoration: const InputDecoration(
@@ -130,6 +184,12 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> with SingleTick
                       const SizedBox(height: 16),
                     ],
                   ),
+=======
+                      child: const Text("Send"),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+>>>>>>> 1bf6a8d (Cap nhat cua thuc lan 2)
                 ),
               ),
             ),

@@ -22,9 +22,11 @@ class _newpasswordPageState extends State<newpasswordPage> {
             top: 40,
             left: 16,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color.fromARGB(255, 6, 0, 0), size: 30),
+              icon: const Icon(Icons.arrow_back,
+                  color: Color.fromARGB(255, 6, 0, 0), size: 30),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => LoginPage()));
               },
             ),
           ),
@@ -73,11 +75,30 @@ class _newpasswordPageState extends State<newpasswordPage> {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                      onPressed: () async {
+                        await showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Thành công'),
+                            content: const Text('Mật khẩu mới đã được đặt thành công.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // đóng dialog
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),
+                        );
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()));
                       },
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -86,7 +107,6 @@ class _newpasswordPageState extends State<newpasswordPage> {
                       child: const Text("Confirm"),
                     ),
                     const SizedBox(height: 16),
-                    
                   ],
                 ),
               ),
