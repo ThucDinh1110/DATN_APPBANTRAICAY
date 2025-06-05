@@ -1,4 +1,7 @@
-import 'package:apptraicay/qlssanpham.dart';
+import 'package:apptraicay/qlkhachhang.dart';
+import 'package:apptraicay/qlkho.dart';
+import 'package:apptraicay/qlsanpham.dart';
+import 'package:apptraicay/qlsdonhang.dart';
 import 'package:flutter/material.dart';
 
 class HomeManagementPage extends StatefulWidget {
@@ -30,6 +33,12 @@ class _HomeManagementPageState extends State<HomeManagementPage> {
               color: const Color(0xFF43A047), // xanh lá tươi sáng
               onTap: () {
                 print("Quản lý khách hàng");
+                 Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>QuanLyKhachHangAdmin(),
+                            ),
+                          );
               },
             ),
             _buildMenuButton(
@@ -38,6 +47,12 @@ class _HomeManagementPageState extends State<HomeManagementPage> {
               color: const Color(0xFFFFEB3B), // vàng chanh rực rỡ
               onTap: () {
                 print("Quản lý kho");
+                  Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => qlkhoAdmin(),
+                            ),
+                          );
               },
             ),
             _buildMenuButton(
@@ -46,6 +61,12 @@ class _HomeManagementPageState extends State<HomeManagementPage> {
               color: const Color(0xFFFF7043), // cam sáng nóng
               onTap: () {
                 print("Quản lý sản phẩm");
+                 Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => qlsanphamAdmin(),
+                            ),
+                          );
               },
             ),
             _buildMenuButton(

@@ -5,13 +5,19 @@ class ProductItemModel {
   final int id;
   final double price;
   int quantity;
+  final String customerName; // Người đặt
+  final DateTime orderDate; // Ngày đặt
 
   ProductItemModel({
     required this.id,
     required this.productName,
     required this.price,
+    required this.customerName,
+    required this.orderDate,
     this.quantity = 1,
   });
+
+  double get totalPrice => price * quantity;
 }
 
 class QuanLyDonHangAdmin extends StatefulWidget {
@@ -23,8 +29,22 @@ class QuanLyDonHangAdmin extends StatefulWidget {
 
 class _QuanLyDonHangAdminState extends State<QuanLyDonHangAdmin> {
   List<ProductItemModel> choDuyet = [
-    ProductItemModel(id: 1, productName: "Xoài", price: 15000, quantity: 2),
-    ProductItemModel(id: 2, productName: "Cam", price: 12000, quantity: 3),
+    ProductItemModel(
+      id: 1,
+      productName: "Xoài",
+      price: 15000,
+      quantity: 2,
+      customerName: "Nguyễn Văn A",
+      orderDate: DateTime(2025, 6, 4),
+    ),
+    ProductItemModel(
+      id: 2,
+      productName: "Cam",
+      price: 12000,
+      quantity: 3,
+      customerName: "Trần Thị B",
+      orderDate: DateTime(2025, 6, 5),
+    ),
   ];
 
   List<ProductItemModel> daDuyet = [];
@@ -54,9 +74,16 @@ class _QuanLyDonHangAdminState extends State<QuanLyDonHangAdmin> {
                 margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                 child: ListTile(
                   leading: const Icon(Icons.receipt_long, color: Colors.blue),
-                  title: Text(item.productName),
-                  subtitle:
-                      Text('Số lượng: ${item.quantity} | Giá: ${item.price}đ'),
+                  title: Text('${item.productName} - ${item.customerName}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Ngày đặt: ${item.orderDate.day}/${item.orderDate.month}/${item.orderDate.year}'),
+                      Text('Số lượng: ${item.quantity}'),
+                      Text('Đơn giá: ${item.price.toStringAsFixed(0)}đ'),
+                      Text('Tổng tiền: ${item.totalPrice.toStringAsFixed(0)}đ'),
+                    ],
+                  ),
                   trailing: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -72,8 +99,7 @@ class _QuanLyDonHangAdminState extends State<QuanLyDonHangAdmin> {
                               items.removeAt(index);
                             });
                           },
-                          child: const Text("Xóa",
-                              style: TextStyle(color: Colors.red)),
+                          child: const Text("Xóa", style: TextStyle(color: Colors.red)),
                         ),
                     ],
                   ),
@@ -103,22 +129,13 @@ class _QuanLyDonHangAdminState extends State<QuanLyDonHangAdmin> {
         ),
         body: TabBarView(
           children: [
-            // Chờ duyệt -> Đã duyệt
             _buildAdminOrderList("Chờ duyệt", choDuyet,
                 nextList: daDuyet, nextLabel: "Duyệt"),
-
-            // Đã duyệt -> Đang giao
             _buildAdminOrderList("Đã duyệt", daDuyet,
                 nextList: dangGiao, nextLabel: "Giao hàng"),
-
-            // Đang giao -> Đã mua
             _buildAdminOrderList("Đang giao", dangGiao,
                 nextList: daMua, nextLabel: "Hoàn tất"),
-
-            // Đã mua (chỉ xem)
             _buildAdminOrderList("Đã mua", daMua),
-
-            // Đơn hủy (có thể xóa)
             _buildAdminOrderList("Đơn đã hủy", donHangDaHuy, canDelete: true),
           ],
         ),
