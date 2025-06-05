@@ -43,7 +43,8 @@ class _DonhangState extends State<Donhang> {
 
   List<ProductItemModel> daMua = [
     ProductItemModel(id: 8, productName: "Bưởi", price: 18000, quantity: 2),
-    ProductItemModel(id: 9, productName: "Lê Hàn Quốc", price: 35000, quantity: 1),
+    ProductItemModel(
+        id: 9, productName: "Lê Hàn Quốc", price: 35000, quantity: 1),
   ];
 
   List<ProductItemModel> donHangDaHuy = [
@@ -117,21 +118,25 @@ class _DonhangState extends State<Donhang> {
     return DefaultTabController(
       length: 5,
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: const Text("Đơn hàng của bạn"),
-          bottom: const TabBar(
-            isScrollable: true,
-            labelColor: Colors.orangeAccent,
-            unselectedLabelColor: Colors.black,
-            indicatorColor: Colors.orange,
-            tabs: [
-              Tab(text: 'Chờ duyệt'),
-              Tab(text: 'Đã duyệt'),
-              Tab(text: 'Đang giao'),
-              Tab(text: 'Đã mua'),
-              Tab(text: 'Đơn hàng đã hủy'),
-            ],
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(48), // hoặc nhỏ hơn tùy bạn
+          child: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            automaticallyImplyLeading: false, // nếu không muốn nút back
+            bottom: const TabBar(
+              isScrollable: true,
+              labelColor: Colors.orangeAccent,
+              unselectedLabelColor: Colors.black,
+              indicatorColor: Colors.orange,
+              tabs: [
+                Tab(text: 'Chờ duyệt'),
+                Tab(text: 'Đã duyệt'),
+                Tab(text: 'Đang giao'),
+                Tab(text: 'Đã mua'),
+                Tab(text: 'Đơn hàng đã hủy'),
+              ],
+            ),
           ),
         ),
         body: Column(

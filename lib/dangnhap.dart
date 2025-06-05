@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: () {
                         Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (context) => HomeManagementPage()),
+                          MaterialPageRoute(builder: (context) => HomePage()),
                           (Route<dynamic> route) => false,
                         );
                       },

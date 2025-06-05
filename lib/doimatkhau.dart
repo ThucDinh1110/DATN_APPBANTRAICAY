@@ -1,3 +1,4 @@
+import 'package:apptraicay/caidat.dart';
 import 'package:apptraicay/dangky.dart';
 import 'package:apptraicay/dangnhap.dart';
 import 'package:apptraicay/matkhaumoi.dart';
@@ -28,7 +29,7 @@ class _changepasswordPageState extends State<changepasswordPage> {
                   color: Color.fromARGB(255, 6, 0, 0), size: 30),
               onPressed: () {
                 Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (context) => HomePage()),
+                    MaterialPageRoute(builder: (context) => CaiDatPage()),
                     (Route<dynamic> route) => false,
                     );
               },
