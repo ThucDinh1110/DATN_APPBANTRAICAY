@@ -12,59 +12,81 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
+    final Color buttonColor =  Color.fromRGBO(95, 179, 249, 1); // Xanh mint
+
     return Scaffold(
       body: Stack(
         children: [
-          // Background image
-          Positioned.fill(
-            child: Image.asset(
-              'assets/welcome2.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-          // Overlay and content
+        
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            color: Colors.black.withOpacity(0.3), // làm mờ hình nền
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Hello!",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold)),
-                SizedBox(height: 12),
-                Text("Find and order\nhigh quality\nfruits & vegetables",
-                    style: TextStyle(color: Colors.white70, fontSize: 18)),
-                SizedBox(height: 40),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => LoginPage()));
-                  },
-                  child: Text("Log In"),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      minimumSize: Size(double.infinity, 50)),
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => SignupPage()));
-                  },
-                  child: Text("Sign Up"),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.lightGreen,
-                      minimumSize: Size(double.infinity, 50)),
-                ),
-              ],
+            color:  Color.fromRGBO(95, 179, 249, 1),
+            child: Align(
+              alignment: Alignment.centerLeft, // Canh giữa theo chiều dọc, trái theo chiều ngang
+              child: Column(
+                mainAxisSize: MainAxisSize.min, // Để căn giữa dọc gọn hơn
+                crossAxisAlignment: CrossAxisAlignment.center, // ✅ Căn trái
+                children: [
+                  Image.asset(
+                    "assets/welcome2.jpg",
+                    height: 180,
+                    width: 180,
+                    fit: BoxFit.cover,
+                    
+                  ),
+                
+                  SizedBox(height: 50),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => LoginPage()));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: buttonColor,
+                      foregroundColor: Colors.white,
+                      elevation: 3,
+                      minimumSize: Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text(
+                      "Log In",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => SignupPage()));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: buttonColor,
+                      foregroundColor: Colors.white,
+                      elevation: 3,
+                      minimumSize: Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text(
+                      "Sign Up",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+
             ),
+  
           ),
+          
         ],
       ),
+     
     );
   }
 }

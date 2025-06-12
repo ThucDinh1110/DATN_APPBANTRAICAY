@@ -15,7 +15,7 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFA8E6A3),
+      backgroundColor: const Color.fromRGBO(95, 179, 249, 1),
       body: Stack(
         children: [
           // Nút quay lại nằm ở ngoài nền trắng
@@ -56,7 +56,7 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> {
                       "Forgot Password",
                       style: TextStyle(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -98,12 +98,15 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> {
                                 builder: (context) => newpasswordPage()));
                       },
                       style: ElevatedButton.styleFrom(
+                        
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        backgroundColor: Colors.green,
+                        backgroundColor:Color.fromRGBO(95, 179, 249, 1),
+                         
+                      foregroundColor: Colors.white,
                       ),
                       child: const Text("Send"),
                     ),
