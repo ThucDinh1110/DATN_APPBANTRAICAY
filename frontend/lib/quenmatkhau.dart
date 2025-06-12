@@ -61,17 +61,46 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> {
                     ),
                     const SizedBox(height: 24),
                     TextField(
-                      decoration: const InputDecoration(
+                      //controller: _matkhauController,
+                      obscureText: true,
+                      decoration: InputDecoration(
                         labelText: "Phone",
-                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.phone, color: Colors.blueAccent),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Colors.blueAccent, width: 2),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
+                      //controller: _matkhauController,
                       obscureText: true,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Email",
-                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.email, color: Colors.blueAccent),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Colors.blueAccent, width: 2),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),

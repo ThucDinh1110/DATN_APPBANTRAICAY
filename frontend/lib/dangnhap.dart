@@ -7,6 +7,7 @@ import 'package:apptraicay/quanly.dart';
 import 'package:apptraicay/quenmatkhau.dart';
 import 'package:apptraicay/trangchu.dart';
 import 'package:apptraicay/welcome.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -28,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final url = Uri.parse('http://127.0.0.1:8000/api/login');
+    final url = Uri.parse('http://10.0.2.2:8000/api/login');
 
     try {
       final response = await http.post(
@@ -43,6 +44,12 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['token'];
+        final user = data['user'];
+        final userId = user['UserID'];
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('user_id', userId); // ✅ Lưu user_id để dùng sau
+
         print("Đăng nhập thành công: $data");
 
         Navigator.pushAndRemoveUntil(

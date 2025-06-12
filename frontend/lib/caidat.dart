@@ -1,3 +1,4 @@
+import 'package:apptraicay/dangnhap.dart';
 import 'package:flutter/material.dart';
 import 'package:apptraicay/doimatkhau.dart'; // Đảm bảo đường dẫn đúng
 import 'package:apptraicay/welcome.dart'; // Giả sử đăng xuất quay về màn hình Welcome
@@ -32,7 +33,7 @@ class CaiDatPage extends StatelessWidget {
                 // Xử lý đăng xuất tại đây (nếu cần xóa session/token)
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const WelcomePage()),
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
                   (route) => false,
                 );
               },

@@ -14,7 +14,7 @@ class _newpasswordPageState extends State<newpasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFA8E6A3),
+      backgroundColor: const Color.fromRGBO(95, 179, 249, 1),
       body: Stack(
         children: [
           // Nút quay lại nằm ở ngoài nền trắng
@@ -55,22 +55,51 @@ class _newpasswordPageState extends State<newpasswordPage> {
                       "New Password",
                       style: TextStyle(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                     const SizedBox(height: 24),
                     TextField(
-                      decoration: const InputDecoration(
+                      //controller: _matkhauController,
+                      obscureText: true,
+                      decoration: InputDecoration(
                         labelText: "Password",
-                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.lock, color: Colors.blueAccent),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Colors.blueAccent, width: 2),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
+                      //controller: _matkhauController,
                       obscureText: true,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Re-enter password",
-                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.lock, color: Colors.blueAccent),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(color: Colors.blueAccent, width: 2),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -97,12 +126,15 @@ class _newpasswordPageState extends State<newpasswordPage> {
                                 builder: (context) => LoginPage()));
                       },
                       style: ElevatedButton.styleFrom(
+                        
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        backgroundColor: Colors.green,
+                        backgroundColor:Color.fromRGBO(95, 179, 249, 1),
+                         
+                      foregroundColor: Colors.white,
                       ),
                       child: const Text("Confirm"),
                     ),

@@ -1,22 +1,12 @@
+import 'dart:convert';
+
 import 'package:apptraicay/caidat.dart';
 import 'package:apptraicay/donhang.dart';
 import 'package:apptraicay/giohang.dart';
 import 'package:apptraicay/thongtincanhan.dart';
 import 'package:flutter/material.dart';
-
-class ProductItemModel {
-  final String productName;
-  final int id;
-  final double price;
-  int quantity;
-
-  ProductItemModel({
-    required this.id,
-    required this.productName,
-    required this.price,
-    this.quantity = 1,
-  });
-}
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,13 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController tk_sp = TextEditingController();
   int _currentIndex = 0;
-
-  List<ProductItemModel> productsInCart = [
-    ProductItemModel(id: 1, productName: "Táo", price: 10000, quantity: 2),
-    ProductItemModel(id: 2, productName: "Chuối", price: 8000, quantity: 3),
-    ProductItemModel(id: 3, productName: "Xoài", price: 15000, quantity: 1),
-    ProductItemModel(id: 4, productName: "Mận", price: 12000, quantity: 4),
-  ];
+  int _cartItemCount = 0;
 
   final List<Widget> _tabs = [
     const HomeTabContent(),
@@ -43,16 +27,32 @@ class _HomePageState extends State<HomePage> {
     const CaiDatPage(),
   ];
 
-  void _removeProduct(int index) {
-    setState(() {
-      productsInCart.removeAt(index);
-    });
+  @override
+  void initState() {
+    super.initState();
+    fetchCartItemCount();
   }
 
-  void _updateProductQuantity(int index, int newQuantity) {
-    setState(() {
-      productsInCart[index].quantity = newQuantity;
-    });
+  Future<void> fetchCartItemCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id');
+
+    if (userId == null) return;
+
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/api/countCartItems?user_id=$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          _cartItemCount = data['count'] ?? 0;
+        });
+      }
+    } catch (e) {
+      print("Lỗi lấy số lượng sản phẩm giỏ hàng: $e");
+    }
   }
 
   @override
@@ -61,45 +61,45 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.green,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: _currentIndex == 0
-      ? null
-      : Text(
-          _currentIndex == 1
-              ? 'Thông tin cá nhân'
-              : _currentIndex == 2
-                  ? 'Đơn hàng'
-                  : 'Cài đặt',
-          style: const TextStyle(color: Colors.white),
-        ),
-  automaticallyImplyLeading: false,
-        actions: [
-          if(_currentIndex == 0)
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.green),
-                borderRadius: BorderRadius.circular(30),
-                color: Colors.white,
+            ? null
+            : Text(
+                _currentIndex == 1
+                    ? 'Thông tin cá nhân'
+                    : _currentIndex == 2
+                        ? 'Đơn hàng'
+                        : 'Cài đặt',
+                style: const TextStyle(color: Colors.white),
               ),
-              child: Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12.0),
-                    child: Icon(Icons.search, color: Colors.orange),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: tk_sp,
-                      decoration: const InputDecoration(
-                        hintText: 'Tìm sản phẩm',
-                        border: InputBorder.none,
+        actions: [
+          if (_currentIndex == 0)
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.green),
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.white,
+                ),
+                child: Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Icon(Icons.search, color: Colors.orange),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: tk_sp,
+                        decoration: const InputDecoration(
+                          hintText: 'Tìm sản phẩm',
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
           Stack(
             children: [
               IconButton(
@@ -108,27 +108,30 @@ class _HomePageState extends State<HomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const Giohang()),
-                  );
+                  ).then((_) {
+                    fetchCartItemCount(); // cập nhật lại khi quay về
+                  });
                 },
               ),
-              Positioned(
-                right: 0,
-                top: -2,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '${productsInCart.fold(0, (sum, item) => sum + item.quantity)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
+              if (_cartItemCount > 0)
+                Positioned(
+                  right: 0,
+                  top: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '$_cartItemCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ],
@@ -172,7 +175,7 @@ class HomeTabContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text(
         'Trang chủ - Danh sách sản phẩm ở đây',
         style: TextStyle(fontSize: 18),
