@@ -35,7 +35,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/api/getUserProfile?user_id=$userId'),
+        Uri.parse('http://127.0.0.1:8000/api/getUserProfile?user_id=$userId'),
       );
 
       if (response.statusCode == 200) {
@@ -65,7 +65,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return;
   }
 
-  final url = Uri.parse('http://10.0.2.2:8000/api/updateUserProfile');
+  final url = Uri.parse('http://127.0.0.1:8000/api/updateUserProfile');
 
   try {
     final response = await http.post(

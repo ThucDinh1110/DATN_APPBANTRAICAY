@@ -1,12 +1,13 @@
-import 'dart:convert';
-
-import 'package:apptraicay/caidat.dart';
-import 'package:apptraicay/donhang.dart';
-import 'package:apptraicay/giohang.dart';
-import 'package:apptraicay/thongtincanhan.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'caidat.dart';
+import 'donhang.dart';
+import 'giohang.dart';
+import 'thongtincanhan.dart';
+import 'HomeTabContent .dart'; // ✅ bỏ khoảng trắng giữa tên file
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,16 +17,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController tk_sp = TextEditingController();
   int _currentIndex = 0;
   int _cartItemCount = 0;
+  String _searchKeyword = '';
 
-  final List<Widget> _tabs = [
-    const HomeTabContent(),
-    const ProfilePage(),
-    const Donhang(),
-    const CaiDatPage(),
-  ];
+  final TextEditingController tk_sp = TextEditingController();
+
+  List<Widget> get _tabs => [
+        HomeTabContent(keyword: _searchKeyword), // ✅ truyền keyword
+        const ProfilePage(),
+        const Donhang(),
+        const CaiDatPage(),
+      ];
 
   @override
   void initState() {
@@ -41,7 +44,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/api/countCartItems?user_id=$userId'),
+        Uri.parse('http://127.0.0.1:8000/api/countCartItems?user_id=$userId'),
       );
 
       if (response.statusCode == 200) {
@@ -94,6 +97,11 @@ class _HomePageState extends State<HomePage> {
                           hintText: 'Tìm sản phẩm',
                           border: InputBorder.none,
                         ),
+                        onChanged: (value) {
+                          setState(() {
+                            _searchKeyword = value; // ✅ cập nhật từ khóa
+                          });
+                        },
                       ),
                     ),
                   ],
@@ -108,9 +116,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const Giohang()),
-                  ).then((_) {
-                    fetchCartItemCount(); // cập nhật lại khi quay về
-                  });
+                  ).then((_) => fetchCartItemCount());
                 },
               ),
               if (_cartItemCount > 0)
@@ -125,10 +131,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: Text(
                       '$_cartItemCount',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ),
                 ),
@@ -142,43 +145,13 @@ class _HomePageState extends State<HomePage> {
         currentIndex: _currentIndex,
         selectedItemColor: Colors.green,
         unselectedItemColor: Colors.grey,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: (index) => setState(() => _currentIndex = index),
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Trang chủ',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Thông tin',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt),
-            label: 'Đơn hàng',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Cài đặt',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Thông tin'),
+          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Đơn hàng'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Cài đặt'),
         ],
-      ),
-    );
-  }
-}
-
-class HomeTabContent extends StatelessWidget {
-  const HomeTabContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Trang chủ - Danh sách sản phẩm ở đây',
-        style: TextStyle(fontSize: 18),
       ),
     );
   }

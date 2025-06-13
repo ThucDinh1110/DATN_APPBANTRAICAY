@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GiohangController;
 use App\Http\Controllers\InfoController;
-
+use App\Http\Controllers\SanphamController;
+// Load Sản phẩm
+Route::get('/sanpham', [SanphamController::class, 'getAll']);
 // Đăng ký
 Route::post('/register', [AuthController::class, 'register']);
 
