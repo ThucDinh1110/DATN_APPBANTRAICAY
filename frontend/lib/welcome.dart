@@ -12,7 +12,7 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
-    final Color buttonColor =  Color.fromRGBO(95, 179, 249, 1); // Xanh mint
+    final Color buttonColor = Colors.white.withOpacity(0.2); 
 
     return Scaffold(
       body: Stack(
@@ -51,7 +51,7 @@ class _WelcomePageState extends State<WelcomePage> {
                       ),
                     ),
                     child: Text(
-                      "Log In",
+                      "Đăng Nhập",
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ),
@@ -72,7 +72,7 @@ class _WelcomePageState extends State<WelcomePage> {
                       ),
                     ),
                     child: Text(
-                      "Sign Up",
+                      "Đăng Ký",
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ),

@@ -84,7 +84,7 @@ class _SignupPageState extends State<SignupPage> {
                     MaterialPageRoute(builder: (context) => const LoginPage()));
               },
               child: const Text(
-                "Log In",
+                "Đăng nhập",
                 style: TextStyle(
                     color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -96,7 +96,7 @@ class _SignupPageState extends State<SignupPage> {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.white.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: const [
                     BoxShadow(
@@ -112,15 +112,15 @@ class _SignupPageState extends State<SignupPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text(
-                        "Sign Up",
+                        "Đăng Ký",
                         style: TextStyle(
-                            fontSize: 24, fontStyle: FontStyle.italic),
+                            fontSize: 24, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 24),
                       TextFormField(
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
-                        decoration: _inputDecoration("Phone", Icons.phone),
+                        decoration: _inputDecoration("Số điện Thoại Đăng Ký", Icons.phone),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Vui lòng nhập số điện thoại';
@@ -135,7 +135,7 @@ class _SignupPageState extends State<SignupPage> {
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
-                        decoration: _inputDecoration("Password", Icons.lock),
+                        decoration: _inputDecoration("Mật Khẩu", Icons.lock),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Vui lòng nhập mật khẩu';
@@ -152,7 +152,7 @@ class _SignupPageState extends State<SignupPage> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _nameController,
-                        decoration: _inputDecoration("Username", Icons.person),
+                        decoration: _inputDecoration("Họ Tên", Icons.person),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Vui lòng nhập tên người dùng';
@@ -192,7 +192,7 @@ class _SignupPageState extends State<SignupPage> {
                           backgroundColor:
                               const Color.fromRGBO(95, 179, 249, 1),
                         ),
-                        child: const Text("Sign Up",
+                        child: const Text("Đăng Ký",
                             style: TextStyle(fontSize: 16,color:Colors.white),),
                       ),
                       const SizedBox(height: 16),

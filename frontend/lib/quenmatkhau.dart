@@ -39,7 +39,7 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.white.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
@@ -53,7 +53,7 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      "Forgot Password",
+                      "Quên Mật Khẩu",
                       style: TextStyle(
                         fontSize: 24,
                         fontStyle: FontStyle.italic,
@@ -64,7 +64,7 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> {
                       //controller: _matkhauController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: "Phone",
+                        labelText: "Điện Thoại",
                         prefixIcon: Icon(Icons.phone, color: Colors.blueAccent),
                         filled: true,
                         fillColor: Colors.grey[100],
@@ -137,7 +137,7 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> {
                          
                       foregroundColor: Colors.white,
                       ),
-                      child: const Text("Send"),
+                      child: const Text("Gửi Xác Nhận"),
                     ),
                     const SizedBox(height: 16),
                   ],

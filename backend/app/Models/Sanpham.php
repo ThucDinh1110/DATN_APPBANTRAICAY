@@ -18,5 +18,9 @@ class Sanpham extends Model
     {
         return $this->belongsToMany(Danhmuc::class, 'sanpham_danhmuc', 'Idsp', 'DanhmucID');
     }
+    public function kho()
+{
+    return $this->hasOne(Kho::class, 'SanphamID', 'Idsp');
+}
 }
 

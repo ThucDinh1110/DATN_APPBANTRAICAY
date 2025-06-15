@@ -42,6 +42,14 @@ class _HomeTabContentState extends State<HomeTabContent> {
                 .toList();
           }
 
+          // ✅ Tìm số lượng tồn nhỏ nhất
+          if (sanPhams.isEmpty) {
+  return const Center(child: Text('Không tìm thấy sản phẩm nào.'));
+}
+
+int minSoLuong = sanPhams.map((sp) => sp.soluongton).reduce((a, b) => a < b ? a : b);
+
+
           // ✅ Nhóm sản phẩm theo danh mục
           final Map<String, List<SanPham>> danhMucMap = {};
           for (var sp in sanPhams) {
@@ -70,7 +78,7 @@ class _HomeTabContentState extends State<HomeTabContent> {
                     ),
                   ),
                   SizedBox(
-                    height: 250,
+                    height: 200,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: spList.length,
@@ -78,8 +86,8 @@ class _HomeTabContentState extends State<HomeTabContent> {
                       itemBuilder: (context, index) {
                         final sp = spList[index];
                         return Container(
-                          width: 160,
-                          margin: const EdgeInsets.symmetric(horizontal: 8),
+                          width: 180,
+                          margin: const EdgeInsets.only(right: 12),
                           child: InkWell(
                             onTap: () {
                               Navigator.push(
@@ -89,39 +97,83 @@ class _HomeTabContentState extends State<HomeTabContent> {
                                 ),
                               );
                             },
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 4,
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.shopping_bag,
-                                        size: 50, color: Colors.orange),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      sp.ten,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
+                            child: Stack(
+                              children: [
+                                Card(
+                                  color: Colors.white.withOpacity(0.9),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    side: const BorderSide(color: Colors.grey, width: 0.5),
+                                  ),
+                                  elevation: 6,
+                                  shadowColor: Colors.black12,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Ảnh sản phẩm
+                                        Image.asset(
+                                          'assets/${sp.hinhanh}',
+                                          height: 120,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        ),
+                                        Expanded( // Bọc nội dung trong Expanded
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Đẩy tên lên, giá xuống
+                                              children: [
+                                                Text(
+                                                  sp.ten,
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  '${sp.gia.toStringAsFixed(0)} VNĐ / ${sp.donvi}',
+                                                  style: const TextStyle(
+                                                    color: Colors.redAccent,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const Spacer(),
-                                    Text(
-                                      '${sp.gia.toStringAsFixed(0)} đ / ${sp.donvi}',
-                                      style: const TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
+                                // Hiển thị badge nếu số lượng tồn nhỏ hơn 400     
+                                if (sp.soluongton < 400)
+                                  Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.redAccent.shade100,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child:  Text(
+                                        sp.soluongton == minSoLuong ? '🔥🔥🔥Cháy Hàng' : '🔥Cháy hàng',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
                         );

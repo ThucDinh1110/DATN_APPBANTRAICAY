@@ -8,12 +8,17 @@ class SanphamController extends Controller
 {
     public function getAll()
     {
-        // Lấy sản phẩm + chi tiết + danh mục, chỉ sản phẩm có trạng thái = 1
-        $data = Sanpham::with(['chitiet', 'danhmucs'])
+        // Lấy sản phẩm + chi tiết + danh mục + kho
+        $data = Sanpham::with(['chitiet', 'danhmucs', 'kho'])
             ->where('Trangthai', 1)
             ->get();
 
-        // Gộp dữ liệu chi tiết và danh mục
+        // Chỉ giữ sản phẩm có tồn kho > 0
+        $data = $data->filter(function ($sp) {
+            return $sp->kho && $sp->kho->Soluongton > 0;
+        });
+
+        // Gộp dữ liệu chi tiết + danh mục + tồn kho
         $result = $data->map(function ($sp) {
             return [
                 'Idsp' => $sp->Idsp,
@@ -28,12 +33,11 @@ class SanphamController extends Controller
                 'Chatxo' => $sp->chitiet->Chatxo ?? null,
                 'Duong' => $sp->chitiet->Duong ?? null,
                 'Tinhbot' => $sp->chitiet->Tinhbot ?? null,
-
-                // Danh sách tên danh mục
+                'Soluongton' => $sp->kho->Soluongton ?? 0,
                 'Danhmuc' => $sp->danhmucs->pluck('Tendanhmuc')->toArray(),
             ];
         });
 
-        return response()->json($result);
+        return response()->json($result->values()); // Đảm bảo trả về mảng chỉ số lại từ 0
     }
 }

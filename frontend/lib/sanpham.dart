@@ -10,6 +10,7 @@ class SanPham {
   final double? chatxo;
   final double? duong;
   final double? tinhbot;
+  final int soluongton;
    final List<String> danhmuc;
  
 
@@ -25,6 +26,7 @@ class SanPham {
     required this.chatxo,
     required this.duong,
     required this.tinhbot,
+    required this.soluongton,
     required this.danhmuc,
    
   });
@@ -42,6 +44,7 @@ class SanPham {
       chatxo: json['Chatxo'] != null ? double.tryParse(json['Chatxo'].toString()) : null,
       duong: json['Duong'] != null ? double.tryParse(json['Duong'].toString()) : null,
       tinhbot: json['Tinhbot'] != null ? double.tryParse(json['Tinhbot'].toString()) : null,
+      soluongton: json['Soluongton'] ?? 0,
        danhmuc: (json['Danhmuc'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
     );
   }

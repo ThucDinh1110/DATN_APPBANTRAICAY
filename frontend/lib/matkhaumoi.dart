@@ -38,7 +38,7 @@ class _newpasswordPageState extends State<newpasswordPage> {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colors.white.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
@@ -52,7 +52,7 @@ class _newpasswordPageState extends State<newpasswordPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      "New Password",
+                      "Mật Khẩu Mới",
                       style: TextStyle(
                         fontSize: 24,
                         fontStyle: FontStyle.italic,
@@ -63,7 +63,7 @@ class _newpasswordPageState extends State<newpasswordPage> {
                       //controller: _matkhauController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: "Password",
+                        labelText: "Mật khẩu mới",
                         prefixIcon: Icon(Icons.lock, color: Colors.blueAccent),
                         filled: true,
                         fillColor: Colors.grey[100],
@@ -85,7 +85,7 @@ class _newpasswordPageState extends State<newpasswordPage> {
                       //controller: _matkhauController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: "Re-enter password",
+                        labelText: "Nhập Lại",
                         prefixIcon: Icon(Icons.lock, color: Colors.blueAccent),
                         filled: true,
                         fillColor: Colors.grey[100],
@@ -136,7 +136,7 @@ class _newpasswordPageState extends State<newpasswordPage> {
                          
                       foregroundColor: Colors.white,
                       ),
-                      child: const Text("Confirm"),
+                      child: const Text("Cập Nhật"),
                     ),
                     const SizedBox(height: 16),
                   ],

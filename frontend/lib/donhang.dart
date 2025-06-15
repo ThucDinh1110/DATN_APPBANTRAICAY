@@ -142,33 +142,7 @@ class _DonhangState extends State<Donhang> {
         body: Column(
           children: [
             // Tìm kiếm sản phẩm đơn giản (chỉ giao diện)
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.lightGreen),
-                  borderRadius: BorderRadius.circular(30),
-                  color: Colors.white,
-                ),
-                child: Row(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12.0),
-                      child: Icon(Icons.search, color: Colors.lightGreen),
-                    ),
-                    Expanded(
-                      child: TextField(
-                        controller: tk_sp,
-                        decoration: const InputDecoration(
-                          hintText: 'Tìm sản phẩm',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+           
 
             Expanded(
               child: TabBarView(
