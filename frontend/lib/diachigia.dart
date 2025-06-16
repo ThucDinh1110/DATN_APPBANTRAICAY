@@ -1,5 +1,9 @@
 import 'package:apptraicay/thanhtoan.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+
 
 class DiaChiGiaoHangScreen extends StatefulWidget {
   const DiaChiGiaoHangScreen({super.key});
@@ -21,13 +25,72 @@ class _DiaChiGiaoHangScreenState extends State<DiaChiGiaoHangScreen> {
   bool _isFormValid = false; // Trạng thái form hợp lệ
 
   @override
-  void initState() {
-    super.initState();
-    hoTenController.addListener(_validateForm);
-    soDienThoaiController.addListener(_validateForm);
-    diaChiController.addListener(_validateForm);
-    quanHuyenController.addListener(_validateForm);
-    thanhPhoController.addListener(_validateForm);
+void initState() {
+  super.initState();
+  hoTenController.addListener(_validateForm);
+  soDienThoaiController.addListener(_validateForm);
+  diaChiController.addListener(_validateForm);
+  quanHuyenController.addListener(_validateForm);
+  thanhPhoController.addListener(_validateForm);
+
+  fetchAddressFromServer();
+}
+
+  Future<void> fetchAddressFromServer() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id');
+    if (userId == null) {
+      print('Chưa đăng nhập hoặc không có user_id');
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('http://127.0.0.1:8000/api/getDiaChiGiaoHang?user_id=$userId'),
+    );
+
+    if (response.statusCode == 200) {
+      print('API Response: ${response.body}');
+      final data = jsonDecode(response.body);
+      setState(() {
+        hoTenController.text = data['Hoten'] ?? '';
+        soDienThoaiController.text = data['Sodienthoai'] ?? '';
+        final diachi = data['Diachi'] ?? '';
+        final parts = diachi.split(',');
+        diaChiController.text = parts.isNotEmpty ? parts[0].trim() : '';
+        quanHuyenController.text = parts.length > 1 ? parts[1].trim() : '';
+        thanhPhoController.text = parts.length > 2 ? parts[2].trim() : '';
+      });
+    }
+  }
+
+  Future<void> updateAddressToServer() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id');
+    if (userId == null) return;
+
+    final fullDiaChi =
+        '${diaChiController.text.trim()}, ${quanHuyenController.text.trim()}, ${thanhPhoController.text.trim()}';
+
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:8000/api/update-delivery-address'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'user_id': userId,
+        'Hoten': hoTenController.text.trim(),
+        'Sodienthoai': soDienThoaiController.text.trim(),
+        'Diachi': fullDiaChi,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã lưu địa chỉ thành công')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: ${response.body}')),
+      );
+    }
   }
 
   void _validateForm() {

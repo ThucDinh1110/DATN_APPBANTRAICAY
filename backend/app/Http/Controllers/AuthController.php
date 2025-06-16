@@ -70,4 +70,25 @@ class AuthController extends Controller
         'user' => $user
     ]);
 }
+
+public function getDiaChiGiaoHang(Request $request)
+{
+    $userId = $request->query('user_id');
+
+    if (!$userId) {
+        return response()->json(['message' => 'Thiếu user_id'], 400);
+    }
+
+    $address = DB::table('diachigiaohang')->where('UserID', $userId)->first();
+
+    if (!$address) {
+        return response()->json(['message' => 'Không tìm thấy địa chỉ'], 404);
+    }
+
+    return response()->json([
+        'Hoten' => $address->Hoten,
+        'Sodienthoai' => $address->Sodienthoai,
+        'Diachi' => $address->Diachi
+    ]);
+}
 }

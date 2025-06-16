@@ -14,6 +14,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _diachiController = TextEditingController();
   final TextEditingController _chieucaoController = TextEditingController();
   final TextEditingController _cannangController = TextEditingController();
   String _gender = 'Nam';
@@ -44,6 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _nameController.text = data['Hoten'] ?? '';
           _phoneController.text = data['Sodienthoai'] ?? '';
           _emailController.text = data['Email'] ?? '';
+          _diachiController.text = (data['Diachi'] ?? '').toString();
           _chieucaoController.text = (data['Chieucao'] ?? '').toString();
           _cannangController.text = (data['Cannang'] ?? '').toString();
           _gender = data['Gioitinh'] ?? 'Nam';
@@ -76,6 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
         'hoten': _nameController.text.trim(),
         'sodienthoai': _phoneController.text.trim(),
         'email': _emailController.text.trim(),
+        'diachi':_diachiController.text.trim(),
         'gioitinh': _gender, // đã là dạng chữ "Nam", "Nữ", "Khác"
         'chieucao': int.tryParse(_chieucaoController.text.trim()) ?? 0,
         'cannang': int.tryParse(_cannangController.text.trim()) ?? 0,
@@ -101,6 +104,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
+
+
 
   Widget _buildField(String label, TextEditingController controller,
       {bool isMultiline = false, String? suffixText}) {
@@ -129,6 +134,7 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildField("Họ và tên", _nameController),
             _buildField("Số điện thoại", _phoneController),
             _buildField("Email", _emailController),
+            _buildField("Địa chỉ", _diachiController),
             _buildField("Chiều cao", _chieucaoController, suffixText: "cm"),
             _buildField("Cân nặng", _cannangController, suffixText: "kg"),
 
