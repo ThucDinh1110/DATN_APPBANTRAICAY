@@ -20,12 +20,23 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   int _cartItemCount = 0;
   String _searchKeyword = '';
-  String _tenNguoiDung = 'Bạn'; // Tên người dùng sẽ hiển thị
-
+  String _tenNguoiDung = 'Bạn';
   final TextEditingController tk_sp = TextEditingController();
+  bool _isBottomBarVisible = true;
+
+  void _handleScroll(bool isScrollingDown) {
+    if (_isBottomBarVisible != !isScrollingDown) {
+      setState(() {
+        _isBottomBarVisible = !isScrollingDown;
+      });
+    }
+  }
 
   List<Widget> get _tabs => [
-        HomeTabContent(keyword: _searchKeyword),
+        HomeTabContent(
+          keyword: _searchKeyword,
+          onScrollDirectionChange: _handleScroll,
+        ),
         const ProfilePage(),
         const Donhang(),
         const CaiDatPage(),
@@ -41,14 +52,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> fetchCartItemCount() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id');
-
     if (userId == null) return;
 
     try {
       final response = await http.get(
         Uri.parse('http://127.0.0.1:8000/api/countCartItems?user_id=$userId'),
       );
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
@@ -63,14 +72,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> fetchTenNguoiDung() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id');
-
     if (userId == null) return;
 
     try {
       final response = await http.get(
         Uri.parse('http://127.0.0.1:8000/api/getUserProfile?user_id=$userId'),
       );
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
@@ -101,17 +108,13 @@ class _HomePageState extends State<HomePage> {
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Chào mừng, $_tenNguoiDung',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        'Chào mừng, $_tenNguoiDung',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -202,17 +205,40 @@ class _HomePageState extends State<HomePage> {
           Expanded(child: _tabs[_currentIndex]),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: Color.fromRGBO(95, 179, 249, 1) ,
-        unselectedItemColor: Colors.grey.withOpacity(0.6),
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Thông tin'),
-          BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Đơn hàng'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Cài đặt'),
-        ],
+      bottomNavigationBar: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        height: _isBottomBarVisible ? kBottomNavigationBarHeight : 0,
+        child: Wrap(
+          children: [
+            ClipRRect(
+              
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+                
+              ),
+              child: BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                currentIndex: _currentIndex,
+                backgroundColor: Colors.grey[200],
+                selectedItemColor: const Color.fromRGBO(95, 179, 249, 1),
+                unselectedItemColor: Colors.black,
+                selectedFontSize: 14,
+                unselectedFontSize: 13,
+                selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+                unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400),
+                showUnselectedLabels: true,
+                onTap: (index) => setState(() => _currentIndex = index),
+                items: const [
+                  BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Trang chủ'),
+                  BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Thông tin'),
+                  BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), label: 'Đơn hàng'),
+                  BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: 'Cài đặt'),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

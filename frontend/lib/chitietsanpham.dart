@@ -1,55 +1,216 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'sanpham.dart';
 
-class chitietsppage extends StatelessWidget {
+class chitietsppage extends StatefulWidget {
   final SanPham sanPham;
 
   const chitietsppage({super.key, required this.sanPham});
 
   @override
+  State<chitietsppage> createState() => _chitietsppageState();
+}
+
+class _chitietsppageState extends State<chitietsppage> {
+  int quantity = 1;
+
+  @override
   Widget build(BuildContext context) {
+    final sanPham = widget.sanPham;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(sanPham.ten),
-        backgroundColor: Colors.green,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/${sanPham.hinhanh}',
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: Container(
+                color: Colors.black.withOpacity(0.3),
+              ),
+            ),
+          ),
+          SafeArea(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Center(
-                  child: Icon(Icons.shopping_bag, size: 80, color: Colors.green),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(Icons.arrow_back, color: Colors.white),
+                      ),
+                    
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  'Tên sản phẩm:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.asset(
+                      'assets/${sanPham.hinhanh}',
+                      height: 200,
+                      width: 200,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-                Text(sanPham.ten),
-                const SizedBox(height: 12),
-                Text(
-                  'Giá:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.25),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(color: Colors.white.withOpacity(0.4)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                sanPham.ten,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '${sanPham.gia.toStringAsFixed(0)} VNĐ/${sanPham.donvi}',
+                                    style: const TextStyle(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.3),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    child: Row(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            if (quantity > 1) setState(() => quantity--);
+                                          },
+                                          child: const CircleAvatar(
+                                            radius: 12,
+                                            backgroundColor: Colors.white,
+                                            child: Icon(Icons.remove, size: 16, color: Colors.black),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          quantity.toString(),
+                                          style: const TextStyle(color: Colors.white, fontSize: 16),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() => quantity++);
+                                          },
+                                          child: const CircleAvatar(
+                                            radius: 12,
+                                            backgroundColor: Colors.black,
+                                            child: Icon(Icons.add, size: 16, color: Colors.white),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              _buildNutritionRow(Icons.bolt, 'Vitamin A', '${sanPham.vitamina.toString()}μg'),
+                              _buildNutritionRow(Icons.eco, 'Vitamin C', '${sanPham.vitaminc} mg'),
+                              _buildNutritionRow(Icons.grass, 'Chất xơ', '${sanPham.chatxo} g'),
+                              _buildNutritionRow(Icons.cake, 'Đường', '${sanPham.duong} g'),
+                              _buildNutritionRow(Icons.rice_bowl, 'Tinh bột', '${sanPham.tinhbot} g'),
+                              const SizedBox(height: 20),
+                              Text(
+                                sanPham.mota ?? 'Mô tả sản phẩm không có sẵn',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              const SizedBox(height: 30),
+                              SizedBox(
+  width: double.infinity,
+  height: 50,
+  child: ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.blue[100],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+    ),
+    onPressed: () {},
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        Icon(Icons.shopping_cart_outlined, color: Colors.black),
+        SizedBox(width: 8),
+        Text(
+          "Thêm vào giỏ hàng",
+          style: TextStyle(fontSize: 16, color: Colors.black),
+        ),
+      ],
+    ),
+  ),
+),
+
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                Text('${sanPham.gia.toStringAsFixed(0)} đ'),
-                const SizedBox(height: 12),
-                Text(
-                  'Đơn vị tính:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(sanPham.donvi),
-                const SizedBox(height: 12),
-                // Bạn có thể thêm nhiều thông tin hơn nếu có, ví dụ mô tả, vitamin,...
               ],
             ),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNutritionRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: Colors.white),
+          const SizedBox(width: 10),
+          Text(
+            '$label: ',
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          ),
+          Text(
+            value,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ],
       ),
     );
   }

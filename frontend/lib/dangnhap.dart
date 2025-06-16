@@ -171,12 +171,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Autocomplete số điện thoại
+                    /// Autocomplete gợi ý số điện thoại
                     Autocomplete<String>(
                       optionsBuilder: (TextEditingValue textEditingValue) {
-                        if (textEditingValue.text.isEmpty) {
-                          return const Iterable<String>.empty();
-                        }
                         return _savedPhones.where((phone) =>
                             phone.contains(textEditingValue.text));
                       },
@@ -184,6 +181,11 @@ class _LoginPageState extends State<LoginPage> {
                         _sdtController.text = selection;
                       },
                       fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                        controller.text = _sdtController.text;
+                        controller.addListener(() {
+                          _sdtController.text = controller.text;
+                        });
+
                         return TextField(
                           controller: controller,
                           focusNode: focusNode,
