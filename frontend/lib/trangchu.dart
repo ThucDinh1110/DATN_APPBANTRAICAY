@@ -93,129 +93,23 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDFDFD),
-      body: Column(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              color: Color.fromRGBO(95, 179, 249, 1),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(24),
-                bottomRight: Radius.circular(24),
-              ),
-            ),
-            padding: const EdgeInsets.only(top: 25, left: 16, right: 16, bottom: 20),
-            child: _currentIndex == 0
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Chào mừng, $_tenNguoiDung',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 46,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: TextField(
-                                controller: tk_sp,
-                                decoration: const InputDecoration(
-                                  hintText: 'Tìm sản phẩm...',
-                                  hintStyle: TextStyle(fontSize: 14),
-                                  prefixIcon: Icon(Icons.search, color: Colors.orange),
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(vertical: 10),
-                                ),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _searchKeyword = value;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Stack(
-                            children: [
-                              Container(
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  icon: const Icon(Icons.shopping_cart_outlined, color: Colors.orange),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => const Giohang()),
-                                    ).then((_) => fetchCartItemCount());
-                                  },
-                                ),
-                              ),
-                              if (_cartItemCount > 0)
-                                Positioned(
-                                  right: 4,
-                                  top: 4,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white, width: 1.5),
-                                    ),
-                                    child: Text(
-                                      '$_cartItemCount',
-                                      style: const TextStyle(color: Colors.white, fontSize: 11),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  )
-                : Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: Text(
-                        _currentIndex == 1
-                            ? 'Thông tin cá nhân'
-                            : _currentIndex == 2
-                                ? 'Đơn hàng'
-                                : 'Cài đặt',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-          ),
-          Expanded(child: _tabs[_currentIndex]),
-        ],
-      ),
+      body: _currentIndex == 0
+          ? Column(
+              children: [
+                _buildHomeAppBar(),
+                Expanded(child: _tabs[_currentIndex]),
+              ],
+            )
+          : _tabs[_currentIndex],
       bottomNavigationBar: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         height: _isBottomBarVisible ? kBottomNavigationBarHeight : 0,
         child: Wrap(
           children: [
             ClipRRect(
-              
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
-                
               ),
               child: BottomNavigationBar(
                 type: BottomNavigationBarType.fixed,
@@ -239,6 +133,98 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildHomeAppBar() {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color.fromRGBO(95, 179, 249, 1),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
+      ),
+      padding: const EdgeInsets.only(top: 25, left: 16, right: 16, bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Chào mừng, $_tenNguoiDung',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: TextField(
+                    controller: tk_sp,
+                    decoration: const InputDecoration(
+                      hintText: 'Tìm sản phẩm...',
+                      hintStyle: TextStyle(fontSize: 14),
+                      prefixIcon: Icon(Icons.search, color: Colors.orange),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchKeyword = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Stack(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.shopping_cart_outlined, color: Colors.orange),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const Giohang()),
+                        ).then((_) => fetchCartItemCount());
+                      },
+                    ),
+                  ),
+                  if (_cartItemCount > 0)
+                    Positioned(
+                      right: 4,
+                      top: 4,
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        child: Text(
+                          '$_cartItemCount',
+                          style: const TextStyle(color: Colors.white, fontSize: 11),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -1,7 +1,7 @@
-import 'package:apptraicay/dangnhap.dart';
 import 'package:flutter/material.dart';
-import 'package:apptraicay/doimatkhau.dart'; // Đảm bảo đường dẫn đúng
-import 'package:apptraicay/welcome.dart'; // Giả sử đăng xuất quay về màn hình Welcome
+import 'package:apptraicay/doimatkhau.dart';
+import 'package:apptraicay/dangnhap.dart';
+import 'package:apptraicay/matkhaumoi.dart';
 
 class CaiDatPage extends StatelessWidget {
   const CaiDatPage({super.key});
@@ -9,6 +9,12 @@ class CaiDatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Cài đặt"),
+        centerTitle: true,
+        backgroundColor: Colors.green,
+        foregroundColor: Colors.white,
+      ),
       body: Column(
         children: [
           ListTile(
@@ -18,7 +24,9 @@ class CaiDatPage extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const changepasswordPage()),
+                MaterialPageRoute(
+                  builder: (context) => const ChangePasswordPage(),
+                ),
               );
             },
           ),
@@ -30,7 +38,7 @@ class CaiDatPage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton.icon(
               onPressed: () {
-                // Xử lý đăng xuất tại đây (nếu cần xóa session/token)
+                // TODO: Xóa token/session nếu cần
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginPage()),

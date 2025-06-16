@@ -124,7 +124,7 @@ class _forgotpasswordPageState extends State<forgotpasswordPage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => newpasswordPage()));
+                                builder: (context) =>ChangePasswordPage ()));
                       },
                       style: ElevatedButton.styleFrom(
                         
