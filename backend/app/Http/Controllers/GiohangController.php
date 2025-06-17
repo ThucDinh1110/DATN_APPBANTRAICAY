@@ -28,6 +28,7 @@ class GiohangController extends Controller
         ->join('chitietsanpham', 'chitietgiohang.SanphamID', '=', 'chitietsanpham.Idsp')
         ->where('chitietgiohang.IDgiohang', $giohang->IDgiohang)
         ->select(
+            'sanpham.Idsp as SanphamID', 
             'sanpham.Tensp as ten_sanpham',
             'chitietgiohang.Soluong',
             'chitietsanpham.Gia',

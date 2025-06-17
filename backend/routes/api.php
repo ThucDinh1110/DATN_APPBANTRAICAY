@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GiohangController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InfoController;
 use App\Http\Controllers\SanphamController;
 // Load Sản phẩm
@@ -15,7 +16,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 //Giỏ hàng
-Route::get('/getCart',[GiohangController::class, 'getCart']);
+Route::post('/getCart',[GiohangController::class, 'getCart']);
 
 //Đếm số lượng sản phẩm
 Route::get('/countCartItems',[GiohangController::class, 'countCartItems']);
@@ -25,3 +26,10 @@ Route::get('/getUserProfile',[InfoController::class, 'getUserProfile']);
 
 //Update thông tin
 Route::post('/updateUserProfile',[InfoController::class, 'updateUserProfile']);
+
+Route::get('/getDiaChiGiaoHang',[AuthController::class, 'getDiaChiGiaoHang']);
+
+//Đơn hàng
+Route::get('/getDanhSachDonHang',[HomeController::class, 'getDanhSachDonHang']);
+
+Route::post('/taoDonHang', [HomeController::class, 'taoDonHang']);

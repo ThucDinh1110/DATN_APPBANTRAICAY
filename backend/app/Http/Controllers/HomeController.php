@@ -9,33 +9,57 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
     //
-    public function getDonHangTheoUser($userId)
+    public function getDanhSachDonHang(Request $request)
 {
-    $donhangs = DB::table('donhang')
-        ->where('IDuser', $userId)
-        ->orderByDesc('Ngaydat')
-        ->get();
+    $userId = $request->query('user_id');
+    $trangThai = $request->query('trangthai'); // tuỳ chọn
 
-    $ketqua = [];
-
-    foreach ($donhangs as $don) {
-        $chitiet = DB::table('chitietdonhang')
-            ->join('sanpham', 'chitietdonhang.SanphamID', '=', 'sanpham.Idsp')
-            ->join('chitietsanpham', 'sanpham.Idsp', '=', 'chitietsanpham.Idsp')
-            ->where('chitietdonhang.DonhangID', $don->DonhangID)
-            ->select('sanpham.Tensp', 'chitietsanpham.Gia', 'chitietdonhang.Soluong')
-            ->get();
-
-        $ketqua[] = [
-            'DonhangID' => $don->DonhangID,
-            'Ngaydat' => $don->Ngaydat,
-            'Tongtien' => $don->Tongtien,
-            'Trangthai' => $don->Trangthai,
-            'Sanpham' => $chitiet
-        ];
+    if (!$userId) {
+        return response()->json(['message' => 'Thiếu user_id'], 400);
     }
 
-    return response()->json($ketqua);
+    $query = DB::table('donhang')
+        ->join('chitietdonhang', 'donhang.DonhangID', '=', 'chitietdonhang.DonhangID')
+        ->join('sanpham', 'chitietdonhang.SanphamID', '=', 'sanpham.Idsp')
+        ->join('chitietsanpham', 'sanpham.Idsp', '=', 'chitietsanpham.Idsp')
+        ->select(
+            'donhang.DonhangID',
+            'donhang.Ngaydat',
+            'donhang.Tongtien',
+            'donhang.Trangthai',
+            'sanpham.Tensp',
+            'chitietdonhang.Soluong',
+            'chitietsanpham.Gia'
+        )
+        ->where('donhang.IDuser', $userId);
+
+    if ($trangThai) {
+        $query->where('donhang.Trangthai', $trangThai);
+    }
+
+    $donHangs = $query->get();
+
+    if ($donHangs->isEmpty()) {
+        return response()->json(['message' => 'Không có đơn hàng'], 404);
+    }
+
+    // Gom theo đơn hàng
+    $grouped = $donHangs->groupBy('DonhangID')->map(function ($items) {
+        return [
+            'Ngaydat' => $items[0]->Ngaydat,
+            'Tongtien' => $items[0]->Tongtien,
+            'Trangthai' => $items[0]->Trangthai,
+            'Sanphams' => $items->map(function ($item) {
+                return [
+                    'Tensp' => $item->Tensp,
+                    'Soluong' => $item->Soluong,
+                    'Gia' => $item->Gia,
+                ];
+            })->toArray()
+        ];
+    });
+
+    return response()->json($grouped->values());
 }
 
 public function taoDonHang(Request $request)
@@ -70,7 +94,7 @@ public function taoDonHang(Request $request)
         'KhuyenmaiID' => $request->khuyenmai_id,
         'Ngaydat' => now(),
         'Tongtien' => $tongtien,
-        'Trangthai' => 'Đã đặt'
+        'Trangthai' => 'Chờ duyệt'
     ]);
 
     foreach ($items as $item) {
@@ -87,6 +111,65 @@ public function taoDonHang(Request $request)
     return response()->json(['message' => 'Đặt hàng thành công', 'DonhangID' => $donhangId]);
 }
 
+public function huyDonHang(Request $request)
+{
+    $userId = $request->user_id;
+    $donhangId = $request->donhang_id;
+
+    $donhang = DB::table('donhang')
+        ->where('DonhangID', $donhangId)
+        ->where('IDuser', $userId)
+        ->first();
+
+    if (!$donhang) {
+        return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
+    }
+
+    if ($donhang->Trangthai !== 'Chờ duyệt') {
+        return response()->json(['message' => 'Đơn hàng không thể hủy khi đã xử lý'], 403);
+    }
+
+    $ngaydat = \Carbon\Carbon::parse($donhang->Ngaydat);
+    $now = \Carbon\Carbon::now();
+
+    $phutKhacBiet = $ngaydat->diffInMinutes($now);
+
+    if ($phutKhacBiet <= 30) {
+        // Cho phép hủy luôn
+        DB::table('donhang')->where('DonhangID', $donhangId)->update([
+            'Trangthai' => 'Đã hủy'
+        ]);
+        return response()->json(['message' => 'Đơn hàng đã được hủy thành công']);
+    } else {
+        return response()->json([
+            'message' => 'Đơn hàng đã quá 30 phút. Cần xác nhận từ admin để hủy.'
+        ], 403);
+    }
+}
+
+
+public function capNhatTrangThaiDonHang(Request $request)
+{
+    $request->validate([
+        'donhang_id' => 'required|integer',
+        'trangthai' => 'required|string'
+    ]);
+
+    $donhangId = $request->input('donhang_id');
+    $trangthai = $request->input('trangthai');
+
+    $exists = DB::table('donhang')->where('DonhangID', $donhangId)->exists();
+
+    if (!$exists) {
+        return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
+    }
+
+    DB::table('donhang')->where('DonhangID', $donhangId)->update([
+        'Trangthai' => $trangthai
+    ]);
+
+    return response()->json(['message' => 'Cập nhật trạng thái thành công']);
+}
 
 
 }
