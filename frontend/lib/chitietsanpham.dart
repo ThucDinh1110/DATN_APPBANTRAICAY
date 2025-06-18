@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'sanpham.dart';
+import 'giohang_service.dart';
 
 class chitietsppage extends StatefulWidget {
   final SanPham sanPham;
@@ -30,9 +32,7 @@ class _chitietsppageState extends State<chitietsppage> {
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-              child: Container(
-                color: Colors.black.withOpacity(0.3),
-              ),
+              child: Container(color: Colors.black.withOpacity(0.3)),
             ),
           ),
           SafeArea(
@@ -41,18 +41,16 @@ class _chitietsppageState extends State<chitietsppage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
                         child: const Icon(Icons.arrow_back, color: Colors.white),
                       ),
-                    
                     ],
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Image.asset(
@@ -69,9 +67,8 @@ class _chitietsppageState extends State<chitietsppage> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(30),
                       child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
+                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                         child: Container(
-                          width: double.infinity,
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.25),
@@ -83,11 +80,7 @@ class _chitietsppageState extends State<chitietsppage> {
                             children: [
                               Text(
                                 sanPham.ten,
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                               const SizedBox(height: 10),
                               Row(
@@ -95,11 +88,7 @@ class _chitietsppageState extends State<chitietsppage> {
                                 children: [
                                   Text(
                                     '${sanPham.gia.toStringAsFixed(0)} VNĐ/${sanPham.donvi}',
-                                    style: const TextStyle(
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
+                                    style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
                                   ),
                                   Container(
                                     decoration: BoxDecoration(
@@ -120,10 +109,7 @@ class _chitietsppageState extends State<chitietsppage> {
                                           ),
                                         ),
                                         const SizedBox(width: 10),
-                                        Text(
-                                          quantity.toString(),
-                                          style: const TextStyle(color: Colors.white, fontSize: 16),
-                                        ),
+                                        Text(quantity.toString(), style: const TextStyle(color: Colors.white, fontSize: 16)),
                                         const SizedBox(width: 10),
                                         GestureDetector(
                                           onTap: () {
@@ -141,7 +127,7 @@ class _chitietsppageState extends State<chitietsppage> {
                                 ],
                               ),
                               const SizedBox(height: 20),
-                              _buildNutritionRow(Icons.bolt, 'Vitamin A', '${sanPham.vitamina.toString()}μg'),
+                              _buildNutritionRow(Icons.bolt, 'Vitamin A', '${sanPham.vitamina} μg'),
                               _buildNutritionRow(Icons.eco, 'Vitamin C', '${sanPham.vitaminc} mg'),
                               _buildNutritionRow(Icons.grass, 'Chất xơ', '${sanPham.chatxo} g'),
                               _buildNutritionRow(Icons.cake, 'Đường', '${sanPham.duong} g'),
@@ -149,37 +135,62 @@ class _chitietsppageState extends State<chitietsppage> {
                               const SizedBox(height: 20),
                               Text(
                                 sanPham.mota ?? 'Mô tả sản phẩm không có sẵn',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white70,
-                                ),
+                                style: const TextStyle(fontSize: 14, color: Colors.white70),
                               ),
                               const SizedBox(height: 30),
                               SizedBox(
-  width: double.infinity,
-  height: 50,
-  child: ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.blue[100],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
-    ),
-    onPressed: () {},
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
-        Icon(Icons.shopping_cart_outlined, color: Colors.black),
-        SizedBox(width: 8),
-        Text(
-          "Thêm vào giỏ hàng",
-          style: TextStyle(fontSize: 16, color: Colors.black),
-        ),
-      ],
-    ),
-  ),
-),
+                                width: double.infinity,
+                                height: 50,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue[100],
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                  ),
+                                  onPressed: () async {
+                                    final prefs = await SharedPreferences.getInstance();
+                                    final userId = prefs.getInt('user_id');
 
+                                    if (userId == null) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Vui lòng đăng nhập để thêm sản phẩm vào giỏ')),
+                                      );
+                                      return;
+                                    }
+
+                                    final success = await GioHangService.themVaoGioHang(
+                                      userId: userId,
+                                      productId: sanPham.id,
+                                      soluong: quantity,
+                                    );
+
+                                    if (success) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('🎉 Sản phẩm đã được thêm vào giỏ hàng'),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                      await Future.delayed(const Duration(milliseconds: 800));
+                                      Navigator.pop(context); // Quay lại trang trước
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('❌ Thêm sản phẩm thất bại, vui lòng thử lại'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(Icons.shopping_cart_outlined, color: Colors.black),
+                                      SizedBox(width: 8),
+                                      Text("Thêm vào giỏ hàng", style: TextStyle(fontSize: 16, color: Colors.black)),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -202,14 +213,8 @@ class _chitietsppageState extends State<chitietsppage> {
         children: [
           Icon(icon, size: 20, color: Colors.white),
           const SizedBox(width: 10),
-          Text(
-            '$label: ',
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-          ),
-          Text(
-            value,
-            style: const TextStyle(color: Colors.white),
-          ),
+          Text('$label: ', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+          Text(value, style: const TextStyle(color: Colors.white)),
         ],
       ),
     );

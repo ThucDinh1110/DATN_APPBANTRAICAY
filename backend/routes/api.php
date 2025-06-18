@@ -7,6 +7,11 @@ use App\Http\Controllers\GiohangController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InfoController;
 use App\Http\Controllers\SanphamController;
+
+
+
+
+Route::post('/them', [GiohangController::class, 'them']);
 // Load Sản phẩm
 Route::get('/sanpham', [SanphamController::class, 'getAll']);
 // Đăng ký
@@ -33,3 +38,4 @@ Route::get('/getDiaChiGiaoHang',[AuthController::class, 'getDiaChiGiaoHang']);
 Route::get('/getDanhSachDonHang',[HomeController::class, 'getDanhSachDonHang']);
 
 Route::post('/taoDonHang', [HomeController::class, 'taoDonHang']);
+

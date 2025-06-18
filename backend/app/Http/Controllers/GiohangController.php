@@ -1,12 +1,75 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\GioHang;
+use App\Models\ChiTietGioHang;
 class GiohangController extends Controller
+
 {
+    
+
+public function them(Request $request)
+{
+    Log::info('==> Nhận dữ liệu: ', $request->all());
+
+    $request->validate([
+        'user_id' => 'required|integer',
+        'product_id' => 'required|integer',
+        'soluong' => 'required|integer|min:1',
+    ]);
+
+    $userId = $request->user_id;
+    $productId = $request->product_id;
+    $soluong = $request->soluong;
+
+    $giohang = DB::table('giohang')
+        ->where('IDuser', $userId)
+        ->where('Trangthai', 1)
+        ->first();
+
+    if (!$giohang) {
+        $giohangId = DB::table('giohang')->insertGetId([
+            'IDuser' => $userId,
+            'Trangthai' => 1,
+        ]);
+        Log::info('==> Tạo giỏ hàng mới với ID: ' . $giohangId);
+    } else {
+        $giohangId = $giohang->IDgiohang;
+        Log::info('==> Đã có giỏ hàng ID: ' . $giohangId);
+    }
+
+    $item = DB::table('chitietgiohang')
+        ->where('IDgiohang', $giohangId)
+        ->where('SanphamID', $productId)
+        ->first();
+
+    if ($item) {
+        DB::table('chitietgiohang')
+            ->where('IDgiohang', $giohangId)
+            ->where('SanphamID', $productId)
+            ->update([
+                'Soluong' => $item->Soluong + $soluong,
+            ]);
+        Log::info("==> Cập nhật số lượng sản phẩm ID $productId, số lượng mới: " . ($item->Soluong + $soluong));
+    } else {
+        DB::table('chitietgiohang')->insert([
+            'IDgiohang' => $giohangId,
+            'SanphamID' => $productId,
+            'Soluong' => $soluong,
+        ]);
+        Log::info("==> Thêm mới sản phẩm ID $productId vào giỏ hàng ID $giohangId");
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Thêm sản phẩm vào giỏ hàng thành công',
+    ]);
+}
+
     //
     public function getCart(Request $request)
 {
