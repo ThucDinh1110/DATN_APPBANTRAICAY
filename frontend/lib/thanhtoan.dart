@@ -1,4 +1,8 @@
+import 'package:apptraicay/giohang.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -11,7 +15,7 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFFFA726), // Cam tươi
+        backgroundColor: const Color(0xFFFFA726),
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         elevation: 4,
@@ -25,38 +29,35 @@ class CustomButton extends StatelessWidget {
 }
 
 class ThanhToanScreen extends StatefulWidget {
-  const ThanhToanScreen({super.key});
+  final List<ProductItemModel> itemsToBuy;
+  final String hoten;
+  final String sdt;
+  final String diachi;
+  final String ghichu;
+
+  const ThanhToanScreen({super.key, required this.itemsToBuy, required this.hoten, required this.sdt, required this.diachi, required this.ghichu});
 
   @override
   State<ThanhToanScreen> createState() => _ThanhToanScreenState();
 }
 
 class _ThanhToanScreenState extends State<ThanhToanScreen> {
-  final TextEditingController tenController = TextEditingController();
-  final TextEditingController sdtController = TextEditingController();
-  final TextEditingController diachiController = TextEditingController();
-
   int _selectedPaymentMethod = 1;
-  int totalAmount = 120000;
-  int discountPercent = 10;
 
-  @override
-  void initState() {
-    super.initState();
-    tenController.text = "Nguyễn Văn A";
-    sdtController.text = "0123456789";
-    diachiController.text = "123 Đường ABC, Quận 1, TP.HCM";
+  int _calculateTotalAmount() {
+    return widget.itemsToBuy.fold(0, (sum, item) => sum + (item.price * item.quantity).toInt());
   }
 
   @override
   Widget build(BuildContext context) {
-    double discountAmount = totalAmount * discountPercent / 100;
+    int totalAmount = _calculateTotalAmount();
+    double discountAmount = totalAmount * 0.1;
     double finalAmount = totalAmount - discountAmount;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8E1), // nền kem cam nhẹ
+      backgroundColor: const Color(0xFFFFF8E1),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFF7043), // cam đậm
+        backgroundColor: const Color(0xFFFF7043),
         title: const Text("Thanh Toán", style: TextStyle(color: Colors.white)),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -65,7 +66,6 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-           
             const SizedBox(height: 15),
             _buildCard(
               title: "Phương Thức Thanh Toán",
@@ -96,22 +96,13 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [
-                    const Text("🧾 "),
-                    Text("Tổng tiền: ${totalAmount.toStringAsFixed(0)} đ"),
-                  ]),
+                  Row(children: [const Text("🧾 "), Text("Tổng tiền: ${totalAmount.toString()} đ")]),
                   const SizedBox(height: 4),
-                  Row(children: [
-                    const Text("💸 "),
-                    Text("Giảm giá: -${discountAmount.toStringAsFixed(0)} đ"),
-                  ]),
+                  Row(children: [const Text("💸 "), Text("Giảm giá: -${discountAmount.toStringAsFixed(0)} đ")]),
                   const SizedBox(height: 8),
                   Row(children: [
                     const Text("✅ "),
-                    Text(
-                      "Thành tiền: ${finalAmount.toStringAsFixed(0)} đ",
-                      style: const TextStyle(fontSize: 16, color: Color(0xFFFF5722), fontWeight: FontWeight.bold),
-                    ),
+                    Text("Thành tiền: ${finalAmount.toStringAsFixed(0)} đ", style: const TextStyle(fontSize: 16, color: Color(0xFFFF5722), fontWeight: FontWeight.bold)),
                   ]),
                 ],
               ),
@@ -119,37 +110,9 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
             const SizedBox(height: 25),
             CustomButton(
               text: "Thanh Toán",
-              onPressed: () => _showConfirmDialog(context, finalAmount),
+              onPressed: () => _submitOrder(finalAmount.toInt()),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField(String label, TextEditingController controller,
-      {int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
-    Icon? prefixIcon;
-    if (label.contains("Tên")) {
-      prefixIcon = const Icon(Icons.person);
-    } else if (label.contains("Số")) {
-      prefixIcon = const Icon(Icons.phone);
-    } else if (label.contains("Địa")) {
-      prefixIcon = const Icon(Icons.location_on);
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: prefixIcon,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          filled: true,
-          fillColor: Colors.white,
         ),
       ),
     );
@@ -160,7 +123,7 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
       elevation: 3,
       color: Colors.white,
       shape: RoundedRectangleBorder(
-        side: const BorderSide(color: Color(0xFFFFCCBC)), // border cam nhạt
+        side: const BorderSide(color: Color(0xFFFFCCBC)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
@@ -183,31 +146,40 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
     );
   }
 
-  void _showConfirmDialog(BuildContext context, double amount) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Xác Nhận Thanh Toán"),
-        content: Text(
-          "Bạn có chắc muốn thanh toán ${amount.toStringAsFixed(0)} đ bằng "
-          "${_selectedPaymentMethod == 1 ? "Chuyển Khoản" : "Tiền Mặt"}?",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Hủy"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Thanh toán thành công!')),
-              );
-            },
-            child: const Text("Xác Nhận"),
-          ),
-        ],
-      ),
+  Future<void> _submitOrder(int finalAmount) async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id');
+
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Không tìm thấy user_id')));
+      return;
+    }
+
+    final itemsData = widget.itemsToBuy.map((item) => {
+      'sanpham_id': item.id,
+      'soluong': item.quantity
+    }).toList();
+
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:8000/api/taoDonHang'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': userId,
+        'hoten': widget.hoten,
+        'sdt': widget.sdt,
+        'diachi': widget.diachi,
+        'ghichu': widget.ghichu,
+        'thanhtoan_id': _selectedPaymentMethod,
+        'tongtien': finalAmount,
+        'items': itemsData
+      }),
     );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đặt hàng thành công!')));
+      Navigator.popUntil(context, (route) => route.isFirst);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: ${response.body}')));
+    }
   }
 }

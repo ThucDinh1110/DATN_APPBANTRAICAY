@@ -1,3 +1,4 @@
+import 'package:apptraicay/giohang.dart';
 import 'package:apptraicay/thanhtoan.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -6,7 +7,9 @@ import 'dart:convert';
 
 
 class DiaChiGiaoHangScreen extends StatefulWidget {
-  const DiaChiGiaoHangScreen({super.key});
+  final List<ProductItemModel> itemsToBuy;
+
+  const DiaChiGiaoHangScreen({super.key, required this.itemsToBuy});
 
   @override
   _DiaChiGiaoHangScreenState createState() => _DiaChiGiaoHangScreenState();
@@ -63,36 +66,6 @@ void initState() {
     }
   }
 
-  Future<void> updateAddressToServer() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('user_id');
-    if (userId == null) return;
-
-    final fullDiaChi =
-        '${diaChiController.text.trim()}, ${quanHuyenController.text.trim()}, ${thanhPhoController.text.trim()}';
-
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/update-delivery-address'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'user_id': userId,
-        'Hoten': hoTenController.text.trim(),
-        'Sodienthoai': soDienThoaiController.text.trim(),
-        'Diachi': fullDiaChi,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã lưu địa chỉ thành công')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi: ${response.body}')),
-      );
-    }
-  }
-
   void _validateForm() {
     final isValid = 
         hoTenController.text.trim().isNotEmpty &&
@@ -117,28 +90,6 @@ void initState() {
     thanhPhoController.dispose();
     ghiChuController.dispose();
     super.dispose();
-  }
-
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      // Xử lý lưu hoặc gửi dữ liệu lên server nếu cần
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Thành công'),
-          content: const Text('Địa chỉ giao hàng đã được lưu.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Quay lại màn trước
-              },
-              child: const Text('Đóng'),
-            ),
-          ],
-        ),
-      );
-    }
   }
 
   @override
@@ -242,11 +193,17 @@ void initState() {
                 child: ElevatedButton.icon(
                   onPressed: _isFormValid
                       ? () {
-                          _submit();
+                          //_submit();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ThanhToanScreen(),
+                              builder: (context) => ThanhToanScreen(
+                                itemsToBuy: widget.itemsToBuy,
+                                hoten: hoTenController.text,
+                                sdt: soDienThoaiController.text,
+                                diachi: '${diaChiController.text}, ${quanHuyenController.text}, ${thanhPhoController.text}',
+                                ghichu: ghiChuController.text,
+                                ),
                             ),
                           );
                         }

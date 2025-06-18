@@ -1,4 +1,8 @@
+import 'package:apptraicay/chitietdonhang.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProductItemModel {
   final String productName;
@@ -14,6 +18,20 @@ class ProductItemModel {
   });
 }
 
+class DonHangModel {
+  final String ngayDat;
+  final double tongTien;
+  final String trangThai;
+  final List<ProductItemModel> sanPhams;
+
+  DonHangModel({
+    required this.ngayDat,
+    required this.tongTien,
+    required this.trangThai,
+    required this.sanPhams,
+  });
+}
+
 class Donhang extends StatefulWidget {
   const Donhang({super.key});
 
@@ -22,91 +40,108 @@ class Donhang extends StatefulWidget {
 }
 
 class _DonhangState extends State<Donhang> {
-  final TextEditingController tk_sp = TextEditingController();
+  List<DonHangModel> choDuyet = [];
+  List<DonHangModel> daDuyet = [];
+  List<DonHangModel> dangGiao = [];
+  List<DonHangModel> daMua = [];
+  List<DonHangModel> donHangDaHuy = [];
 
-  // Dữ liệu mẫu cho từng trạng thái đơn hàng
-  List<ProductItemModel> choDuyet = [
-    ProductItemModel(id: 1, productName: "Xoài", price: 15000, quantity: 2),
-    ProductItemModel(id: 2, productName: "Cam", price: 12000, quantity: 3),
-    ProductItemModel(id: 3, productName: "Ổi", price: 10000, quantity: 1),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    fetchDonHang();
+  }
 
-  List<ProductItemModel> daDuyet = [
-    ProductItemModel(id: 4, productName: "Nho", price: 25000, quantity: 1),
-    ProductItemModel(id: 5, productName: "Chuối", price: 8000, quantity: 5),
-  ];
+  Future<void> fetchDonHang() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id');
+    if (userId == null) return;
 
-  List<ProductItemModel> dangGiao = [
-    ProductItemModel(id: 6, productName: "Dưa hấu", price: 20000, quantity: 1),
-    ProductItemModel(id: 7, productName: "Táo Mỹ", price: 30000, quantity: 2),
-  ];
+    final response = await http.get(
+      Uri.parse('http://127.0.0.1:8000/api/getDanhSachDonHang?user_id=$userId'),
+    );
 
-  List<ProductItemModel> daMua = [
-    ProductItemModel(id: 8, productName: "Bưởi", price: 18000, quantity: 2),
-    ProductItemModel(
-        id: 9, productName: "Lê Hàn Quốc", price: 35000, quantity: 1),
-  ];
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      for (var don in data) {
+        List<ProductItemModel> items = [];
+        for (var item in don['Sanphams']) {
+          items.add(ProductItemModel(
+            id: 0,
+            productName: item['Tensp'],
+            price: double.tryParse(item['Gia'].toString()) ?? 0,
+            quantity: item['Soluong'],
+          ));
+        }
 
-  List<ProductItemModel> donHangDaHuy = [
-    ProductItemModel(id: 10, productName: "Mận", price: 10000, quantity: 3),
-    ProductItemModel(id: 11, productName: "Vú sữa", price: 22000, quantity: 1),
-  ];
+        DonHangModel newDon = DonHangModel(
+          ngayDat: don['Ngaydat'],
+          tongTien: double.tryParse(don['Tongtien'].toString()) ?? 0,
+          trangThai: don['Trangthai'],
+          sanPhams: items,
+        );
 
-  Widget _buildOrderStatusList(String title, List<ProductItemModel> items,
+        switch (don['Trangthai'].toString().trim().toLowerCase()) {
+          case 'chờ duyệt':
+            choDuyet.add(newDon);
+            break;
+          case 'đã duyệt':
+            daDuyet.add(newDon);
+            break;
+          case 'đang giao':
+            dangGiao.add(newDon);
+            break;
+          case 'đã mua':
+            daMua.add(newDon);
+            break;
+          case 'đã hủy':
+            donHangDaHuy.add(newDon);
+            break;
+          default:
+            print("Trạng thái không khớp: ${don['Trangthai']}");
+        }
+      }
+      setState(() {});
+    } else {
+      print('Lỗi khi lấy dữ liệu: ${response.body}');
+    }
+  }
+
+  Widget _buildOrderStatusList(String title, List<DonHangModel> donHangs,
       {bool allowCancel = false}) {
-    return items.isEmpty
+    return donHangs.isEmpty
         ? Center(child: Text("Không có đơn nào trong mục '$title'"))
         : ListView.builder(
-            itemCount: items.length,
+            itemCount: donHangs.length,
             itemBuilder: (context, index) {
-              final item = items[index];
+              final don = donHangs[index];
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                 child: ListTile(
-                  leading: const Icon(Icons.receipt_long, color: Colors.orange),
-                  title: Text(item.productName),
+                  title: Text("Ngày đặt: ${don.ngayDat}"),
                   subtitle:
-                      Text('Số lượng: ${item.quantity} | Giá: ${item.price}đ'),
-                  trailing: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (allowCancel)
-                        TextButton(
+                      Text("Tổng tiền: ${don.tongTien.toStringAsFixed(0)} đ"),
+                  trailing: allowCancel
+                      ? TextButton(
                           onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text("Hủy đơn hàng"),
-                                content: const Text(
-                                    "Bạn có chắc muốn hủy đơn này không?"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                    child: const Text("Không"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        // Di chuyển đơn hàng sang danh sách đã hủy
-                                        donHangDaHuy.add(item);
-                                        items.removeAt(index);
-                                      });
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text("Hủy đơn",
-                                        style:
-                                            TextStyle(color: Colors.redAccent)),
-                                  ),
-                                ],
-                              ),
-                            );
+                            // xử lý hủy đơn
                           },
                           child: const Text("Hủy đơn",
                               style: TextStyle(color: Colors.red)),
+                        )
+                      : const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChiTietDonHangScreen(
+                          ngayDat: don.ngayDat,
+                          tongTien: don.tongTien,
+                          sanPhams: don.sanPhams,
                         ),
-                    ],
-                  ),
+                      ),
+                    );
+                  },
                 ),
               );
             },
@@ -119,11 +154,11 @@ class _DonhangState extends State<Donhang> {
       length: 5,
       child: Scaffold(
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(48), // hoặc nhỏ hơn tùy bạn
+          preferredSize: const Size.fromHeight(48),
           child: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
-            automaticallyImplyLeading: false, // nếu không muốn nút back
+            automaticallyImplyLeading: false,
             bottom: const TabBar(
               isScrollable: true,
               labelColor: Colors.orangeAccent,
@@ -141,26 +176,14 @@ class _DonhangState extends State<Donhang> {
         ),
         body: Column(
           children: [
-            // Tìm kiếm sản phẩm đơn giản (chỉ giao diện)
-           
-
             Expanded(
               child: TabBarView(
                 children: [
-                  // Tab 1: Chờ duyệt (cho phép hủy đơn)
                   _buildOrderStatusList("Chờ duyệt", choDuyet,
                       allowCancel: true),
-
-                  // Tab 2: Đã duyệt
                   _buildOrderStatusList("Đã duyệt", daDuyet),
-
-                  // Tab 3: Đang giao
                   _buildOrderStatusList("Đang giao", dangGiao),
-
-                  // Tab 4: Đã mua
                   _buildOrderStatusList("Đã mua", daMua),
-
-                  // Tab 5: Đơn hàng đã hủy
                   _buildOrderStatusList("Đơn hàng đã hủy", donHangDaHuy),
                 ],
               ),

@@ -65,50 +65,68 @@ class HomeController extends Controller
 public function taoDonHang(Request $request)
 {
     $userId = $request->user_id;
-    $giohang = DB::table('giohang')->where('IDuser', $userId)->first();
+    $selectedItems = is_string($request->items) ? json_decode($request->items, true) : $request->items;
+
+    if (!is_array($selectedItems) || count($selectedItems) === 0) {
+    return response()->json(['message' => 'Không có sản phẩm nào được chọn'], 400);
+    }
+
+    // Tìm giỏ hàng hiện tại
+    $giohang = DB::table('giohang')
+        ->where('IDuser', $userId)
+        ->where('Trangthai', 1)
+        ->first();
 
     if (!$giohang) {
-        return response()->json(['message' => 'Giỏ hàng không tồn tại'], 404);
+        return response()->json(['message' => 'Không tìm thấy giỏ hàng'], 404);
     }
 
-    $items = DB::table('chitietgiohang')
-        ->where('IDgiohang', $giohang->IDgiohang)
-        ->get();
-
-    if ($items->isEmpty()) {
-        return response()->json(['message' => 'Giỏ hàng trống'], 400);
-    }
-
+    // Tính tổng tiền theo các sản phẩm được chọn
     $tongtien = 0;
-    foreach ($items as $item) {
+    foreach ($selectedItems as $item) {
         $gia = DB::table('chitietsanpham')
-            ->where('Idsp', $item->SanphamID)
+            ->where('Idsp', $item['sanpham_id'])
             ->value('Gia');
-        $tongtien += $gia * $item->Soluong;
+        $tongtien += $gia * $item['soluong'];
     }
 
+    // Sinh mã đơn hàng
+    $randomCode = 'OV' . now()->format('ymdHis') . rand(100, 999);
+
+    // Tạo đơn hàng
     $donhangId = DB::table('donhang')->insertGetId([
-        'IDuser' => $userId,
+        'IDuser'       => $userId,
         'DiachigiaoID' => $request->diachi_id,
-        'ThanhtoanID' => $request->thanhtoan_id,
-        'KhuyenmaiID' => $request->khuyenmai_id,
-        'Ngaydat' => now(),
-        'Tongtien' => $tongtien,
-        'Trangthai' => 'Chờ duyệt'
+        'ThanhtoanID'  => $request->thanhtoan_id,
+        'KhuyenmaiID'  => $request->khuyenmai_id,
+        'Ngaydat'      => now(),
+        'Tongtien'     => $tongtien,
+        'Trangthai'    => 'Chờ duyệt',
+        'Ghichu'       => $request->ghichu,
+        'MaDonHang'    => $randomCode
     ]);
 
-    foreach ($items as $item) {
+    // Thêm chi tiết đơn hàng và xóa sản phẩm khỏi giỏ hàng
+    foreach ($selectedItems as $item) {
         DB::table('chitietdonhang')->insert([
             'DonhangID' => $donhangId,
-            'SanphamID' => $item->SanphamID,
-            'Soluong' => $item->Soluong
+            'SanphamID' => $item['sanpham_id'],
+            'Soluong'   => $item['soluong']
         ]);
+
+        // Xóa từng sản phẩm khỏi chi tiết giỏ hàng
+        DB::table('chitietgiohang')
+            ->where('IDgiohang', $giohang->IDgiohang)
+            ->where('SanphamID', $item['sanpham_id'])
+            ->delete();
     }
 
-    // Xóa giỏ hàng sau khi đặt đơn
-    DB::table('chitietgiohang')->where('IDgiohang', $giohang->IDgiohang)->delete();
-
-    return response()->json(['message' => 'Đặt hàng thành công', 'DonhangID' => $donhangId]);
+    return response()->json([
+        'message'    => 'Đặt hàng thành công',
+        'DonhangID'  => $donhangId,
+        'MaDonHang'  => $randomCode,
+        'TongTien'   => $tongtien
+    ]);
 }
 
 public function huyDonHang(Request $request)

@@ -10,22 +10,24 @@ class ProductItemModel {
   final int id;
   final double price;
   int quantity;
+  bool isSelected;
 
   ProductItemModel({
     required this.id,
     required this.productName,
     required this.price,
     this.quantity = 1,
+    this.isSelected = false,
   });
 
   factory ProductItemModel.fromJson(Map<String, dynamic> json) {
-  return ProductItemModel(
-    id: json['SanphamID'] ?? DateTime.now().millisecondsSinceEpoch,
-    productName: json['ten_sanpham'] ?? '',
-    price: double.tryParse(json['Gia'].toString()) ?? 0.0,
-    quantity: json['Soluong'] ?? 1,
-  );
-}
+    return ProductItemModel(
+      id: json['SanphamID'] ?? DateTime.now().millisecondsSinceEpoch,
+      productName: json['ten_sanpham'] ?? '',
+      price: double.tryParse(json['Gia'].toString()) ?? 0.0,
+      quantity: json['Soluong'] ?? 1,
+    );
+  }
 }
 
 class Giohang extends StatefulWidget {
@@ -38,6 +40,16 @@ class Giohang extends StatefulWidget {
 class _GiohangState extends State<Giohang> {
   List<ProductItemModel> choThanhToan = [];
   int? userId;
+  bool selectAll = false;
+
+  void toggleSelectAll(bool? value) {
+    setState(() {
+      selectAll = value ?? false;
+      for (var item in choThanhToan) {
+        item.isSelected = selectAll;
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -78,7 +90,8 @@ class _GiohangState extends State<Giohang> {
         final List items = data['items'];
 
         setState(() {
-          choThanhToan = items.map((json) => ProductItemModel.fromJson(json)).toList();
+          choThanhToan =
+              items.map((json) => ProductItemModel.fromJson(json)).toList();
         });
       } else {
         print('Lỗi lấy giỏ hàng: ${response.body}');
@@ -132,14 +145,25 @@ class _GiohangState extends State<Giohang> {
                           child: const Icon(Icons.delete, color: Colors.white),
                         ),
                         child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 10),
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 10),
                           decoration: BoxDecoration(
                             color: backgroundColor,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: ListTile(
+                            leading: Checkbox(
+                                value: product.isSelected,
+                                onChanged: (value) {
+                                  setState(() {
+                                    product.isSelected = value ?? false;
+                                    selectAll = choThanhToan
+                                        .every((item) => item.isSelected);
+                                  });
+                                }),
                             title: Text(product.productName),
-                            subtitle: Text('Giá: ${product.price}đ x ${product.quantity}'),
+                            subtitle: Text(
+                                'Giá: ${product.price}đ x ${product.quantity}'),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -147,7 +171,8 @@ class _GiohangState extends State<Giohang> {
                                   icon: const Icon(Icons.remove),
                                   onPressed: () {
                                     if (product.quantity > 1) {
-                                      _updateProductQuantity(index, product.quantity - 1);
+                                      _updateProductQuantity(
+                                          index, product.quantity - 1);
                                     }
                                   },
                                 ),
@@ -155,7 +180,8 @@ class _GiohangState extends State<Giohang> {
                                 IconButton(
                                   icon: const Icon(Icons.add),
                                   onPressed: () {
-                                    _updateProductQuantity(index, product.quantity + 1);
+                                    _updateProductQuantity(
+                                        index, product.quantity + 1);
                                   },
                                 ),
                               ],
@@ -171,12 +197,24 @@ class _GiohangState extends State<Giohang> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Row(
+                  children: [
+                    Checkbox(
+                      value: selectAll,
+                      onChanged: toggleSelectAll,
+                    ),
+                    const Text(
+                      'Chọn tất cả',
+                      style: TextStyle(fontSize: 18),
+                    )
+                  ],
+                ),
                 const Text(
                   'Tổng cộng:',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '${choThanhToan.fold<double>(0.0, (sum, item) => sum + item.price * item.quantity)}đ',
+                  '${choThanhToan.where((item) => item.isSelected).fold<double>(0.0, (sum, item) => sum + item.price * item.quantity)}đ',
                   style: const TextStyle(fontSize: 18, color: Colors.redAccent),
                 ),
               ],
@@ -208,9 +246,23 @@ class _GiohangState extends State<Giohang> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
+                      final itemsToBuy = choThanhToan
+                          .where((item) => item.isSelected)
+                          .toList();
+
+                      if (itemsToBuy.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'Vui lòng chọn ít nhất 1 sản phẩm để thanh toán')),
+                        );
+                        return;
+                      }
+
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => DiaChiGiaoHangScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => DiaChiGiaoHangScreen(itemsToBuy: itemsToBuy,)),
                       );
                     },
                     icon: const Icon(Icons.payment),
