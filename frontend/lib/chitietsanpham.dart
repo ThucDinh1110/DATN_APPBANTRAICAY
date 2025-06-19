@@ -19,6 +19,7 @@ class _chitietsppageState extends State<chitietsppage> {
   @override
   Widget build(BuildContext context) {
     final sanPham = widget.sanPham;
+    
 
     return Scaffold(
       body: Stack(
@@ -43,7 +44,8 @@ class _chitietsppageState extends State<chitietsppage> {
                   child: Row(
                     children: [
                       GestureDetector(
-                        onTap: () => Navigator.pop(context),
+                        onTap: () => Navigator.pop(context),// Trả về true để trang trước biết có thay đổi
+
                         child: const Icon(Icons.arrow_back, color: Colors.white),
                       ),
                     ],

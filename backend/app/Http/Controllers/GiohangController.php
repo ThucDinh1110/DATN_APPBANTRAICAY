@@ -19,7 +19,7 @@ public function them(Request $request)
     $request->validate([
         'user_id' => 'required|integer',
         'product_id' => 'required|integer',
-        'soluong' => 'required|integer|min:1',
+        'soluong' => 'required|integer',
     ]);
 
     $userId = $request->user_id;
@@ -71,9 +71,8 @@ public function them(Request $request)
 }
 
     //
-    public function getCart(Request $request)
+  public function getCart(Request $request)
 {
-    // Tìm giỏ hàng của user đang đăng nhập (hoặc truyền vào)
     $userId = $request->user_id;
 
     $giohang = DB::table('giohang')
@@ -85,11 +84,11 @@ public function them(Request $request)
         return response()->json(['message' => 'Không tìm thấy giỏ hàng'], 404);
     }
 
-    // Lấy chi tiết sản phẩm trong giỏ hàng
     $items = DB::table('chitietgiohang')
         ->join('sanpham', 'chitietgiohang.SanphamID', '=', 'sanpham.Idsp')
         ->join('chitietsanpham', 'chitietgiohang.SanphamID', '=', 'chitietsanpham.Idsp')
         ->where('chitietgiohang.IDgiohang', $giohang->IDgiohang)
+        ->where('chitietgiohang.Soluong', '>', 0) // 👉 chỉ lấy sản phẩm có số lượng > 0
         ->select(
             'sanpham.Idsp as SanphamID', 
             'sanpham.Tensp as ten_sanpham',
@@ -123,6 +122,7 @@ public function countCartItems(Request $request)
 
     $totalQuantity = DB::table('chitietgiohang')
         ->where('IDgiohang', $giohang->IDgiohang)
+        ->where('chitietgiohang.Soluong', '>', 0) // 👉 chỉ lấy sản phẩm có số lượng > 0
         ->count(); //đếm số sản phẩm
 
     return response()->json(['count' => $totalQuantity]);

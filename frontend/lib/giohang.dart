@@ -1,9 +1,9 @@
 import 'package:apptraicay/diachigia.dart';
 import 'package:flutter/material.dart';
-import 'package:apptraicay/thanhtoan.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'giohang_service.dart';
 
 class ProductItemModel {
   final String productName;
@@ -41,6 +41,13 @@ class _GiohangState extends State<Giohang> {
   List<ProductItemModel> choThanhToan = [];
   int? userId;
   bool selectAll = false;
+  Set<int> _processingProducts = {}; // để chặn spam nút
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserIdAndCart();
+  }
 
   void toggleSelectAll(bool? value) {
     setState(() {
@@ -49,12 +56,6 @@ class _GiohangState extends State<Giohang> {
         item.isSelected = selectAll;
       }
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loadUserIdAndCart();
   }
 
   Future<void> loadUserIdAndCart() async {
@@ -81,8 +82,6 @@ class _GiohangState extends State<Giohang> {
     try {
       final response = await http.post(url, body: {
         'user_id': userId.toString(),
-      }, headers: {
-        'Accept': 'application/json',
       });
 
       if (response.statusCode == 200) {
@@ -101,26 +100,67 @@ class _GiohangState extends State<Giohang> {
     }
   }
 
-  void _removeProductFromCart(int index) {
-    setState(() {
-      choThanhToan.removeAt(index);
-    });
-  }
+  Future<void> _removeProductFromCart(int index) async {
+    final product = choThanhToan[index];
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id');
 
-  void _updateProductQuantity(int index, int newQuantity) {
-    setState(() {
-      choThanhToan[index].quantity = newQuantity;
-    });
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng đăng nhập')),
+      );
+      return;
+    }
+
+    final success = await GioHangService.themVaoGioHang(
+      userId: userId,
+      productId: product.id,
+      soluong: -product.quantity,
+    );
+
+    if (success) {
+      setState(() {
+        choThanhToan.removeAt(index);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã xóa sản phẩm khỏi giỏ hàng')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Xóa sản phẩm thất bại'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text("Giỏ hàng", style: TextStyle(color: Colors.green)),
-        iconTheme: const IconThemeData(color: Colors.green),
+       appBar: PreferredSize(
+  preferredSize: const Size.fromHeight(60),
+  child: ClipRRect(
+    borderRadius: const BorderRadius.only(
+      bottomLeft: Radius.circular(24),
+      bottomRight: Radius.circular(24),
+    ),
+    child: AppBar(
+      backgroundColor: const Color.fromRGBO(95, 179, 249, 1),
+      title: const Text(
+        "Giỏ hàng",
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
       ),
+      iconTheme: const IconThemeData(color: Colors.white),
+      centerTitle: true,
+      elevation: 0, // không bóng
+    ),
+  ),
+),
       body: Column(
         children: [
           Expanded(
@@ -137,30 +177,56 @@ class _GiohangState extends State<Giohang> {
                       return Dismissible(
                         key: Key('${product.id}-${product.productName}'),
                         direction: DismissDirection.endToStart,
+                        confirmDismiss: (_) async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Xác nhận xóa sản phẩm'),
+                              content:
+                                  Text('Bạn có muốn xóa "${product.productName}"?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Hủy'),
+                                ),
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, true),
+                                  child: const Text('Xóa',
+                                      style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
+                            ),
+                          );
+                          return confirm == true;
+                        },
                         onDismissed: (_) => _removeProductFromCart(index),
                         background: Container(
                           color: Colors.redAccent,
                           alignment: Alignment.centerRight,
                           padding: const EdgeInsets.only(right: 16.0),
-                          child: const Icon(Icons.delete, color: Colors.white),
+                          child:
+                              const Icon(Icons.delete, color: Colors.white),
                         ),
                         child: Container(
                           margin: const EdgeInsets.symmetric(
-                              vertical: 4.0, horizontal: 10),
+                              horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: backgroundColor,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: ListTile(
                             leading: Checkbox(
-                                value: product.isSelected,
-                                onChanged: (value) {
-                                  setState(() {
-                                    product.isSelected = value ?? false;
-                                    selectAll = choThanhToan
-                                        .every((item) => item.isSelected);
-                                  });
-                                }),
+                              value: product.isSelected,
+                              onChanged: (value) {
+                                setState(() {
+                                  product.isSelected = value ?? false;
+                                  selectAll = choThanhToan
+                                      .every((e) => e.isSelected);
+                                });
+                              },
+                            ),
                             title: Text(product.productName),
                             subtitle: Text(
                                 'Giá: ${product.price}đ x ${product.quantity}'),
@@ -168,21 +234,127 @@ class _GiohangState extends State<Giohang> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
-                                  icon: const Icon(Icons.remove),
-                                  onPressed: () {
-                                    if (product.quantity > 1) {
-                                      _updateProductQuantity(
-                                          index, product.quantity - 1);
-                                    }
-                                  },
+                                  icon: _processingProducts.contains(product.id)
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        )
+                                      : const Icon(Icons.remove),
+                                  onPressed: _processingProducts
+                                          .contains(product.id)
+                                      ? null
+                                      : () async {
+                                          setState(() {
+                                            _processingProducts
+                                                .add(product.id);
+                                          });
+
+                                          if (product.quantity > 1) {
+                                            final prefs =
+                                                await SharedPreferences
+                                                    .getInstance();
+                                            final userId = prefs.getInt(
+                                                'user_id');
+
+                                            final success =
+                                                await GioHangService
+                                                    .themVaoGioHang(
+                                              userId: userId!,
+                                              productId: product.id,
+                                              soluong: -1,
+                                            );
+
+                                            if (success) {
+                                              setState(() {
+                                                product.quantity--;
+                                              });
+                                            }
+                                          } else {
+                                            final confirm =
+                                                await showDialog<bool>(
+                                              context: context,
+                                              builder: (context) =>
+                                                  AlertDialog(
+                                                title:
+                                                    const Text('Xác nhận xóa'),
+                                                content: const Text(
+                                                    'Bạn có muốn xóa sản phẩm này khỏi giỏ hàng?'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(
+                                                            context, false),
+                                                    child: const Text('Hủy'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(
+                                                            context, true),
+                                                    child: const Text('Xóa',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.red)),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                            if (confirm == true) {
+                                              await _removeProductFromCart(
+                                                  index);
+                                            }
+                                          }
+
+                                          setState(() {
+                                            _processingProducts
+                                                .remove(product.id);
+                                          });
+                                        },
                                 ),
                                 Text('${product.quantity}'),
                                 IconButton(
-                                  icon: const Icon(Icons.add),
-                                  onPressed: () {
-                                    _updateProductQuantity(
-                                        index, product.quantity + 1);
-                                  },
+                                  icon: _processingProducts.contains(product.id)
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        )
+                                      : const Icon(Icons.add),
+                                  onPressed: _processingProducts
+                                          .contains(product.id)
+                                      ? null
+                                      : () async {
+                                          setState(() {
+                                            _processingProducts
+                                                .add(product.id);
+                                          });
+
+                                          final prefs =
+                                              await SharedPreferences
+                                                  .getInstance();
+                                          final userId =
+                                              prefs.getInt('user_id');
+
+                                          final success = await GioHangService
+                                              .themVaoGioHang(
+                                            userId: userId!,
+                                            productId: product.id,
+                                            soluong: 1,
+                                          );
+
+                                          if (success) {
+                                            setState(() {
+                                              product.quantity++;
+                                            });
+                                          }
+
+                                          setState(() {
+                                            _processingProducts
+                                                .remove(product.id);
+                                          });
+                                        },
                                 ),
                               ],
                             ),
@@ -193,52 +365,42 @@ class _GiohangState extends State<Giohang> {
                   ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
                     Checkbox(
-                      value: selectAll,
-                      onChanged: toggleSelectAll,
-                    ),
-                    const Text(
-                      'Chọn tất cả',
-                      style: TextStyle(fontSize: 18),
-                    )
+                        value: selectAll, onChanged: toggleSelectAll),
+                    const Text('Chọn tất cả',
+                        style: TextStyle(fontSize: 18)),
                   ],
                 ),
-                const Text(
-                  'Tổng cộng:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
                 Text(
-                  '${choThanhToan.where((item) => item.isSelected).fold<double>(0.0, (sum, item) => sum + item.price * item.quantity)}đ',
-                  style: const TextStyle(fontSize: 18, color: Colors.redAccent),
+                  '${choThanhToan.where((e) => e.isSelected).fold<double>(0, (sum, item) => sum + item.price * item.quantity)}đ',
+                  style:
+                      const TextStyle(fontSize: 18, color: Colors.redAccent),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.add_shopping_cart),
                     label: const Text("Mua tiếp"),
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
                       backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 3,
+                          borderRadius: BorderRadius.circular(30)),
                     ),
                   ),
                 ),
@@ -246,11 +408,10 @@ class _GiohangState extends State<Giohang> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      final itemsToBuy = choThanhToan
-                          .where((item) => item.isSelected)
+                      final selected = choThanhToan
+                          .where((e) => e.isSelected)
                           .toList();
-
-                      if (itemsToBuy.isEmpty) {
+                      if (selected.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                               content: Text(
@@ -262,19 +423,19 @@ class _GiohangState extends State<Giohang> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => DiaChiGiaoHangScreen(itemsToBuy: itemsToBuy,)),
+                          builder: (context) => DiaChiGiaoHangScreen(
+                              itemsToBuy: selected),
+                        ),
                       );
                     },
                     icon: const Icon(Icons.payment),
                     label: const Text("Thanh toán"),
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
                       backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 3,
+                          borderRadius: BorderRadius.circular(30)),
                     ),
                   ),
                 ),
@@ -284,6 +445,7 @@ class _GiohangState extends State<Giohang> {
           const SizedBox(height: 10),
         ],
       ),
+      backgroundColor: Colors.white,
     );
   }
 }

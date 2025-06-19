@@ -28,6 +28,7 @@ class _HomePageState extends State<HomePage> {
     if (_isBottomBarVisible != !isScrollingDown) {
       setState(() {
         _isBottomBarVisible = !isScrollingDown;
+         fetchCartItemCount();
       });
     }
   }
@@ -36,6 +37,7 @@ class _HomePageState extends State<HomePage> {
         HomeTabContent(
           keyword: _searchKeyword,
           onScrollDirectionChange: _handleScroll,
+          
         ),
         const ProfilePage(),
         const Donhang(),
