@@ -147,39 +147,62 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
   }
 
   Future<void> _submitOrder(int finalAmount) async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('user_id');
-
-    if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Không tìm thấy user_id')));
-      return;
-    }
-
-    final itemsData = widget.itemsToBuy.map((item) => {
-      'sanpham_id': item.id,
-      'soluong': item.quantity
-    }).toList();
-
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/taoDonHang'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'user_id': userId,
-        'hoten': widget.hoten,
-        'sdt': widget.sdt,
-        'diachi': widget.diachi,
-        'ghichu': widget.ghichu,
-        'thanhtoan_id': _selectedPaymentMethod,
-        'tongtien': finalAmount,
-        'items': itemsData
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đặt hàng thành công!')));
-      Navigator.popUntil(context, (route) => route.isFirst);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Lỗi: ${response.body}')));
-    }
+  final prefs = await SharedPreferences.getInstance();
+  final userId = prefs.getInt('user_id');
+  if (userId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không tìm thấy user_id')));
+    return;
   }
+
+  // Gọi API lấy DiachigiaoID
+  final diachiGiaoId = await _getDiaChiGiaoID(userId);
+  if (diachiGiaoId == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không tìm thấy DiachigiaoID')));
+    return;
+  }
+
+  final itemsData = widget.itemsToBuy.map((item) => {
+        'sanpham_id': item.id,
+        'soluong': item.quantity
+      }).toList();
+
+  final response = await http.post(
+    Uri.parse('http://127.0.0.1:8000/api/taoDonHang'),
+    headers: {'Content-Type': 'application/json'},
+    body: json.encode({
+      'user_id': userId,
+      'hoten': widget.hoten,
+      'sdt': widget.sdt,
+      'diachi': widget.diachi,
+      'ghichu': widget.ghichu,
+      'thanhtoan_id': _selectedPaymentMethod,
+      'tongtien': finalAmount,
+      'diachigiao_id': diachiGiaoId,
+      'items': itemsData,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đặt hàng thành công!')));
+    Navigator.popUntil(context, (route) => route.isFirst);
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: ${response.body}')));
+  }
+}
+
+Future<int?> _getDiaChiGiaoID(int userId) async {
+  final response = await http.get(
+    Uri.parse('http://127.0.0.1:8000/api/getDiaChiGiaoID?user_id=$userId'),
+  );
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return data['diachi_id'];
+  } else {
+    return null;
+  }
+}
 }

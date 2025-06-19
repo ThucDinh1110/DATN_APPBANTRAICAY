@@ -1,3 +1,4 @@
+import 'package:apptraicay/dangnhap.dart';
 import 'package:apptraicay/qlkhachhang.dart';
 import 'package:apptraicay/qlkho.dart';
 import 'package:apptraicay/qlsanpham.dart';
@@ -19,6 +20,17 @@ class _HomeManagementPageState extends State<HomeManagementPage> {
         title: const Text("Quản lý bán trái cây"),
         backgroundColor: const Color(0xFF2E7D32), // xanh lá đậm tươi
         centerTitle: true,
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  (route) => false,
+                );
+          }, icon: Icon(Icons.logout),
+          tooltip: 'Đăng xuất',
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),

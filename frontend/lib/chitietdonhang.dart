@@ -4,12 +4,14 @@ import 'donhang.dart'; // nơi chứa ProductItemModel
 class ChiTietDonHangScreen extends StatelessWidget {
   final String ngayDat;
   final double tongTien;
+  final String diaChi; // thêm dòng này
   final List<ProductItemModel> sanPhams;
 
   const ChiTietDonHangScreen({
     super.key,
     required this.ngayDat,
     required this.tongTien,
+    required this.diaChi, // thêm dòng này
     required this.sanPhams,
   });
 
@@ -30,6 +32,10 @@ class ChiTietDonHangScreen extends StatelessWidget {
           ListTile(
             title: const Text("Tổng tiền"),
             subtitle: Text("${tongTien.toStringAsFixed(0)} đ"),
+          ),
+          ListTile(
+            title: const Text("Địa chỉ giao hàng"),
+            subtitle: Text(diaChi),
           ),
           const Divider(),
           const Padding(

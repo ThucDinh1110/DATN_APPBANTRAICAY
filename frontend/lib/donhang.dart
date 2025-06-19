@@ -22,12 +22,14 @@ class DonHangModel {
   final String ngayDat;
   final double tongTien;
   final String trangThai;
+  final String diaChi; // thêm dòng này
   final List<ProductItemModel> sanPhams;
 
   DonHangModel({
     required this.ngayDat,
     required this.tongTien,
     required this.trangThai,
+    required this.diaChi, // thêm dòng này
     required this.sanPhams,
   });
 }
@@ -75,11 +77,12 @@ class _DonhangState extends State<Donhang> {
         }
 
         DonHangModel newDon = DonHangModel(
-          ngayDat: don['Ngaydat'],
-          tongTien: double.tryParse(don['Tongtien'].toString()) ?? 0,
-          trangThai: don['Trangthai'],
-          sanPhams: items,
-        );
+  ngayDat: don['Ngaydat'],
+  tongTien: double.tryParse(don['Tongtien'].toString()) ?? 0,
+  trangThai: don['Trangthai'],
+  diaChi: don.containsKey('Diachi') ? don['Diachi'] ?? '' : '',  // safe
+  sanPhams: items,
+);
 
         switch (don['Trangthai'].toString().trim().toLowerCase()) {
           case 'chờ duyệt':
@@ -138,6 +141,7 @@ class _DonhangState extends State<Donhang> {
                           ngayDat: don.ngayDat,
                           tongTien: don.tongTien,
                           sanPhams: don.sanPhams,
+                          diaChi: don.diaChi,
                         ),
                       ),
                     );
