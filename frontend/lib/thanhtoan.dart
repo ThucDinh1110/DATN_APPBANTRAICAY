@@ -22,7 +22,8 @@ class CustomButton extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+        style: const TextStyle(
+            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
       ),
     );
   }
@@ -35,7 +36,13 @@ class ThanhToanScreen extends StatefulWidget {
   final String diachi;
   final String ghichu;
 
-  const ThanhToanScreen({super.key, required this.itemsToBuy, required this.hoten, required this.sdt, required this.diachi, required this.ghichu});
+  const ThanhToanScreen(
+      {super.key,
+      required this.itemsToBuy,
+      required this.hoten,
+      required this.sdt,
+      required this.diachi,
+      required this.ghichu});
 
   @override
   State<ThanhToanScreen> createState() => _ThanhToanScreenState();
@@ -45,7 +52,8 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
   int _selectedPaymentMethod = 1;
 
   int _calculateTotalAmount() {
-    return widget.itemsToBuy.fold(0, (sum, item) => sum + (item.price * item.quantity).toInt());
+    return widget.itemsToBuy
+        .fold(0, (sum, item) => sum + (item.price * item.quantity).toInt());
   }
 
   @override
@@ -68,6 +76,20 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
           children: [
             const SizedBox(height: 15),
             _buildCard(
+              title: "Địa chỉ giao hàng",
+              icon: Icons.location_on,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(widget.hoten,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text("SĐT: ${widget.sdt}"),
+                  Text(widget.diachi),
+                ],
+              ),
+            ),
+            const SizedBox(height: 15),
+            _buildCard(
               title: "Phương Thức Thanh Toán",
               icon: Icons.payment,
               child: Column(
@@ -77,14 +99,16 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
                     groupValue: _selectedPaymentMethod,
                     title: const Text("💳 Chuyển Khoản"),
                     activeColor: const Color(0xFFFF7043),
-                    onChanged: (value) => setState(() => _selectedPaymentMethod = value!),
+                    onChanged: (value) =>
+                        setState(() => _selectedPaymentMethod = value!),
                   ),
                   RadioListTile(
                     value: 2,
                     groupValue: _selectedPaymentMethod,
                     title: const Text("💵 Tiền Mặt (Sau khi nhận hàng)"),
                     activeColor: const Color(0xFFFF7043),
-                    onChanged: (value) => setState(() => _selectedPaymentMethod = value!),
+                    onChanged: (value) =>
+                        setState(() => _selectedPaymentMethod = value!),
                   ),
                 ],
               ),
@@ -96,13 +120,23 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [const Text("🧾 "), Text("Tổng tiền: ${totalAmount.toString()} đ")]),
+                  Row(children: [
+                    const Text("🧾 "),
+                    Text("Tổng tiền: ${totalAmount.toString()} đ")
+                  ]),
                   const SizedBox(height: 4),
-                  Row(children: [const Text("💸 "), Text("Giảm giá: -${discountAmount.toStringAsFixed(0)} đ")]),
+                  Row(children: [
+                    const Text("💸 "),
+                    Text("Giảm giá: -${discountAmount.toStringAsFixed(0)} đ")
+                  ]),
                   const SizedBox(height: 8),
                   Row(children: [
                     const Text("✅ "),
-                    Text("Thành tiền: ${finalAmount.toStringAsFixed(0)} đ", style: const TextStyle(fontSize: 16, color: Color(0xFFFF5722), fontWeight: FontWeight.bold)),
+                    Text("Thành tiền: ${finalAmount.toStringAsFixed(0)} đ",
+                        style: const TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFFFF5722),
+                            fontWeight: FontWeight.bold)),
                   ]),
                 ],
               ),
@@ -118,7 +152,8 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
     );
   }
 
-  Widget _buildCard({required String title, required IconData icon, required Widget child}) {
+  Widget _buildCard(
+      {required String title, required IconData icon, required Widget child}) {
     return Card(
       elevation: 3,
       color: Colors.white,
@@ -135,7 +170,9 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
               children: [
                 Icon(icon, color: const Color(0xFFFF5722)),
                 const SizedBox(width: 8),
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(title,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold)),
               ],
             ),
             const Divider(height: 20, thickness: 1),
@@ -147,62 +184,61 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
   }
 
   Future<void> _submitOrder(int finalAmount) async {
-  final prefs = await SharedPreferences.getInstance();
-  final userId = prefs.getInt('user_id');
-  if (userId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không tìm thấy user_id')));
-    return;
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id');
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không tìm thấy user_id')));
+      return;
+    }
+
+    // Gọi API lấy DiachigiaoID
+    final diachiGiaoId = await _getDiaChiGiaoID(userId);
+    if (diachiGiaoId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không tìm thấy DiachigiaoID')));
+      return;
+    }
+
+    final itemsData = widget.itemsToBuy
+        .map((item) => {'sanpham_id': item.id, 'soluong': item.quantity})
+        .toList();
+
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:8000/api/taoDonHang'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'user_id': userId,
+        'hoten': widget.hoten,
+        'sdt': widget.sdt,
+        'diachi': widget.diachi,
+        'ghichu': widget.ghichu,
+        'thanhtoan_id': _selectedPaymentMethod,
+        'tongtien': finalAmount,
+        'diachigiao_id': diachiGiaoId,
+        'items': itemsData,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Đặt hàng thành công!')));
+      Navigator.popUntil(context, (route) => route.isFirst);
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Lỗi: ${response.body}')));
+    }
   }
 
-  // Gọi API lấy DiachigiaoID
-  final diachiGiaoId = await _getDiaChiGiaoID(userId);
-  if (diachiGiaoId == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không tìm thấy DiachigiaoID')));
-    return;
+  Future<int?> _getDiaChiGiaoID(int userId) async {
+    final response = await http.get(
+      Uri.parse('http://127.0.0.1:8000/api/getDiaChiGiaoID?user_id=$userId'),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['diachi_id'];
+    } else {
+      return null;
+    }
   }
-
-  final itemsData = widget.itemsToBuy.map((item) => {
-        'sanpham_id': item.id,
-        'soluong': item.quantity
-      }).toList();
-
-  final response = await http.post(
-    Uri.parse('http://127.0.0.1:8000/api/taoDonHang'),
-    headers: {'Content-Type': 'application/json'},
-    body: json.encode({
-      'user_id': userId,
-      'hoten': widget.hoten,
-      'sdt': widget.sdt,
-      'diachi': widget.diachi,
-      'ghichu': widget.ghichu,
-      'thanhtoan_id': _selectedPaymentMethod,
-      'tongtien': finalAmount,
-      'diachigiao_id': diachiGiaoId,
-      'items': itemsData,
-    }),
-  );
-
-  if (response.statusCode == 200) {
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đặt hàng thành công!')));
-    Navigator.popUntil(context, (route) => route.isFirst);
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi: ${response.body}')));
-  }
-}
-
-Future<int?> _getDiaChiGiaoID(int userId) async {
-  final response = await http.get(
-    Uri.parse('http://127.0.0.1:8000/api/getDiaChiGiaoID?user_id=$userId'),
-  );
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    return data['diachi_id'];
-  } else {
-    return null;
-  }
-}
 }

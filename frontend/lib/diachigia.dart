@@ -1,10 +1,10 @@
+import 'package:apptraicay/danhsachdiachi.dart';
 import 'package:apptraicay/giohang.dart';
 import 'package:apptraicay/thanhtoan.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
 
 class DiaChiGiaoHangScreen extends StatefulWidget {
   final List<ProductItemModel> itemsToBuy;
@@ -20,58 +20,59 @@ class _DiaChiGiaoHangScreenState extends State<DiaChiGiaoHangScreen> {
 
   final TextEditingController hoTenController = TextEditingController();
   final TextEditingController soDienThoaiController = TextEditingController();
-  final TextEditingController diaChiController = TextEditingController();
-  final TextEditingController quanHuyenController = TextEditingController();
-  final TextEditingController thanhPhoController = TextEditingController();
+  final TextEditingController diaChiFullController = TextEditingController();
   final TextEditingController ghiChuController = TextEditingController();
 
-  bool _isFormValid = false; // Trạng thái form hợp lệ
+  bool _isFormValid = false;
 
   @override
-void initState() {
-  super.initState();
-  hoTenController.addListener(_validateForm);
-  soDienThoaiController.addListener(_validateForm);
-  diaChiController.addListener(_validateForm);
-  quanHuyenController.addListener(_validateForm);
-  thanhPhoController.addListener(_validateForm);
+  void initState() {
+    super.initState();
+    hoTenController.addListener(_validateForm);
+    soDienThoaiController.addListener(_validateForm);
+    diaChiFullController.addListener(_validateForm);
 
-  fetchAddressFromServer();
-}
 
-  Future<void> fetchAddressFromServer() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('user_id');
-    if (userId == null) {
-      print('Chưa đăng nhập hoặc không có user_id');
-      return;
-    }
+    fetchAddressFromServer();
 
-    final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/getDiaChiGiaoHang?user_id=$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      print('API Response: ${response.body}');
-      final data = jsonDecode(response.body);
-      setState(() {
-        hoTenController.text = data['Hoten'] ?? '';
-        soDienThoaiController.text = data['Sodienthoai'] ?? '';
-        final diachi = data['Diachi'] ?? '';
-        final parts = diachi.split(',');
-        diaChiController.text = parts.isNotEmpty ? parts[0].trim() : '';
-       
-      });
-    }
   }
 
+  Future<void> fetchAddressFromServer() async {
+  final prefs = await SharedPreferences.getInstance();
+  final userId = prefs.getInt('user_id');
+  if (userId == null) {
+    print('Chưa đăng nhập hoặc không có user_id');
+    return;
+  }
+
+  final response = await http.get(
+    Uri.parse('http://127.0.0.1:8000/api/getDanhSachDiaChiGiaoID?user_id=$userId'),
+  );
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+    final defaultItem = data.firstWhere(
+      (item) => item['is_default'] == 1,
+      orElse: () => null,
+    );
+
+    if (defaultItem != null) {
+      setState(() {
+        hoTenController.text = defaultItem['hoten'] ?? '';
+        soDienThoaiController.text = defaultItem['sdt'] ?? '';
+        diaChiFullController.text = defaultItem['diachi'];
+      });
+    }
+  } else {
+    print('Không lấy được danh sách địa chỉ');
+  }
+}
+
   void _validateForm() {
-    final isValid = 
+    final isValid =
         hoTenController.text.trim().isNotEmpty &&
         RegExp(r'^\d{9,11}$').hasMatch(soDienThoaiController.text.trim()) &&
-        diaChiController.text.trim().isNotEmpty &&
-        quanHuyenController.text.trim().isNotEmpty &&
-        thanhPhoController.text.trim().isNotEmpty;
+        diaChiFullController.text.trim().isNotEmpty;
 
     if (isValid != _isFormValid) {
       setState(() {
@@ -84,9 +85,7 @@ void initState() {
   void dispose() {
     hoTenController.dispose();
     soDienThoaiController.dispose();
-    diaChiController.dispose();
-    quanHuyenController.dispose();
-    thanhPhoController.dispose();
+    diaChiFullController.dispose();
     ghiChuController.dispose();
     super.dispose();
   }
@@ -106,6 +105,7 @@ void initState() {
             children: [
               TextFormField(
                 controller: hoTenController,
+                readOnly: true,
                 decoration: const InputDecoration(
                   labelText: 'Họ và tên',
                   border: OutlineInputBorder(),
@@ -120,6 +120,7 @@ void initState() {
               const SizedBox(height: 16),
               TextFormField(
                 controller: soDienThoaiController,
+                readOnly: true,
                 keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
                   labelText: 'Số điện thoại',
@@ -136,21 +137,48 @@ void initState() {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: diaChiController,
-                decoration: const InputDecoration(
-                  labelText: 'Địa chỉ (số nhà, tên đường)',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Vui lòng nhập địa chỉ';
-                  }
-                  return null;
-                },
-              ),
-             
-             
+
+              Stack(
+  alignment: Alignment.centerRight,
+  children: [
+    TextFormField(
+      controller: diaChiFullController,
+      readOnly: true,
+      maxLines: 2,
+      decoration: const InputDecoration(
+        labelText: 'Địa chỉ đầy đủ',
+        border: OutlineInputBorder(),
+      ),
+    ),
+    IconButton(
+      icon: const Icon(Icons.edit_location_alt, color: Colors.orange),
+      tooltip: "Chọn địa chỉ khác",
+      onPressed: () async {
+        final prefs = await SharedPreferences.getInstance();
+        final userId = prefs.getInt('user_id');
+
+        if (userId != null) {
+          final selected = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => DanhSachDiaChiScreen(userId: userId, isSelectMode: true),
+            ),
+          );
+
+          if (selected != null && mounted) {
+            setState(() {
+              hoTenController.text = selected['hoten'];
+              soDienThoaiController.text = selected['sdt'];
+              diaChiFullController.text = selected['diachi'];
+              _validateForm(); // cập nhật lại trạng thái nút thanh toán
+            });
+          }
+        }
+      },
+    ),
+  ],
+),
+
               const SizedBox(height: 16),
               TextFormField(
                 controller: ghiChuController,
@@ -166,7 +194,6 @@ void initState() {
                 child: ElevatedButton.icon(
                   onPressed: _isFormValid
                       ? () {
-                          //_submit();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -174,13 +201,13 @@ void initState() {
                                 itemsToBuy: widget.itemsToBuy,
                                 hoten: hoTenController.text,
                                 sdt: soDienThoaiController.text,
-                                diachi: '${diaChiController.text}, ${quanHuyenController.text}, ${thanhPhoController.text}',
+                                diachi: diaChiFullController.text,
                                 ghichu: ghiChuController.text,
-                                ),
+                              ),
                             ),
                           );
                         }
-                      : null, // Disabled nếu chưa hợp lệ
+                      : null,
                   icon: const Icon(Icons.payment),
                   label: const Text("Thanh toán"),
                   style: ElevatedButton.styleFrom(
