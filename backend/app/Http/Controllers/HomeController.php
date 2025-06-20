@@ -29,6 +29,7 @@ class HomeController extends Controller
                 'donhang.Tongtien',
                 'donhang.Trangthai',
                 'diachigiaohang.Diachi as Diachi', // thêm dòng này
+                'donhang.Ghichu',
                 'sanpham.Tensp',
                 'chitietdonhang.Soluong',
                 'chitietsanpham.Gia'
@@ -48,10 +49,12 @@ class HomeController extends Controller
         // Gom theo đơn hàng
         $grouped = $donHangs->groupBy('DonhangID')->map(function ($items) {
             return [
+                'DonhangID' => $items[0]->DonhangID,
                 'Ngaydat' => $items[0]->Ngaydat,
                 'Tongtien' => $items[0]->Tongtien,
                 'Trangthai' => $items[0]->Trangthai,
                 'Diachi' => $items[0]->Diachi ?? '', // thêm dòng này
+                'Ghichu' => $items[0]->Ghichu ?? '',
                 'Sanphams' => $items->map(function ($item) {
                     return [
                         'Tensp' => $item->Tensp,
@@ -132,121 +135,49 @@ class HomeController extends Controller
         ]);
     }
 
-    public function getDanhSachDiaChiGiaoID(Request $request)
+    
+    public function huyDonHang(Request $request)
 {
-    try {
-        $userId = $request->query('user_id');
+    $data = $request->json()->all();
+    $userId = $data['user_id'] ?? null;
+    $donhangId = $data['donhang_id'] ?? null;
 
-        if (!$userId) {
-            return response()->json(['message' => 'Thiếu user_id'], 400);
-        }
-
-        $diachis = DB::table('diachigiaohang')
-            ->where('UserID', $userId)
-            ->orderByDesc('DiachigiaoID')
-            ->get();
-
-        if ($diachis->isEmpty()) {
-            return response()->json([], 200); // Trả về mảng rỗng nếu không có địa chỉ
-        }
-
-        // Format lại dữ liệu (nếu cần)
-        $result = $diachis->map(function ($item) {
-            return [
-                'diachi_id' => $item->DiachigiaoID,
-                'hoten' => $item->Hoten,
-                'sdt' => $item->Sodienthoai,
-                'diachi' => $item->Diachi,
-                //'quan' => '', // hoặc tách từ diachi nếu bạn muốn
-                //'thanhpho' => '',
-                'is_default' => $item->is_default ?? 0
-            ];
-        });
-
-        return response()->json($result);
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Server Error',
-            'error' => $e->getMessage()
-        ], 500);
-    }
-}
-
-public function getDiaChiMacDinh(Request $request)
-{
-    $userId = $request->query('user_id');
-
-    if (!$userId) {
-        return response()->json(['message' => 'Thiếu user_id'], 400);
+    if (!$userId || !$donhangId) {
+        return response()->json(['message' => 'Thiếu dữ liệu'], 400);
     }
 
-    $diachi = DB::table('diachigiaohang')
-        ->where('UserID', $userId)
-        ->where('is_default', 1)
+    $donhang = DB::table('donhang')
+        ->where('DonhangID', $donhangId)
+        ->where('IDuser', $userId)
         ->first();
 
-    if (!$diachi) {
-        return response()->json(['message' => 'Không có địa chỉ mặc định'], 404);
+    if (!$donhang) {
+        return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
     }
 
-    return response()->json([
-        'hoten' => $diachi->Hoten,
-        'sdt' => $diachi->Sodienthoai,
-        'diachi' => $diachi->Diachi,
-        'diachi_id' => $diachi->DiachigiaoID,
-    ]);
-}
-
-   public function setDefaultAddress(Request $request)
-{
-    $userId = $request->input('user_id');
-    $diaChiId = $request->input('dia_chi_id');
-
-    DB::table('diachigiaohang')
-        ->where('UserID', $userId)
-        ->update(['is_default' => 0]);
-
-    DB::table('diachigiaohang')
-        ->where('DiachigiaoID', $diaChiId)
-        ->update(['is_default' => 1]);
-
-    return response()->json(['status' => 'success']);
-}
-
-
-    public function huyDonHang(Request $request)
-    {
-        $userId = $request->user_id;
-        $donhangId = $request->donhang_id;
-
-        $donhang = DB::table('donhang')
-            ->where('DonhangID', $donhangId)
-            ->where('IDuser', $userId)
-            ->first();
-
-        if (!$donhang) {
-            return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
-        }
-
-        if ($donhang->Trangthai !== 'Chờ duyệt') {
-            return response()->json(['message' => 'Đơn hàng không thể hủy khi đã xử lý'], 403);
-        }
-
-        $ngaydat = \Carbon\Carbon::parse($donhang->Ngaydat);
-        $now = \Carbon\Carbon::now();
-
-        $phutKhacBiet = $ngaydat->diffInMinutes($now);
-
-        if ($phutKhacBiet <= 30) {
-            // Cho phép hủy luôn
-            DB::table('donhang')->where('DonhangID', $donhangId)->update([
-                'Trangthai' => 'Đã hủy'
-            ]);
-            return response()->json(['message' => 'Đơn hàng đã được hủy thành công']);
-        } else {
-            return response()->json([
-                'message' => 'Đơn hàng đã quá 30 phút. Cần xác nhận từ admin để hủy.'
-            ], 403);
-        }
+    if ($donhang->Trangthai !== 'Chờ duyệt') {
+        return response()->json(['message' => 'Đơn hàng không thể hủy khi đã xử lý'], 403);
     }
+
+    $ngaydat = \Carbon\Carbon::parse($donhang->Ngaydat);
+    $now = \Carbon\Carbon::now();
+
+    $phutKhacBiet = $ngaydat->diffInMinutes($now);
+
+    if ($phutKhacBiet <= 30) {
+        DB::table('donhang')->where('DonhangID', $donhangId)->update([
+            'Trangthai' => 'Đã hủy'
+        ]);
+        return response()->json(['message' => 'Đơn hàng đã được hủy thành công']);
+    } else {
+        DB::table('donhang')->where('DonhangID', $donhangId)->update([
+            'Trangthai' => 'Hủy tạm thời'
+        ]);
+         return response()->json([
+            'message' => 'Đơn hàng đã quá 30 phút. Cần xác nhận từ admin để hủy.'
+        ], 403);
+    }
+}
+
+    
 }

@@ -5,6 +5,7 @@ class ChiTietDonHangScreen extends StatelessWidget {
   final String ngayDat;
   final double tongTien;
   final String diaChi; // thêm dòng này
+  final String ghichu;
   final List<ProductItemModel> sanPhams;
 
   const ChiTietDonHangScreen({
@@ -12,6 +13,7 @@ class ChiTietDonHangScreen extends StatelessWidget {
     required this.ngayDat,
     required this.tongTien,
     required this.diaChi, // thêm dòng này
+    required this.ghichu,
     required this.sanPhams,
   });
 
@@ -36,6 +38,10 @@ class ChiTietDonHangScreen extends StatelessWidget {
           ListTile(
             title: const Text("Địa chỉ giao hàng"),
             subtitle: Text(diaChi),
+          ),
+           ListTile(
+            title: const Text("Ghi chú"),
+            subtitle: Text(ghichu.isNotEmpty ? ghichu : "Không có ghi chú"),
           ),
           const Divider(),
           const Padding(
