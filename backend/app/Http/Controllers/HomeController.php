@@ -132,32 +132,87 @@ class HomeController extends Controller
         ]);
     }
 
-    public function getDiaChiGiaoID(Request $request)
-    {
-        try {
-            $userId = $request->query('user_id');
+    public function getDanhSachDiaChiGiaoID(Request $request)
+{
+    try {
+        $userId = $request->query('user_id');
 
-            if (!$userId) {
-                return response()->json(['message' => 'Thiếu user_id'], 400);
-            }
-
-            $diachi = DB::table('diachigiaohang')
-                ->where('UserID', $userId) // sửa đúng tên cột
-                ->orderByDesc('DiachigiaoID')
-                ->first();
-
-            if (!$diachi) {
-                return response()->json(['message' => 'Không tìm thấy địa chỉ'], 404);
-            }
-
-            return response()->json(['diachi_id' => $diachi->DiachigiaoID]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Server Error',
-                'error' => $e->getMessage()
-            ], 500);
+        if (!$userId) {
+            return response()->json(['message' => 'Thiếu user_id'], 400);
         }
+
+        $diachis = DB::table('diachigiaohang')
+            ->where('UserID', $userId)
+            ->orderByDesc('DiachigiaoID')
+            ->get();
+
+        if ($diachis->isEmpty()) {
+            return response()->json([], 200); // Trả về mảng rỗng nếu không có địa chỉ
+        }
+
+        // Format lại dữ liệu (nếu cần)
+        $result = $diachis->map(function ($item) {
+            return [
+                'diachi_id' => $item->DiachigiaoID,
+                'hoten' => $item->Hoten,
+                'sdt' => $item->Sodienthoai,
+                'diachi' => $item->Diachi,
+                //'quan' => '', // hoặc tách từ diachi nếu bạn muốn
+                //'thanhpho' => '',
+                'is_default' => $item->is_default ?? 0
+            ];
+        });
+
+        return response()->json($result);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Server Error',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
+public function getDiaChiMacDinh(Request $request)
+{
+    $userId = $request->query('user_id');
+
+    if (!$userId) {
+        return response()->json(['message' => 'Thiếu user_id'], 400);
+    }
+
+    $diachi = DB::table('diachigiaohang')
+        ->where('UserID', $userId)
+        ->where('is_default', 1)
+        ->first();
+
+    if (!$diachi) {
+        return response()->json(['message' => 'Không có địa chỉ mặc định'], 404);
+    }
+
+    return response()->json([
+        'hoten' => $diachi->Hoten,
+        'sdt' => $diachi->Sodienthoai,
+        'diachi' => $diachi->Diachi,
+        'diachi_id' => $diachi->DiachigiaoID,
+    ]);
+}
+
+   public function setDefaultAddress(Request $request)
+{
+    $userId = $request->input('user_id');
+    $diaChiId = $request->input('dia_chi_id');
+
+    DB::table('diachigiaohang')
+        ->where('UserID', $userId)
+        ->update(['is_default' => 0]);
+
+    DB::table('diachigiaohang')
+        ->where('DiachigiaoID', $diaChiId)
+        ->update(['is_default' => 1]);
+
+    return response()->json(['status' => 'success']);
+}
+
 
     public function huyDonHang(Request $request)
     {
@@ -193,29 +248,5 @@ class HomeController extends Controller
                 'message' => 'Đơn hàng đã quá 30 phút. Cần xác nhận từ admin để hủy.'
             ], 403);
         }
-    }
-
-
-    public function capNhatTrangThaiDonHang(Request $request)
-    {
-        $request->validate([
-            'donhang_id' => 'required|integer',
-            'trangthai' => 'required|string'
-        ]);
-
-        $donhangId = $request->input('donhang_id');
-        $trangthai = $request->input('trangthai');
-
-        $exists = DB::table('donhang')->where('DonhangID', $donhangId)->exists();
-
-        if (!$exists) {
-            return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
-        }
-
-        DB::table('donhang')->where('DonhangID', $donhangId)->update([
-            'Trangthai' => $trangthai
-        ]);
-
-        return response()->json(['message' => 'Cập nhật trạng thái thành công']);
     }
 }

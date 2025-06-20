@@ -37,9 +37,12 @@ Route::get('/getDiaChiGiaoHang',[AuthController::class, 'getDiaChiGiaoHang']);
 //Đơn hàng
 Route::get('/getDanhSachDonHang',[HomeController::class, 'getDanhSachDonHang']);
 
-Route::get('/getDiaChiGiaoID', [HomeController::class, 'getDiaChiGiaoID']);
+Route::get('/getDanhSachDiaChiGiaoID', [HomeController::class, 'getDanhSachDiaChiGiaoID']);
+
+Route::get('/getDiaChiMacDinh', [HomeController::class, 'getDiaChiMacDinh']);
 
 Route::post('/taoDonHang', [HomeController::class, 'taoDonHang']);
 
 Route::post('/huyDonHang', [HomeController::class, 'huyDonHang']);
 
+Route::post('/setDefaultAddress', [HomeController::class, 'setDefaultAddress']);

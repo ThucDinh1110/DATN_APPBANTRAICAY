@@ -1,7 +1,9 @@
+import 'package:apptraicay/danhsachdiachi.dart';
 import 'package:flutter/material.dart';
 import 'package:apptraicay/doimatkhau.dart';
 import 'package:apptraicay/dangnhap.dart';
 import 'package:apptraicay/matkhaumoi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CaiDatPage extends StatelessWidget {
   const CaiDatPage({super.key});
@@ -31,9 +33,26 @@ class CaiDatPage extends StatelessWidget {
             },
           ),
           const Divider(),
+          ListTile(
+            leading: const Icon(Icons.location_city, color: Colors.orange),
+            title: const Text("Danh sách địa chỉ"),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () async {
+              final prefs = await SharedPreferences.getInstance();
+              final userId = prefs.getInt('user_id');
 
+              if (userId != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DanhSachDiaChiScreen(userId: userId), // mặc định isSelectMode: false
+                  ),
+                );
+              }
+            },
+          ),
+          const Divider(),
           const Spacer(),
-
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton.icon(

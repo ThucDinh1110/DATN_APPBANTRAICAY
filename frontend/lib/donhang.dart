@@ -77,12 +77,12 @@ class _DonhangState extends State<Donhang> {
         }
 
         DonHangModel newDon = DonHangModel(
-  ngayDat: don['Ngaydat'],
-  tongTien: double.tryParse(don['Tongtien'].toString()) ?? 0,
-  trangThai: don['Trangthai'],
-  diaChi: don.containsKey('Diachi') ? don['Diachi'] ?? '' : '',  // safe
-  sanPhams: items,
-);
+          ngayDat: don['Ngaydat'],
+          tongTien: double.tryParse(don['Tongtien'].toString()) ?? 0,
+          trangThai: don['Trangthai'],
+          diaChi: don.containsKey('Diachi') ? don['Diachi'] ?? '' : '', // safe
+          sanPhams: items,
+        );
 
         switch (don['Trangthai'].toString().trim().toLowerCase()) {
           case 'chờ duyệt':
