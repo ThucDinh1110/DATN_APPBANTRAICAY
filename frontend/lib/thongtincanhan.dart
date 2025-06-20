@@ -1,8 +1,9 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'ibm.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -19,6 +20,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _chieucaoController = TextEditingController();
   final TextEditingController _cannangController = TextEditingController();
   String _gender = 'Nam';
+  String _nhuCau = 'Duy trì';
   bool _isLoading = true;
 
   @override
@@ -52,7 +54,14 @@ class _ProfilePageState extends State<ProfilePage> {
           _diachiController.text = (data['Diachi'] ?? '').toString();
           _chieucaoController.text = (data['Chieucao'] ?? '').toString();
           _cannangController.text = (data['Cannang'] ?? '').toString();
-          _gender = data['Gioitinh'] ?? 'Nam';
+        _gender = ['Nam', 'Nữ', 'Khác'].contains(data['Gioitinh']) 
+    ? data['Gioitinh'] 
+    : 'Nam';
+
+         _nhuCau = ['Tăng cân', 'Giảm cân', 'Duy trì'].contains(data['Nhucau']) 
+    ? data['Nhucau'] 
+    : 'Duy trì';
+
           _isLoading = false;
         });
       } else {
@@ -89,6 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
           'gioitinh': _gender,
           'chieucao': int.tryParse(_chieucaoController.text.trim()) ?? 0,
           'cannang': int.tryParse(_cannangController.text.trim()) ?? 0,
+          'nhucau': _nhuCau,
         }),
       );
 
@@ -175,8 +185,8 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Hồ sơ cá nhân', 
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text('Hồ sơ cá nhân',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -186,8 +196,7 @@ class _ProfilePageState extends State<ProfilePage> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              
-               Color(0xFF2575FC),
+              Color(0xFF2575FC),
               Colors.grey,
             ],
           ),
@@ -198,7 +207,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.fromLTRB(16, 100, 16, 16),
                 child: Column(
                   children: [
-                    // Profile Avatar
+                    // Avatar
                     ClipRRect(
                       borderRadius: BorderRadius.circular(60),
                       child: BackdropFilter(
@@ -220,67 +229,70 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    
-                    // Form Fields
+
+                    // Form
                     _buildGlassField("Họ và tên", _nameController),
                     _buildGlassField("Số điện thoại", _phoneController),
                     _buildGlassField("Email", _emailController),
                     _buildGlassField("Địa chỉ", _diachiController),
-                    _buildGlassField("Chiều cao", _chieucaoController,
-                        suffixText: "cm"),
-                    _buildGlassField("Cân nặng", _cannangController,
-                        suffixText: "kg"),
 
-                    // Gender Selector
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(
-                                  color: Colors.white.withOpacity(0.3)),
+                    // Chiều cao & cân nặng
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(15),
+                            border:
+                                Border.all(color: Colors.white.withOpacity(0.3)),
+                          ),
+                          child: ListTile(
+                            title: const Text("Chiều cao & Cân nặng",
+                                style: TextStyle(color: Colors.white)),
+                            subtitle: Text(
+                              "${_chieucaoController.text} cm, ${_cannangController.text} kg",
+                              style: const TextStyle(color: Colors.white70),
                             ),
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              child: DropdownButtonFormField<String>(
-                                value: ['Nam', 'Nữ', 'Khác'].contains(_gender)
-                                    ? _gender
-                                    : 'Nam',
-                                items: ['Nam', 'Nữ', 'Khác']
-                                    .map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value,
-                                        style: const TextStyle(
-                                            color: Colors.white)),
-                                  );
-                                }).toList(),
-                                dropdownColor: const Color(0xFF6A11CB),
-                                decoration: const InputDecoration(
-                                  labelText: 'Giới tính',
-                                  labelStyle: TextStyle(color: Colors.white70),
-                                  border: InputBorder.none,
+                            trailing: const Icon(Icons.arrow_forward_ios,
+                                color: Colors.white),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ibm(
+                                    chieucao: _chieucaoController.text,
+                                    cannang: _cannangController.text,
+                                    onSave: (newChieucao, newCannang) {
+                                      setState(() {
+                                        _chieucaoController.text = newChieucao;
+                                        _cannangController.text = newCannang;
+                                      });
+                                    },
+                                  ),
                                 ),
-                                style: const TextStyle(color: Colors.white),
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    _gender = newValue!;
-                                  });
-                                },
-                              ),
-                            ),
+                              );
+                            },
                           ),
                         ),
                       ),
                     ),
 
+                    // Gender dropdown
+                    _buildDropdownField('Giới tính', _gender,
+                        ['Nam', 'Nữ', 'Khác'], (value) {
+                      setState(() => _gender = value);
+                    }),
+
+                    // Nhu cầu dropdown
+                    _buildDropdownField('Nhu cầu', _nhuCau,
+                        ['Tăng cân', 'Giảm cân', 'Duy trì'], (value) {
+                      setState(() => _nhuCau = value);
+                    }),
+
                     const SizedBox(height: 30),
+
                     // Save Button
                     ClipRRect(
                       borderRadius: BorderRadius.circular(15),
@@ -290,8 +302,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                                color: Colors.white.withOpacity(0.5)),
+                            border:
+                                Border.all(color: Colors.white.withOpacity(0.5)),
                           ),
                           child: ElevatedButton(
                             onPressed: updateUserProfile,
@@ -315,6 +327,47 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownField(String label, String value, List<String> items,
+      Function(String) onChanged) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: Colors.white.withOpacity(0.3)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: DropdownButtonFormField<String>(
+                value: value,
+                items: items.map((String val) {
+                  return DropdownMenuItem<String>(
+                    value: val,
+                    child:
+                        Text(val, style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),
+                  );
+                }).toList(),
+                dropdownColor: Colors.white70,
+                decoration: InputDecoration(
+                  labelText: label,
+                  labelStyle: const TextStyle(color: Colors.white24),
+                  border: InputBorder.none,
+                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: (newValue) => onChanged(newValue!),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

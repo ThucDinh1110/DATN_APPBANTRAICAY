@@ -60,8 +60,7 @@ void initState() {
         final diachi = data['Diachi'] ?? '';
         final parts = diachi.split(',');
         diaChiController.text = parts.isNotEmpty ? parts[0].trim() : '';
-        quanHuyenController.text = parts.length > 1 ? parts[1].trim() : '';
-        thanhPhoController.text = parts.length > 2 ? parts[2].trim() : '';
+       
       });
     }
   }
@@ -150,34 +149,8 @@ void initState() {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: quanHuyenController,
-                decoration: const InputDecoration(
-                  labelText: 'Quận / Huyện',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Vui lòng nhập quận/huyện';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: thanhPhoController,
-                decoration: const InputDecoration(
-                  labelText: 'Thành phố',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Vui lòng nhập thành phố';
-                  }
-                  return null;
-                },
-              ),
+             
+             
               const SizedBox(height: 16),
               TextFormField(
                 controller: ghiChuController,

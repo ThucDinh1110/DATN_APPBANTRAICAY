@@ -85,49 +85,53 @@ class _chitietsppageState extends State<chitietsppage> {
                                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                               const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${sanPham.gia.toStringAsFixed(0)} VNĐ/${sanPham.donvi}',
-                                    style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
-                                  ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.3),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    child: Row(
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            if (quantity > 1) setState(() => quantity--);
-                                          },
-                                          child: const CircleAvatar(
-                                            radius: 12,
-                                            backgroundColor: Colors.white,
-                                            child: Icon(Icons.remove, size: 16, color: Colors.black),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Text(quantity.toString(), style: const TextStyle(color: Colors.white, fontSize: 16)),
-                                        const SizedBox(width: 10),
-                                        GestureDetector(
-                                          onTap: () {
-                                            setState(() => quantity++);
-                                          },
-                                          child: const CircleAvatar(
-                                            radius: 12,
-                                            backgroundColor: Colors.black,
-                                            child: Icon(Icons.add, size: 16, color: Colors.white),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                             Row(
+  children: [
+    Expanded(
+      child: Text(
+        '${sanPham.gia.toStringAsFixed(0)} VNĐ/${sanPham.donvi}',
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+        overflow: TextOverflow.ellipsis,
+      ),
+    ),
+    const SizedBox(width: 12),
+    Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              if (quantity > 1) setState(() => quantity--);
+            },
+            child: const CircleAvatar(
+              radius: 12,
+              backgroundColor: Colors.white,
+              child: Icon(Icons.remove, size: 16, color: Colors.black),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(quantity.toString(), style: const TextStyle(color: Colors.white, fontSize: 16)),
+          const SizedBox(width: 10),
+          GestureDetector(
+            onTap: () {
+              setState(() => quantity++);
+            },
+            child: const CircleAvatar(
+              radius: 12,
+              backgroundColor: Colors.black,
+              child: Icon(Icons.add, size: 16, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    ),
+  ],
+),
+
                               const SizedBox(height: 20),
                               _buildNutritionRow(Icons.bolt, 'Vitamin A', '${sanPham.vitamina} μg'),
                               _buildNutritionRow(Icons.eco, 'Vitamin C', '${sanPham.vitaminc} mg'),
