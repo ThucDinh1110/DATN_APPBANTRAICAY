@@ -1,4 +1,5 @@
 import 'package:apptraicay/chitietdonhang.dart';
+import 'package:apptraicay/huydonserve.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -19,17 +20,21 @@ class ProductItemModel {
 }
 
 class DonHangModel {
+  final int donhangId;
   final String ngayDat;
   final double tongTien;
   final String trangThai;
-  final String diaChi; // thêm dòng này
+  final String diaChi;
+  final String ghichu;
   final List<ProductItemModel> sanPhams;
 
   DonHangModel({
+    required this.donhangId,
     required this.ngayDat,
     required this.tongTien,
     required this.trangThai,
-    required this.diaChi, // thêm dòng này
+    required this.diaChi,
+    required this.ghichu,
     required this.sanPhams,
   });
 }
@@ -64,6 +69,12 @@ class _DonhangState extends State<Donhang> {
     );
 
     if (response.statusCode == 200) {
+      choDuyet.clear();
+      daDuyet.clear();
+      dangGiao.clear();
+      daMua.clear();
+      donHangDaHuy.clear();
+
       final data = jsonDecode(response.body);
       for (var don in data) {
         List<ProductItemModel> items = [];
@@ -77,31 +88,29 @@ class _DonhangState extends State<Donhang> {
         }
 
         DonHangModel newDon = DonHangModel(
+          donhangId: don['DonhangID'],
           ngayDat: don['Ngaydat'],
           tongTien: double.tryParse(don['Tongtien'].toString()) ?? 0,
           trangThai: don['Trangthai'],
-          diaChi: don.containsKey('Diachi') ? don['Diachi'] ?? '' : '', // safe
+          diaChi: don.containsKey('Diachi') ? don['Diachi'] ?? '' : '',
+          ghichu: don['Ghichu'],
           sanPhams: items,
         );
 
-        switch (don['Trangthai'].toString().trim().toLowerCase()) {
-          case 'chờ duyệt':
-            choDuyet.add(newDon);
-            break;
-          case 'đã duyệt':
-            daDuyet.add(newDon);
-            break;
-          case 'đang giao':
-            dangGiao.add(newDon);
-            break;
-          case 'đã mua':
-            daMua.add(newDon);
-            break;
-          case 'đã hủy':
-            donHangDaHuy.add(newDon);
-            break;
-          default:
-            print("Trạng thái không khớp: ${don['Trangthai']}");
+        final status = don['Trangthai'].toString().trim().toLowerCase();
+
+        if (status == 'chờ duyệt') {
+          choDuyet.add(newDon);
+        } else if (status == 'đã duyệt') {
+          daDuyet.add(newDon);
+        } else if (status == 'đang giao') {
+          dangGiao.add(newDon);
+        } else if (status == 'đã mua') {
+          daMua.add(newDon);
+        } else if (status == 'đã hủy' || status.contains('hủy')) {
+          donHangDaHuy.add(newDon);
+        } else {
+          print("Trạng thái không khớp: ${don['Trangthai']}");
         }
       }
       setState(() {});
@@ -110,24 +119,31 @@ class _DonhangState extends State<Donhang> {
     }
   }
 
-  Widget _buildOrderStatusList(String title, List<DonHangModel> donHangs,
-      {bool allowCancel = false}) {
+  Widget _buildOrderStatusList(String title, List<DonHangModel> donHangs) {
     return donHangs.isEmpty
         ? Center(child: Text("Không có đơn nào trong mục '$title'"))
         : ListView.builder(
             itemCount: donHangs.length,
             itemBuilder: (context, index) {
               final don = donHangs[index];
+              final isCancelable =
+                  don.trangThai.toLowerCase().trim() == 'chờ duyệt';
+
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                 child: ListTile(
                   title: Text("Ngày đặt: ${don.ngayDat}"),
                   subtitle:
                       Text("Tổng tiền: ${don.tongTien.toStringAsFixed(0)} đ"),
-                  trailing: allowCancel
+                  trailing: isCancelable
                       ? TextButton(
-                          onPressed: () {
-                            // xử lý hủy đơn
+                          onPressed: () async {
+                            final message = await HuyDonService.huyDonHang(
+                                don.donhangId);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(message)),
+                            );
+                            fetchDonHang();
                           },
                           child: const Text("Hủy đơn",
                               style: TextStyle(color: Colors.red)),
@@ -142,6 +158,7 @@ class _DonhangState extends State<Donhang> {
                           tongTien: don.tongTien,
                           sanPhams: don.sanPhams,
                           diaChi: don.diaChi,
+                          ghichu: don.ghichu,
                         ),
                       ),
                     );
@@ -183,8 +200,7 @@ class _DonhangState extends State<Donhang> {
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildOrderStatusList("Chờ duyệt", choDuyet,
-                      allowCancel: true),
+                  _buildOrderStatusList("Chờ duyệt", choDuyet),
                   _buildOrderStatusList("Đã duyệt", daDuyet),
                   _buildOrderStatusList("Đang giao", dangGiao),
                   _buildOrderStatusList("Đã mua", daMua),

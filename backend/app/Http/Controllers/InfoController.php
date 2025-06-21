@@ -76,14 +76,14 @@ class InfoController extends Controller
             ]);
         }
 
-        DB::table('diachigiaohang')->updateOrInsert(
-            ['UserID' => $userId],
-            [
-                'Hoten' => $request->input('hoten'),
-                'Sodienthoai' => $request->input('sodienthoai'),
-                'Diachi' => $request->input('diachi')
-            ]
-        );
+        //DB::table('diachigiaohang')->updateOrInsert(
+            //['UserID' => $userId],
+            //[
+                //'Hoten' => $request->input('hoten'),
+                //'Sodienthoai' => $request->input('sodienthoai'),
+                //'Diachi' => $request->input('diachi')
+            //]
+        //);
 
         return response()->json(['message' => 'Cập nhật thông tin thành công']);
     }

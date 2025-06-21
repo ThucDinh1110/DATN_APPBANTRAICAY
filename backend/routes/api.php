@@ -7,7 +7,7 @@ use App\Http\Controllers\GiohangController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InfoController;
 use App\Http\Controllers\SanphamController;
-
+use App\Http\Controllers\DiachiController;
 
 
 
@@ -32,17 +32,21 @@ Route::get('/getUserProfile',[InfoController::class, 'getUserProfile']);
 //Update thông tin
 Route::post('/updateUserProfile',[InfoController::class, 'updateUserProfile']);
 
-Route::get('/getDiaChiGiaoHang',[AuthController::class, 'getDiaChiGiaoHang']);
+//Route::get('/getDiaChiGiaoHang',[AuthController::class, 'getDiaChiGiaoHang']);
 
 //Đơn hàng
 Route::get('/getDanhSachDonHang',[HomeController::class, 'getDanhSachDonHang']);
-
-Route::get('/getDanhSachDiaChiGiaoID', [HomeController::class, 'getDanhSachDiaChiGiaoID']);
-
-Route::get('/getDiaChiMacDinh', [HomeController::class, 'getDiaChiMacDinh']);
 
 Route::post('/taoDonHang', [HomeController::class, 'taoDonHang']);
 
 Route::post('/huyDonHang', [HomeController::class, 'huyDonHang']);
 
-Route::post('/setDefaultAddress', [HomeController::class, 'setDefaultAddress']);
+Route::get('/getDanhSachDiaChiGiaoID', [DiachiController::class, 'getDanhSachDiaChiGiaoID']);
+
+Route::get('/getDiaChiGiaoID', [DiachiController::class, 'getDiaChiGiaoID']);
+
+Route::get('/getDiaChiMacDinh', [DiachiController::class, 'getDiaChiMacDinh']);
+
+Route::post('/setDefaultAddress', [DiachiController::class, 'setDefaultAddress']);
+
+Route::post('updateOrInsert', [DiaChiController::class, 'updateOrInsert']);

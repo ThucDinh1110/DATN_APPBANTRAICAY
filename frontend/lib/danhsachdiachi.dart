@@ -1,3 +1,4 @@
+import 'package:apptraicay/themsuadiachi.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -79,9 +80,23 @@ class _DanhSachDiaChiScreenState extends State<DanhSachDiaChiScreen> {
               leading: const Icon(Icons.edit_location, color: Colors.blue),
               title: const Text('Chỉnh sửa địa chỉ'),
               onTap: () {
-                Navigator.pop(context);
-                // TODO: mở màn hình sửa địa chỉ nếu có
-              },
+  Navigator.pop(context);
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => EditAddressPage(
+        diachiId: diaChi['diachi_id'],
+        name: diaChi['hoten'],
+        phone: diaChi['sdt'],
+        address: diaChi['diachi'],
+      ),
+    ),
+  ).then((value) {
+    if (value == true) {
+      fetchDiaChi(); // làm mới danh sách
+    }
+  });
+},
             ),
           ],
         );
@@ -162,8 +177,17 @@ class _DanhSachDiaChiScreenState extends State<DanhSachDiaChiScreen> {
           ? null
           : FloatingActionButton.extended(
               onPressed: () {
-                // TODO: mở màn hình thêm địa chỉ nếu có
-              },
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const EditAddressPage(),
+    ),
+  ).then((value) {
+    if (value == true) {
+      fetchDiaChi(); // làm mới danh sách
+    }
+  });
+},
               label: const Text('Thêm Địa Chỉ Mới'),
               icon: const Icon(Icons.add),
             ),
