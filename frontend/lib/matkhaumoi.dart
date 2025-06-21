@@ -8,7 +8,7 @@ class ChangePasswordPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Đổi mật khẩu'),
-        backgroundColor: Colors.green,
+        backgroundColor:  Color.fromRGBO(95, 179, 249, 1),
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -41,6 +41,7 @@ class ChangePasswordPage extends StatelessWidget {
           ],
         ),
       ),
+      backgroundColor: Colors.white,
     );
   }
 }

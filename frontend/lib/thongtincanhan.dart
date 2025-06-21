@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ibm.dart';
+import 'goiy.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -54,14 +55,12 @@ class _ProfilePageState extends State<ProfilePage> {
           _diachiController.text = (data['Diachi'] ?? '').toString();
           _chieucaoController.text = (data['Chieucao'] ?? '').toString();
           _cannangController.text = (data['Cannang'] ?? '').toString();
-        _gender = ['Nam', 'Nữ', 'Khác'].contains(data['Gioitinh']) 
-    ? data['Gioitinh'] 
-    : 'Nam';
-
-         _nhuCau = ['Tăng cân', 'Giảm cân', 'Duy trì'].contains(data['Nhucau']) 
-    ? data['Nhucau'] 
-    : 'Duy trì';
-
+          _gender = ['Nam', 'Nữ', 'Khác'].contains(data['Gioitinh']) 
+              ? data['Gioitinh'] 
+              : 'Nam';
+          _nhuCau = ['Tăng cân', 'Giảm cân', 'Duy trì'].contains(data['Nhucau']) 
+              ? data['Nhucau'] 
+              : 'Duy trì';
           _isLoading = false;
         });
       } else {
@@ -245,8 +244,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(15),
-                            border:
-                                Border.all(color: Colors.white.withOpacity(0.3)),
+                            border: Border.all(color: Colors.white.withOpacity(0.3)),
                           ),
                           child: ListTile(
                             title: const Text("Chiều cao & Cân nặng",
@@ -291,7 +289,35 @@ class _ProfilePageState extends State<ProfilePage> {
                       setState(() => _nhuCau = value);
                     }),
 
-                    const SizedBox(height: 30),
+                    // Gợi ý trái cây
+                    const SizedBox(height: 20),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: Colors.white.withOpacity(0.5)),
+                          ),
+                          child: ListTile(
+                            leading: Icon(Icons.fastfood, color: Colors.orange[200]),
+                            title: Text("Gợi ý trái cây phù hợp",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)),
+                            subtitle: Text("Theo nhu cầu $_nhuCau",
+                                style: TextStyle(color: Colors.white70)),
+                            trailing: Icon(Icons.arrow_forward_ios,
+                                color: Colors.white),
+                            onTap: () => showGoiYTraiCayDialog(context, _nhuCau),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
 
                     // Save Button
                     ClipRRect(
@@ -302,8 +328,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(15),
-                            border:
-                                Border.all(color: Colors.white.withOpacity(0.5)),
+                            border: Border.all(color: Colors.white.withOpacity(0.5)),
                           ),
                           child: ElevatedButton(
                             onPressed: updateUserProfile,
@@ -352,8 +377,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 items: items.map((String val) {
                   return DropdownMenuItem<String>(
                     value: val,
-                    child:
-                        Text(val, style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),
+                    child: Text(val,
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
                   );
                 }).toList(),
                 dropdownColor: Colors.white70,

@@ -4,6 +4,7 @@ import 'package:apptraicay/doimatkhau.dart';
 import 'package:apptraicay/dangnhap.dart';
 import 'package:apptraicay/matkhaumoi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'goiy.dart';
 
 class CaiDatPage extends StatelessWidget {
   const CaiDatPage({super.key});
@@ -14,11 +15,18 @@ class CaiDatPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Cài đặt"),
         centerTitle: true,
-        backgroundColor: Colors.green,
+        backgroundColor: Color.fromRGBO(95, 179, 249, 1),
         foregroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(
+      bottom: Radius.circular(24), // bo cong góc dưới
+    ),
+    ),
       ),
       body: Column(
         children: [
+       
+
           ListTile(
             leading: const Icon(Icons.lock, color: Colors.orange),
             title: const Text("Đổi mật khẩu"),
@@ -75,6 +83,7 @@ class CaiDatPage extends StatelessWidget {
           ),
         ],
       ),
+       backgroundColor: Colors.white,
     );
   }
 }

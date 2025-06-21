@@ -210,6 +210,7 @@ class _DonhangState extends State<Donhang> {
             ),
           ],
         ),
+        backgroundColor: Colors.white,
       ),
     );
   }

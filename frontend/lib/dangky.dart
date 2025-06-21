@@ -68,7 +68,7 @@ class _SignupPageState extends State<SignupPage> {
             top: 40,
             left: 16,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const WelcomePage()));

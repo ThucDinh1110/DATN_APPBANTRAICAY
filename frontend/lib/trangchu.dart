@@ -38,6 +38,7 @@ class _HomePageState extends State<HomePage> {
           keyword: _searchKeyword,
           onScrollDirectionChange: _handleScroll,
           
+          
         ),
         const ProfilePage(),
         const Donhang(),
@@ -207,8 +208,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                   if (_cartItemCount > 0)
                     Positioned(
-                      right: 4,
-                      top: 4,
+                      right: 0,
+                      top: -6,
                       child: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(

@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
             top: 40,
             left: 16,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
+              icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const WelcomePage()));
@@ -175,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                     Autocomplete<String>(
                       optionsBuilder: (TextEditingValue textEditingValue) {
                         return _savedPhones.where((phone) =>
-                            phone.contains(textEditingValue.text));
+                            phone.contains(textEditingValue.text),);
                       },
                       onSelected: (String selection) {
                         _sdtController.text = selection;

@@ -107,7 +107,15 @@ class _DanhSachDiaChiScreenState extends State<DanhSachDiaChiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Chọn địa chỉ nhận hàng")),
+      appBar: AppBar(
+        title: const Text("Chọn địa chỉ nhận hàng"),
+        backgroundColor:  Color.fromRGBO(95, 179, 249, 1),
+          shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(
+      bottom: Radius.circular(24), // bo cong góc dưới
+    ),
+    ),
+        ),
       body: ListView.builder(
         itemCount: danhSach.length,
         itemBuilder: (context, index) {
@@ -190,7 +198,9 @@ class _DanhSachDiaChiScreenState extends State<DanhSachDiaChiScreen> {
 },
               label: const Text('Thêm Địa Chỉ Mới'),
               icon: const Icon(Icons.add),
+              backgroundColor: Colors.white70,
             ),
+            backgroundColor:Colors.white,
     );
   }
 }

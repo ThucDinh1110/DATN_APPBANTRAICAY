@@ -19,6 +19,7 @@ class _HomeTabContentState extends State<HomeTabContent> {
   late Future<List<SanPham>> _futureSanPhams;
   final ScrollController _scrollController = ScrollController();
   double _lastOffset = 0;
+  
 
   List<String> selectedDanhMucs = [];
   double? minGia;
@@ -72,7 +73,7 @@ class _HomeTabContentState extends State<HomeTabContent> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
-            return AlertDialog(
+            return  AlertDialog(
               backgroundColor: Colors.white.withOpacity(0.95),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               title: const Text(
@@ -260,6 +261,7 @@ class _HomeTabContentState extends State<HomeTabContent> {
                       ),
                     ),
                   ),
+                  
               ],
             );
           }
@@ -323,23 +325,40 @@ class _HomeTabContentState extends State<HomeTabContent> {
   
 
               // Filter button
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                width: 10,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                  color: Colors.white,
+             Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      InkWell(
+          onTap: () => _showFilterDialog(context),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.6), // trong suốt
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade300, width: 1.2),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(Icons.filter_list, color: Colors.black87, size: 20),
+                SizedBox(width: 6),
+                Text(
+                  "Lọc",
+                  style: TextStyle(color: Colors.black87, fontSize: 14),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child:
-                   ListTile(
-                    leading: const Icon(Icons.filter_list, color: Colors.black),
-                    title: const Text("Lọc", style: TextStyle(color: Colors.black)),
-                    onTap: () => _showFilterDialog(context),
-                  ),
-                ),
+              ],
+            ),
+          ),
+        ),
+      
+      const SizedBox(width: 12),
+     
+    ],
+  ),
+
               ),
 
               // Active filters chips
@@ -387,6 +406,7 @@ class _HomeTabContentState extends State<HomeTabContent> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                   
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       child: Text(
