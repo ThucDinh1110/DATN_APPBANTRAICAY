@@ -8,9 +8,11 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InfoController;
 use App\Http\Controllers\SanphamController;
 use App\Http\Controllers\DiachiController;
+use App\Http\Controllers\NhapHangController;
 
-
-
+//nhaphang
+Route::post('/nhaphang', [NhapHangController::class, 'nhapHang']);
+//
 Route::post('/them', [GiohangController::class, 'them']);
 // Load Sản phẩm
 Route::get('/sanpham', [SanphamController::class, 'getAll']);

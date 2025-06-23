@@ -1,5 +1,5 @@
 name: apptraicay
-description: "A new Flutter project."
+description: "Nhập hàng bằng Excel"
 publish_to: 'none'
 version: 0.1.0
 
@@ -10,16 +10,19 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.2.1
-  
+  excel: ^2.0.7
+  file_picker: ^6.1.1
+  path_provider: ^2.1.1
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  shared_preferences: ^2.0.15
 
 flutter:
   uses-material-design: true
+
 
   assets:
     - assets/welcome2.jpg

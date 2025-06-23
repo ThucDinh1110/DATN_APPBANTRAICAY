@@ -1,203 +1,430 @@
+import 'dart:convert';
+import 'package:excel/excel.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class InventoryEntry {
-  final String productName;
-  final int quantity;
-  final DateTime date;
-
-  InventoryEntry(this.productName, this.quantity, this.date);
-}
-
-class RevenueEntry {
-  final String productName;
-  final double revenue;
-  final DateTime date;
-
-  RevenueEntry(this.productName, this.revenue, this.date);
-}
-
-class qlkhoAdmin extends StatefulWidget {
-  const qlkhoAdmin({super.key});
-
+class NhapHangExcelPage extends StatefulWidget {
   @override
-  State<qlkhoAdmin> createState() => _qlkhoAdminState();
+  _NhapHangExcelPageState createState() => _NhapHangExcelPageState();
 }
 
-class _qlkhoAdminState extends State<qlkhoAdmin> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  // Dữ liệu nhập hàng
-  List<InventoryEntry> _inventoryEntries = [];
-
-  // Dữ liệu doanh thu
-  List<RevenueEntry> _revenueEntries = [];
-
-  // Controller form nhập hàng
-  final TextEditingController _productNameController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
-
-  // Controller form doanh thu
-  final TextEditingController _revenueProductController = TextEditingController();
-  final TextEditingController _revenueAmountController = TextEditingController();
+class _NhapHangExcelPageState extends State<NhapHangExcelPage>
+    with SingleTickerProviderStateMixin {
+  List<Map<String, dynamic>> danhSachSanPham = [];
+  TextEditingController nhaCungCapController = TextEditingController();
+  TextEditingController nguoiNhapController = TextEditingController();
+  TextEditingController ghiChuController = TextEditingController();
+  bool _isLoading = false;
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-
-    // Demo dữ liệu
-    _inventoryEntries = [
-      InventoryEntry("Táo Mỹ", 100, DateTime.now().subtract(const Duration(days: 3))),
-      InventoryEntry("Chuối tiêu", 200, DateTime.now().subtract(const Duration(days: 1))),
-    ];
-
-    _revenueEntries = [
-      RevenueEntry("Táo Mỹ", 4500000, DateTime.now().subtract(const Duration(days: 2))),
-      RevenueEntry("Chuối tiêu", 6000000, DateTime.now().subtract(const Duration(days: 1))),
-    ];
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
-    _productNameController.dispose();
-    _quantityController.dispose();
-    _revenueProductController.dispose();
-    _revenueAmountController.dispose();
+    _controller.dispose();
+    nhaCungCapController.dispose();
+    nguoiNhapController.dispose();
+    ghiChuController.dispose();
     super.dispose();
   }
 
-  void _addInventoryEntry() {
-    final product = _productNameController.text.trim();
-    final quantity = int.tryParse(_quantityController.text.trim()) ?? 0;
+  Future<void> chonFileExcel() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['xlsx', 'xls'],
+        withData: true,
+      );
 
-    if (product.isEmpty || quantity <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Vui lòng nhập đúng tên và số lượng")));
-      return;
+      if (result != null && result.files.single.bytes != null) {
+        final bytes = result.files.single.bytes!;
+        final excel = Excel.decodeBytes(bytes);
+        final sheet = excel.tables[excel.tables.keys.first]!;
+
+        final columns = sheet.rows[0]
+            .map((e) => e?.value?.toString().trim())
+            .toList();
+
+        List<Map<String, dynamic>> data = [];
+
+        for (var row in sheet.rows.skip(1)) {
+          final rowData = <String, dynamic>{};
+          for (int i = 0; i < columns.length; i++) {
+            final key = columns[i];
+            final value = row[i]?.value;
+            if (key != null) {
+              rowData[key] = value?.toString();
+            }
+          }
+          data.add(rowData);
+        }
+
+        setState(() {
+          danhSachSanPham = data;
+        });
+
+        _controller.forward();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đã đọc ${data.length} sản phẩm từ Excel'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Không chọn file nào'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi khi đọc file: $e'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-
-    setState(() {
-      _inventoryEntries.add(InventoryEntry(product, quantity, DateTime.now()));
-      _productNameController.clear();
-      _quantityController.clear();
-    });
   }
 
-  void _addRevenueEntry() {
-    final product = _revenueProductController.text.trim();
-    final revenue = double.tryParse(_revenueAmountController.text.trim()) ?? 0;
-
-    if (product.isEmpty || revenue <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Vui lòng nhập đúng tên và doanh thu")));
+  Future<void> guiApiNhapHang() async {
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    setState(() {
-      _revenueEntries.add(RevenueEntry(product, revenue, DateTime.now()));
-      _revenueProductController.clear();
-      _revenueAmountController.clear();
-    });
+    if (danhSachSanPham.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Vui lòng chọn file Excel chứa danh sách sản phẩm'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final body = {
+      "Nhacungcap": nhaCungCapController.text,
+      "Nguoinhap": nguoiNhapController.text,
+      "Ghichu": ghiChuController.text,
+      "chitiet": danhSachSanPham,
+    };
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:8000/api/nhaphang'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text("Thành công", style: TextStyle(color: Colors.green)),
+            content: Text(json['message'] ?? 'Nhập hàng thành công'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  // Reset form sau khi thành công
+                  _formKey.currentState!.reset();
+                  setState(() {
+                    danhSachSanPham = [];
+                    _controller.reset();
+                  });
+                },
+                child: Text('Đóng', style: TextStyle(color: Colors.teal)),
+              ),
+            ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text("Thất bại", style: TextStyle(color: Colors.red)),
+            content: Text("Lỗi: ${response.body}"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Đóng', style: TextStyle(color: Colors.teal)),
+              ),
+            ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Lỗi gửi dữ liệu: $e'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Quản lý kho"),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: "Nhập hàng", icon: Icon(Icons.add_shopping_cart)),
-            Tab(text: "Doanh thu", icon: Icon(Icons.attach_money)),
-          ],
+        title: Text('Nhập hàng bằng Excel'),
+        backgroundColor: Colors.teal,
+        centerTitle: true,
+        elevation: 4,
+        shadowColor: Colors.teal.withOpacity(0.3),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: nhaCungCapController,
+                        decoration: InputDecoration(
+                          labelText: 'Nhà cung cấp',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          prefixIcon: Icon(Icons.business),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Vui lòng nhập nhà cung cấp';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 12),
+                      TextFormField(
+                        controller: nguoiNhapController,
+                        decoration: InputDecoration(
+                          labelText: 'Người nhập',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          prefixIcon: Icon(Icons.person),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Vui lòng nhập người nhập';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 12),
+                      TextFormField(
+                        controller: ghiChuController,
+                        decoration: InputDecoration(
+                          labelText: 'Ghi chú',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          prefixIcon: Icon(Icons.note),
+                        ),
+                        maxLines: 2,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: chonFileExcel,
+                icon: Icon(Icons.upload_file),
+                label: Text('Chọn file Excel'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  padding: EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  child: danhSachSanPham.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.insert_drive_file,
+                                size: 64,
+                                color: Colors.grey[400],
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                "Chưa có dữ liệu",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              Text(
+                                "Vui lòng chọn file Excel để tải dữ liệu",
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        )
+                      : FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.list, color: Colors.teal),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        "Danh sách sản phẩm",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Spacer(),
+                                      Chip(
+                                        label: Text(
+                                          "${danhSachSanPham.length} sản phẩm",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        backgroundColor: Colors.teal,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Divider(height: 1),
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: danhSachSanPham.length,
+                                    itemBuilder: (context, index) {
+                                      final sp = danhSachSanPham[index];
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8),
+                                        child: Card(
+                                          margin: EdgeInsets.symmetric(
+                                              vertical: 4),
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: ListTile(
+                                            leading: CircleAvatar(
+                                              backgroundColor:
+                                                  Colors.teal[100],
+                                              child: Text(
+                                                '${sp["SanphamID"] ?? "-"}',
+                                                style: TextStyle(
+                                                    color: Colors.teal),
+                                              ),
+                                            ),
+                                            title: Text(
+                                              sp["Tensp"] ?? "Không tên",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              "SL: ${sp["Soluongnhap"] ?? "0"} | Giá: ${sp["Dongianhap"] ?? "0"}",
+                                            ),
+                                            trailing: Icon(
+                                              Icons.arrow_forward_ios,
+                                              size: 16,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                ),
+              ),
+              if (danhSachSanPham.isNotEmpty) ...[
+                SizedBox(height: 16),
+                ElevatedButton.icon(
+                  icon: _isLoading
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Icon(Icons.cloud_upload),
+                  label: Text(_isLoading ? "Đang gửi..." : "Gửi dữ liệu"),
+                  onPressed: _isLoading ? null : guiApiNhapHang,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    minimumSize: Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildInventoryTab(),
-          _buildRevenueTab(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInventoryTab() {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          TextField(
-            controller: _productNameController,
-            decoration: const InputDecoration(labelText: "Tên sản phẩm"),
-          ),
-          TextField(
-            controller: _quantityController,
-            decoration: const InputDecoration(labelText: "Số lượng"),
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: _addInventoryEntry,
-            child: const Text("Thêm nhập hàng"),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: _inventoryEntries.isEmpty
-                ? const Center(child: Text("Chưa có dữ liệu nhập hàng"))
-                : ListView.builder(
-                    itemCount: _inventoryEntries.length,
-                    itemBuilder: (context, index) {
-                      final item = _inventoryEntries[index];
-                      return ListTile(
-                        title: Text(item.productName),
-                        subtitle: Text("Số lượng: ${item.quantity}"),
-                        trailing: Text("${item.date.day}/${item.date.month}/${item.date.year}"),
-                      );
-                    },
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRevenueTab() {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          TextField(
-            controller: _revenueProductController,
-            decoration: const InputDecoration(labelText: "Tên sản phẩm"),
-          ),
-          TextField(
-            controller: _revenueAmountController,
-            decoration: const InputDecoration(labelText: "Doanh thu"),
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: _addRevenueEntry,
-            child: const Text("Thêm doanh thu"),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: _revenueEntries.isEmpty
-                ? const Center(child: Text("Chưa có dữ liệu doanh thu"))
-                : ListView.builder(
-                    itemCount: _revenueEntries.length,
-                    itemBuilder: (context, index) {
-                      final item = _revenueEntries[index];
-                      return ListTile(
-                        title: Text(item.productName),
-                        subtitle: Text("Doanh thu: ${item.revenue.toStringAsFixed(0)}đ"),
-                        trailing: Text("${item.date.day}/${item.date.month}/${item.date.year}"),
-                      );
-                    },
-                  ),
-          ),
-        ],
       ),
     );
   }

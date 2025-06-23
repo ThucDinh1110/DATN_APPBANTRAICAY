@@ -62,7 +62,7 @@ class _HomeManagementPageState extends State<HomeManagementPage> {
                   Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => qlkhoAdmin(),
+                              builder: (context) => NhapHangExcelPage(),
                             ),
                           );
               },
