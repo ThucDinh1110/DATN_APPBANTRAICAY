@@ -1,23 +1,61 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class ProductItemModel {
-  final String productName;
-  final int id;
-  final double price;
-  int quantity;
-  final String customerName; // Người đặt
-  final DateTime orderDate; // Ngày đặt
+class ProductItem {
+  final String tenSp;
+  final int soLuong;
+  final double gia;
 
-  ProductItemModel({
-    required this.id,
-    required this.productName,
-    required this.price,
-    required this.customerName,
-    required this.orderDate,
-    this.quantity = 1,
+  ProductItem({required this.tenSp, required this.soLuong, required this.gia});
+
+  double get thanhTien => soLuong * gia;
+
+  factory ProductItem.fromJson(Map<String, dynamic> json) {
+    return ProductItem(
+      tenSp: json['Tensp'] ?? '',
+      soLuong: json['Soluong'] ?? 0,
+      gia: double.tryParse(json['Gia'].toString()) ?? 0,
+    );
+  }
+}
+
+class DonHangAdmin {
+  final int donhangId;
+  final String trangThai;
+  final String khachHang;
+  final String email;
+  final String diaChi;
+  final DateTime ngayDat;
+  final double tongTien;
+  final List<ProductItem> sanPhams;
+
+  DonHangAdmin({
+    required this.donhangId,
+    required this.trangThai,
+    required this.khachHang,
+    required this.email,
+    required this.diaChi,
+    required this.ngayDat,
+    required this.tongTien,
+    required this.sanPhams,
   });
 
-  double get totalPrice => price * quantity;
+  factory DonHangAdmin.fromJson(Map<String, dynamic> json) {
+    final nguoiDung = json['NguoiDung'] as Map<String, dynamic>? ?? {};
+    final sanphamList = json['Sanphams'] as List? ?? [];
+
+    return DonHangAdmin(
+      donhangId: json['DonhangID'] ?? 0,
+      trangThai: json['Trangthai'] ?? '',
+      khachHang: nguoiDung['Hoten'] ?? '',
+      email: nguoiDung['Email'] ?? '',
+      diaChi: json['Diachi'] ?? '',
+      ngayDat: DateTime.tryParse(json['Ngaydat'] ?? '') ?? DateTime.now(),
+      tongTien: double.tryParse(json['Tongtien'].toString()) ?? 0,
+      sanPhams: sanphamList.map((sp) => ProductItem.fromJson(sp)).toList(),
+    );
+  }
 }
 
 class QuanLyDonHangAdmin extends StatefulWidget {
@@ -28,81 +66,213 @@ class QuanLyDonHangAdmin extends StatefulWidget {
 }
 
 class _QuanLyDonHangAdminState extends State<QuanLyDonHangAdmin> {
-  List<ProductItemModel> choDuyet = [
-    ProductItemModel(
-      id: 1,
-      productName: "Xoài",
-      price: 15000,
-      quantity: 2,
-      customerName: "Nguyễn Văn A",
-      orderDate: DateTime(2025, 6, 4),
-    ),
-    ProductItemModel(
-      id: 2,
-      productName: "Cam",
-      price: 12000,
-      quantity: 3,
-      customerName: "Trần Thị B",
-      orderDate: DateTime(2025, 6, 5),
-    ),
-  ];
+  List<DonHangAdmin> choDuyet = [];
+  List<DonHangAdmin> daDuyet = [];
+  List<DonHangAdmin> dangGiao = [];
+  List<DonHangAdmin> daMua = [];
+  List<DonHangAdmin> daHuy = [];
 
-  List<ProductItemModel> daDuyet = [];
-  List<ProductItemModel> dangGiao = [];
-  List<ProductItemModel> daMua = [];
-  List<ProductItemModel> donHangDaHuy = [];
-
-  void chuyenTrangThai(
-      ProductItemModel item, List<ProductItemModel> fromList, List<ProductItemModel> toList) {
-    setState(() {
-      fromList.remove(item);
-      toList.add(item);
-    });
+  @override
+  void initState() {
+    super.initState();
+    fetchDonHangAdmin();
   }
 
-  Widget _buildAdminOrderList(String title, List<ProductItemModel> items,
-      {List<ProductItemModel>? nextList,
-      String? nextLabel,
-      bool canDelete = false}) {
-    return items.isEmpty
-        ? Center(child: Text("Không có đơn nào trong mục '$title'"))
+  Future<void> fetchDonHangAdmin() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://127.0.0.1:8000/api/getDanhSachDonHangTatCa'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+
+        choDuyet.clear();
+        daDuyet.clear();
+        dangGiao.clear();
+        daMua.clear();
+        daHuy.clear();
+
+        for (var don in data) {
+          try {
+            final sanPhamList = (don['Sanphams'] as List<dynamic>? ?? [])
+                .map((sp) => ProductItem.fromJson(sp))
+                .toList();
+
+            final newDon = DonHangAdmin(
+              donhangId: don['DonhangID'],
+              trangThai: don['Trangthai'] ?? '',
+              khachHang: don['NguoiDung']?['Hoten'] ?? '',
+              email: don['NguoiDung']?['Email'] ?? '',
+              diaChi: don['Diachi'] ?? '',
+              ngayDat: DateTime.parse(don['Ngaydat']),
+              tongTien: double.tryParse(don['Tongtien'].toString()) ?? 0,
+              sanPhams: sanPhamList,
+            );
+
+            final status = don['Trangthai'].toString().trim().toLowerCase();
+
+            if (status == 'chờ duyệt' || status == 'đang chờ hủy') {
+              choDuyet.add(newDon);
+            } else if (status == 'đã duyệt') {
+              daDuyet.add(newDon);
+            } else if (status == 'đang giao') {
+              dangGiao.add(newDon);
+            } else if (status == 'đã mua') {
+              daMua.add(newDon);
+            } else if (status == 'đã hủy' || status.contains('hủy')) {
+              daHuy.add(newDon);
+            }
+          } catch (e) {
+            print('❗ Lỗi xử lý đơn hàng: $e');
+          }
+        }
+
+        setState(() {});
+      }
+    } catch (e) {
+      print('❗ Lỗi kết nối hoặc xử lý: $e');
+    }
+  }
+
+  void capNhatTrangThai(int donhangId, String trangThaiMoi) async {
+    final res = await http.post(
+      Uri.parse('http://127.0.0.1:8000/api/capNhatTrangThaiDon'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'donhang_id': donhangId,
+        'trangthai': trangThaiMoi,
+      }),
+    );
+
+    if (res.statusCode == 200) {
+      fetchDonHangAdmin();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cập nhật thất bại: ${res.body}')),
+      );
+    }
+  }
+
+  Widget _buildList(String title, List<DonHangAdmin> donHangs) {
+    return donHangs.isEmpty
+        ? Center(child: Text("Không có đơn hàng trong mục '$title'"))
         : ListView.builder(
-            itemCount: items.length,
+            itemCount: donHangs.length,
             itemBuilder: (context, index) {
-              final item = items[index];
+              final don = donHangs[index];
+              final status = don.trangThai.toLowerCase().trim();
+              List<Widget> actions = [];
+
+              if (status == 'chờ duyệt') {
+                actions = [
+                  TextButton(
+                    onPressed: () {
+                      capNhatTrangThai(don.donhangId, 'Đã duyệt');
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Xác nhận'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      capNhatTrangThai(don.donhangId, 'Đã hủy');
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Hủy đơn'),
+                  ),
+                ];
+              } else if (status == 'đang chờ hủy') {
+                actions = [
+                  TextButton(
+                    onPressed: () {
+                      capNhatTrangThai(don.donhangId, 'Đã hủy');
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Xác nhận'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      capNhatTrangThai(don.donhangId, 'Chờ duyệt');
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Hủy đơn'),
+                  ),
+                ];
+              } else if (status == 'đã duyệt') {
+                actions = [
+                  TextButton(
+                    onPressed: () {
+                      capNhatTrangThai(don.donhangId, 'Đang giao');
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Xác nhận'),
+                  ),
+                ];
+              } else if (status == 'đang giao') {
+                actions = [
+                  TextButton(
+                    onPressed: () {
+                      capNhatTrangThai(don.donhangId, 'Đã mua');
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Xác nhận'),
+                  ),
+                ];
+              }
+
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                 child: ListTile(
-                  leading: const Icon(Icons.receipt_long, color: Colors.blue),
-                  title: Text('${item.productName} - ${item.customerName}'),
+                  title: Text("Ngày đặt: ${don.ngayDat}"),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Ngày đặt: ${item.orderDate.day}/${item.orderDate.month}/${item.orderDate.year}'),
-                      Text('Số lượng: ${item.quantity}'),
-                      Text('Đơn giá: ${item.price.toStringAsFixed(0)}đ'),
-                      Text('Tổng tiền: ${item.totalPrice.toStringAsFixed(0)}đ'),
+                      Text("Khách hàng: ${don.khachHang}"),
+                      Text("Email: ${don.email}"),
+                      Text("Tổng tiền: ${don.tongTien.toStringAsFixed(0)}đ"),
+                      Text("Trạng thái: ${don.trangThai}"),
                     ],
                   ),
-                  trailing: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (nextList != null && nextLabel != null)
-                        ElevatedButton(
-                          onPressed: () => chuyenTrangThai(item, items, nextList),
-                          child: Text(nextLabel),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text("Đơn hàng #${don.donhangId}"),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Khách: ${don.khachHang}"),
+                              Text("Email: ${don.email}"),
+                              Text("Địa chỉ: ${don.diaChi}"),
+                              const Divider(),
+                              const Text("Sản phẩm:",
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 6),
+                              ...don.sanPhams.map((sp) => Text(
+                                  "- ${sp.tenSp}: ${sp.soLuong} x ${sp.gia.toStringAsFixed(0)}đ = ${sp.thanhTien.toStringAsFixed(0)}đ")),
+                              const SizedBox(height: 12),
+                              Text(
+                                "Tổng tiền: ${don.tongTien.toStringAsFixed(0)}đ",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green),
+                              ),
+                            ],
+                          ),
                         ),
-                      if (canDelete)
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              items.removeAt(index);
-                            });
-                          },
-                          child: const Text("Xóa", style: TextStyle(color: Colors.red)),
-                        ),
-                    ],
-                  ),
+                        actions: [
+                          ...actions,
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Đóng"),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               );
             },
@@ -115,28 +285,25 @@ class _QuanLyDonHangAdminState extends State<QuanLyDonHangAdmin> {
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Quản lý đơn hàng (Admin)"),
+          title: const Text('Quản lý đơn hàng (Admin)'),
           bottom: const TabBar(
             isScrollable: true,
             tabs: [
-              Tab(text: "Chờ duyệt"),
-              Tab(text: "Đã duyệt"),
-              Tab(text: "Đang giao"),
-              Tab(text: "Đã mua"),
-              Tab(text: "Đã hủy"),
+              Tab(text: 'Chờ duyệt'),
+              Tab(text: 'Đã duyệt'),
+              Tab(text: 'Đang giao'),
+              Tab(text: 'Đã mua'),
+              Tab(text: 'Đã hủy'),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            _buildAdminOrderList("Chờ duyệt", choDuyet,
-                nextList: daDuyet, nextLabel: "Duyệt"),
-            _buildAdminOrderList("Đã duyệt", daDuyet,
-                nextList: dangGiao, nextLabel: "Giao hàng"),
-            _buildAdminOrderList("Đang giao", dangGiao,
-                nextList: daMua, nextLabel: "Hoàn tất"),
-            _buildAdminOrderList("Đã mua", daMua),
-            _buildAdminOrderList("Đơn đã hủy", donHangDaHuy, canDelete: true),
+            _buildList('Chờ duyệt', choDuyet),
+            _buildList('Đã duyệt', daDuyet),
+            _buildList('Đang giao', dangGiao),
+            _buildList('Đã mua', daMua),
+            _buildList('Đã hủy', daHuy),
           ],
         ),
       ),
