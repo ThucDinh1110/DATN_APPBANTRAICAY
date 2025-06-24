@@ -7,6 +7,47 @@ use Illuminate\Support\Facades\DB;
 
 
 class Admincontroller extends Controller{
+    public function getDanhSachUser(Request $request)
+{
+    $phanquyen = $request->query('phanquyen', 'Customer'); // mặc định lọc Customer nếu không truyền
+
+    $users = DB::table('user')
+        ->join('user_thongtinnguoidung', 'user.UserID', '=', 'user_thongtinnguoidung.UserID')
+        ->select(
+            'user.UserID',
+            'user.Hoten',
+            'user.Email',
+            'user.Ngaytao',
+            'user.Trangthai',
+            'user_thongtinnguoidung.Chieucao',
+            'user_thongtinnguoidung.Cannang',
+            'user_thongtinnguoidung.Diachi'
+        )
+        ->where('user.Phanquyen', '=', $phanquyen)
+        ->get();
+
+    return response()->json($users);
+}
+
+public function khoa_moTaiKhoan(Request $request)
+{
+    $userId = $request->input('user_id');
+
+    $user = DB::table('user')->where('UserID', $userId)->first();
+
+    if (!$user) {
+        return response()->json(['message' => 'Không tìm thấy người dùng'], 404);
+    }
+
+    $newStatus = $user->Trangthai == 1 ? 0 : 1;
+
+    DB::table('user')
+        ->where('UserID', $userId)
+        ->update(['Trangthai' => $newStatus]);
+
+    return response()->json(['message' => 'Cập nhật trạng thái tài khoản thành công']);
+}
+
     public function getDanhSachDonHangTatCa(Request $request)
 {
     $trangThai = $request->query('trangthai'); // lọc theo trạng thái nếu cần

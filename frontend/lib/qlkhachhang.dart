@@ -1,29 +1,43 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class Customer {
+  int userId;
   String name;
-  String phone;
+  String email;
   DateTime birthDate;
   double weight;
   double height;
   String address;
-  String gender;
-  String demand;
-  String email;
-  String password;
+  int cancelCount;
+  int status;
 
   Customer({
+    required this.userId,
     required this.name,
-    required this.phone,
+    required this.email,
     required this.birthDate,
     required this.weight,
     required this.height,
     required this.address,
-    required this.gender,
-    required this.demand,
-    required this.email,
-    required this.password,
+    required this.cancelCount,
+    required this.status,
   });
+
+  factory Customer.fromJson(Map<String, dynamic> json) {
+    return Customer(
+      userId: json['UserID'] ?? 0,
+      name: json['Hoten'] ?? '',
+      email: json['Email'] ?? '',
+      birthDate: DateTime.tryParse(json['Ngaytao'] ?? '') ?? DateTime.now(),
+      height: double.tryParse(json['Chieucao'].toString()) ?? 0,
+      weight: double.tryParse(json['Cannang'].toString()) ?? 0,
+      address: json['Diachi'] ?? '',
+      cancelCount: json['SoLanHuyDon'] ?? 0,
+      status: json['Trangthai'] ?? 1,
+    );
+  }
 }
 
 class QuanLyKhachHangAdmin extends StatefulWidget {
@@ -34,214 +48,51 @@ class QuanLyKhachHangAdmin extends StatefulWidget {
 }
 
 class _QuanLyKhachHangAdminState extends State<QuanLyKhachHangAdmin> {
-  List<Customer> customers = [
-    Customer(
-      name: "Nguyễn Văn A",
-      phone: "0123456789",
-      birthDate: DateTime(1995, 5, 20),
-      weight: 60,
-      height: 170,
-      address: "Hà Nội",
-      gender: "Nam",
-      demand: "Giảm cân",
-      email: "vana@example.com",
-      password: "123456",
-    ),
-     Customer(
-      name: "Nguyễn Văn A",
-      phone: "0123456789",
-      birthDate: DateTime(1995, 5, 20),
-      weight: 60,
-      height: 170,
-      address: "Hà Nội",
-      gender: "Nam",
-      demand: "Giảm cân",
-      email: "vana@example.com",
-      password: "123456",
-    ),
-     Customer(
-      name: "Nguyễn Văn A",
-      phone: "0123456789",
-      birthDate: DateTime(1995, 5, 20),
-      weight: 60,
-      height: 170,
-      address: "Hà Nội",
-      gender: "Nam",
-      demand: "Giảm cân",
-      email: "vana@example.com",
-      password: "123456",
-    ),
-  ];
+  List<Customer> customers = [];
 
-  void _showCustomerDialog({Customer? customer, int? index}) {
-    final isEditing = customer != null;
-    final nameController = TextEditingController(text: customer?.name);
-    final phoneController = TextEditingController(text: customer?.phone);
-    final birthController = TextEditingController(
-      text: customer != null
-          ? "${customer.birthDate.day}/${customer.birthDate.month}/${customer.birthDate.year}"
-          : "",
-    );
-    final weightController =
-        TextEditingController(text: customer?.weight.toString());
-    final heightController =
-        TextEditingController(text: customer?.height.toString());
-    final addressController = TextEditingController(text: customer?.address);
-    final genderController = TextEditingController(text: customer?.gender);
-    final demandController = TextEditingController(text: customer?.demand);
-    final emailController = TextEditingController(text: customer?.email);
-    final passwordController = TextEditingController(text: customer?.password);
+  @override
+  void initState() {
+    super.initState();
+    fetchCustomers();
+  }
 
-    DateTime selectedDate = customer?.birthDate ?? DateTime.now();
+  Future<void> fetchCustomers() async {
+    try {
+      final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/getDanhSachUser'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          customers = data.map((e) => Customer.fromJson(e)).toList();
+        });
+      } else {
+        print('Lỗi khi lấy danh sách người dùng: ${response.body}');
+      }
+    } catch (e) {
+      print('Lỗi khi gọi API: $e');
+    }
+  }
 
-    showDialog(
-      context: context,
-      builder: (_) => Dialog(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isEditing ? "Chỉnh sửa khách hàng" : "Thêm khách hàng",
-                  style: Theme.of(context).textTheme.bodyLarge
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 12,
-                  children: [
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: nameController,
-                        decoration: const InputDecoration(labelText: "Tên"),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: phoneController,
-                        decoration: const InputDecoration(labelText: "SĐT"),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: birthController,
-                        readOnly: true,
-                        decoration: const InputDecoration(labelText: "Ngày sinh"),
-                        onTap: () async {
-                          DateTime? picked = await showDatePicker(
-                            context: context,
-                            initialDate: selectedDate,
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime.now(),
-                          );
-                          if (picked != null) {
-                            selectedDate = picked;
-                            birthController.text =
-                                "${picked.day}/${picked.month}/${picked.year}";
-                          }
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: weightController,
-                        decoration: const InputDecoration(labelText: "Cân nặng (kg)"),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: heightController,
-                        decoration: const InputDecoration(labelText: "Chiều cao (cm)"),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: addressController,
-                        decoration: const InputDecoration(labelText: "Địa chỉ"),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: genderController,
-                        decoration: const InputDecoration(labelText: "Giới tính"),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: demandController,
-                        decoration: const InputDecoration(labelText: "Nhu cầu"),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: emailController,
-                        decoration: const InputDecoration(labelText: "Email"),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 250,
-                      child: TextField(
-                        controller: passwordController,
-                        decoration: const InputDecoration(labelText: "Mật khẩu"),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Hủy"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        final newCustomer = Customer(
-                          name: nameController.text,
-                          phone: phoneController.text,
-                          birthDate: selectedDate,
-                          weight: double.tryParse(weightController.text) ?? 0,
-                          height: double.tryParse(heightController.text) ?? 0,
-                          address: addressController.text,
-                          gender: genderController.text,
-                          demand: demandController.text,
-                          email: emailController.text,
-                          password: passwordController.text,
-                        );
+    Future<void> khoaMoTaiKhoan(int userId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/khoa_moTaiKhoan'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'user_id': userId}),
+      );
 
-                        setState(() {
-                          if (isEditing && index != null) {
-                            customers[index] = newCustomer;
-                          } else {
-                            customers.add(newCustomer);
-                          }
-                        });
-
-                        Navigator.pop(context);
-                      },
-                      child: Text(isEditing ? "Lưu" : "Thêm"),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cập nhật trạng thái tài khoản thành công')),
+        );
+        fetchCustomers();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi khi cập nhật trạng thái: \${response.body}')),
+        );
+      }
+    } catch (e) {
+      print('Lỗi khi gọi API khóa/mở tài khoản: \$e');
+    }
   }
 
   Widget _buildCustomerCard(Customer customer, int index) {
@@ -255,19 +106,67 @@ class _QuanLyKhachHangAdminState extends State<QuanLyKhachHangAdmin> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(customer.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  customer.name,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () => _showCustomerDialog(customer: customer, index: index),
+                      icon: Icon(
+                        customer.status == 1 ? Icons.lock : Icons.lock_open,
+                        color: customer.status == 1 ? Colors.orange : Colors.green,
+                        ),
+                      tooltip: customer.status == 1 ? 'Khóa tài khoản' : 'Mở khóa tài khoản',
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Xác nhận"),
+                            content: Text("Bạn có chắc muốn ${customer.status == 1 ? 'khóa' : 'mở'} tài khoản của ${customer.name} không?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text("Hủy"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  khoaMoTaiKhoan(customer.userId);
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("Xác nhận", style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
+                      tooltip: 'Xóa tài khoản (client only)',
                       onPressed: () {
-                        setState(() {
-                          customers.removeAt(index);
-                        });
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Xác nhận xóa"),
+                            content: Text("Bạn có chắc muốn xóa tài khoản của ${customer.name}?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text("Hủy"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    customers.removeAt(index);
+                                  });
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("Xóa", style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
+                          ),
+                        );
                       },
                     ),
                   ],
@@ -275,13 +174,10 @@ class _QuanLyKhachHangAdminState extends State<QuanLyKhachHangAdmin> {
               ],
             ),
             const SizedBox(height: 6),
-            Text("SĐT: ${customer.phone}"),
-            Text("Ngày sinh: ${customer.birthDate.day}/${customer.birthDate.month}/${customer.birthDate.year}"),
-            Text("Giới tính: ${customer.gender} | Nhu cầu: ${customer.demand}"),
+            Text("Email: ${customer.email}"),
+            Text("Ngày tạo: ${customer.birthDate.day}/${customer.birthDate.month}/${customer.birthDate.year}"),
             Text("Chiều cao: ${customer.height}cm | Cân nặng: ${customer.weight}kg"),
             Text("Địa chỉ: ${customer.address}"),
-            Text("Email: ${customer.email}"),
-            Text("Mật khẩu: ${customer.password}"),
           ],
         ),
       ),
@@ -293,12 +189,6 @@ class _QuanLyKhachHangAdminState extends State<QuanLyKhachHangAdmin> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Quản lý khách hàng (Admin)"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showCustomerDialog(),
-          ),
-        ],
       ),
       body: customers.isEmpty
           ? const Center(child: Text("Chưa có khách hàng nào"))
