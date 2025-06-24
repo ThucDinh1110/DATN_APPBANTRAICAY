@@ -15,19 +15,21 @@ class chitietsppage extends StatefulWidget {
 
 class _chitietsppageState extends State<chitietsppage> {
   int quantity = 1;
+  final String host = 'http://127.0.0.1:8000'; // Laravel local API
 
   @override
   Widget build(BuildContext context) {
     final sanPham = widget.sanPham;
-    
+    final imageUrl = '$host/storage/images/${sanPham.hinhanh}';
 
     return Scaffold(
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'assets/${sanPham.hinhanh}',
+            child: Image.network(
+              imageUrl,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey),
             ),
           ),
           Positioned.fill(
@@ -44,8 +46,7 @@ class _chitietsppageState extends State<chitietsppage> {
                   child: Row(
                     children: [
                       GestureDetector(
-                        onTap: () => Navigator.pop(context),// Trả về true để trang trước biết có thay đổi
-
+                        onTap: () => Navigator.pop(context),
                         child: const Icon(Icons.arrow_back, color: Colors.white),
                       ),
                     ],
@@ -55,11 +56,13 @@ class _chitietsppageState extends State<chitietsppage> {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: Image.asset(
-                      'assets/${sanPham.hinhanh}',
+                    child: Image.network(
+                      imageUrl,
                       height: 200,
                       width: 200,
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.broken_image, size: 100),
                     ),
                   ),
                 ),
@@ -85,53 +88,52 @@ class _chitietsppageState extends State<chitietsppage> {
                                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                               const SizedBox(height: 10),
-                             Row(
-  children: [
-    Expanded(
-      child: Text(
-        '${sanPham.gia.toStringAsFixed(0)} VNĐ/${sanPham.donvi}',
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        overflow: TextOverflow.ellipsis,
-      ),
-    ),
-    const SizedBox(width: 12),
-    Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () {
-              if (quantity > 1) setState(() => quantity--);
-            },
-            child: const CircleAvatar(
-              radius: 12,
-              backgroundColor: Colors.white,
-              child: Icon(Icons.remove, size: 16, color: Colors.black),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(quantity.toString(), style: const TextStyle(color: Colors.white, fontSize: 16)),
-          const SizedBox(width: 10),
-          GestureDetector(
-            onTap: () {
-              setState(() => quantity++);
-            },
-            child: const CircleAvatar(
-              radius: 12,
-              backgroundColor: Colors.black,
-              child: Icon(Icons.add, size: 16, color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    ),
-  ],
-),
-
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '${sanPham.gia.toStringAsFixed(0)} VNĐ/${sanPham.donvi}',
+                                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.3),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    child: Row(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            if (quantity > 1) setState(() => quantity--);
+                                          },
+                                          child: const CircleAvatar(
+                                            radius: 12,
+                                            backgroundColor: Colors.white,
+                                            child: Icon(Icons.remove, size: 16, color: Colors.black),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(quantity.toString(), style: const TextStyle(color: Colors.white, fontSize: 16)),
+                                        const SizedBox(width: 10),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() => quantity++);
+                                          },
+                                          child: const CircleAvatar(
+                                            radius: 12,
+                                            backgroundColor: Colors.black,
+                                            child: Icon(Icons.add, size: 16, color: Colors.white),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                               const SizedBox(height: 20),
                               _buildNutritionRow(Icons.bolt, 'Vitamin A', '${sanPham.vitamina} μg'),
                               _buildNutritionRow(Icons.eco, 'Vitamin C', '${sanPham.vitaminc} mg'),
@@ -177,7 +179,7 @@ class _chitietsppageState extends State<chitietsppage> {
                                         ),
                                       );
                                       await Future.delayed(const Duration(milliseconds: 800));
-                                      Navigator.pop(context); // Quay lại trang trước
+                                      Navigator.pop(context);
                                     } else {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(

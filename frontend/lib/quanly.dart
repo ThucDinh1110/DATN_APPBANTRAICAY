@@ -4,6 +4,7 @@ import 'package:apptraicay/qlkho.dart';
 import 'package:apptraicay/qlsanpham.dart';
 import 'package:apptraicay/qlsdonhang.dart';
 import 'package:flutter/material.dart';
+import 'image_gallery_page.dart';
 
 class HomeManagementPage extends StatefulWidget {
   const HomeManagementPage({super.key});
@@ -76,7 +77,7 @@ class _HomeManagementPageState extends State<HomeManagementPage> {
                  Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => qlsanphamAdmin(),
+                              builder: (context) => UploadImagePage(),
                             ),
                           );
               },

@@ -453,12 +453,14 @@ class _HomeTabContentState extends State<HomeTabContent> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Image.asset(
-                                            'assets/${sp.hinhanh}',
-                                            height: 120,
-                                            width: double.infinity,
-                                            fit: BoxFit.cover,
-                                          ),
+                                         Image.network(
+  'http://127.0.0.1:8000/storage/images/${sp.hinhanh}',
+  height: 120,
+  width: double.infinity,
+  fit: BoxFit.cover,
+  errorBuilder: (context, error, stackTrace) => Icon(Icons.broken_image, color: Colors.red),
+),
+
                                           Expanded(
                                             child: Padding(
                                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

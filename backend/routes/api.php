@@ -9,6 +9,12 @@ use App\Http\Controllers\InfoController;
 use App\Http\Controllers\SanphamController;
 use App\Http\Controllers\DiachiController;
 use App\Http\Controllers\NhapHangController;
+//nhap ảnh
+use App\Http\Controllers\ImageController;
+
+Route::post('/upload-image', [ImageController::class, 'upload']);
+Route::get('/images', [ImageController::class, 'index']);
+Route::delete('/images/{id}', [ImageController::class, 'delete']);
 
 //nhaphang
 Route::post('/nhaphang', [NhapHangController::class, 'nhapHang']);

@@ -5,6 +5,7 @@ import 'chitietsanpham.dart'; // import màn hình chi tiết sản phẩm
 
 void showGoiYTraiCayDialog(BuildContext context, String mucTieu) async {
   List<SanPham> danhSach = await SanPhamService.fetchSanPhams();
+  const String apiUrl = 'http://127.0.0.1:8000/storage/images/'; // Laravel API image base
 
   List<SanPham> goiY = danhSach.where((sp) {
     switch (mucTieu) {
@@ -40,15 +41,15 @@ void showGoiYTraiCayDialog(BuildContext context, String mucTieu) async {
                   itemCount: goiY.length,
                   itemBuilder: (context, index) {
                     final sp = goiY[index];
+                    final imageUrl = '$apiUrl${sp.hinhanh}';
+
                     return InkWell(
                       onTap: () {
-                        // Đóng dialog trước khi chuyển sang màn hình chi tiết
                         Navigator.of(context).pop();
-                        // Chuyển đến màn hình chi tiết sản phẩm
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>chitietsppage (sanPham: sp),
+                            builder: (context) => chitietsppage(sanPham: sp),
                           ),
                         );
                       },
@@ -69,11 +70,13 @@ void showGoiYTraiCayDialog(BuildContext context, String mucTieu) async {
                                 if (sp.hinhanh != null)
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
-                                    child: Image.asset(
-                                      'assets/${sp.hinhanh}',
+                                    child: Image.network(
+                                      imageUrl,
                                       width: 80,
                                       height: 80,
                                       fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) =>
+                                          const Icon(Icons.broken_image),
                                     ),
                                   ),
                                 const SizedBox(height: 10),
