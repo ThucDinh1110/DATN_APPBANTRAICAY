@@ -9,13 +9,12 @@ use App\Http\Controllers\InfoController;
 use App\Http\Controllers\SanphamController;
 use App\Http\Controllers\DiachiController;
 use App\Http\Controllers\NhapHangController;
-//nhap ảnh
+use App\Http\Controllers\Admincontroller;
 use App\Http\Controllers\ImageController;
-
+//nhap ảnh
 Route::post('/upload-image', [ImageController::class, 'upload']);
 Route::get('/images', [ImageController::class, 'index']);
 Route::delete('/images/{id}', [ImageController::class, 'delete']);
-
 //nhaphang
 Route::post('/nhaphang', [NhapHangController::class, 'nhapHang']);
 //
@@ -58,3 +57,7 @@ Route::get('/getDiaChiMacDinh', [DiachiController::class, 'getDiaChiMacDinh']);
 Route::post('/setDefaultAddress', [DiachiController::class, 'setDefaultAddress']);
 
 Route::post('updateOrInsert', [DiaChiController::class, 'updateOrInsert']);
+
+Route::get('/getDanhSachDonHangTatCa', [Admincontroller::class, 'getDanhSachDonHangTatCa']);
+
+Route::post('/capNhatTrangThaiDon', [Admincontroller::class, 'capNhatTrangThaiDon']);
