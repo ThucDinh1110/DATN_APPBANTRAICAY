@@ -54,6 +54,11 @@ class AuthController extends Controller
         return response()->json(['message' => 'Không tìm thấy tài khoản'], 404);
     }
 
+    // Nếu tài khoản bị khóa
+    if (isset($user->Trangthai) && $user->Trangthai == 0) {
+        return response()->json(['message' => 'Tài khoản đã bị khóa'], 403);
+    }
+
     // Nếu mật khẩu không tồn tại (null) thì báo lỗi
     if (empty($user->Matkhau)) {
         return response()->json(['message' => 'Tài khoản không có mật khẩu'], 500);

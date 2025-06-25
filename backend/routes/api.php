@@ -67,3 +67,7 @@ Route::post('updateOrInsert', [DiaChiController::class, 'updateOrInsert']);
 Route::get('/getDanhSachDonHangTatCa', [Admincontroller::class, 'getDanhSachDonHangTatCa']);
 
 Route::post('/capNhatTrangThaiDon', [Admincontroller::class, 'capNhatTrangThaiDon']);
+
+Route::get('/getDanhSachUser', [Admincontroller::class, 'getDanhSachUser']);
+
+Route::post('/khoa_moTaiKhoan', [Admincontroller::class, 'khoa_moTaiKhoan']);
