@@ -8,6 +8,8 @@ import 'donhang.dart';
 import 'giohang.dart';
 import 'thongtincanhan.dart';
 import 'HomeTabContent.dart';
+import 'sanpham.dart';
+import 'sanpham_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,6 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+ 
   int _currentIndex = 0;
   int _cartItemCount = 0;
   String _searchKeyword = '';
@@ -29,6 +32,7 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _isBottomBarVisible = !isScrollingDown;
          fetchCartItemCount();
+        
       });
     }
   }
@@ -49,6 +53,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     fetchCartItemCount();
+
     fetchTenNguoiDung();
   }
 

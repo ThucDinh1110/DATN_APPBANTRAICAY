@@ -93,7 +93,7 @@ class _DonhangState extends State<Donhang> {
           tongTien: double.tryParse(don['Tongtien'].toString()) ?? 0,
           trangThai: don['Trangthai'],
           diaChi: don.containsKey('Diachi') ? don['Diachi'] ?? '' : '',
-          ghichu: don['Ghichu'],
+          ghichu: don['Ghichu'] ?? '',
           sanPhams: items,
         );
 
@@ -133,20 +133,18 @@ class _DonhangState extends State<Donhang> {
                 margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                 child: ListTile(
                   title: Text("Ngày đặt: ${don.ngayDat}"),
-                  subtitle:
-                      Text("Tổng tiền: ${don.tongTien.toStringAsFixed(0)} đ"),
+                  subtitle: Text("Tổng tiền: ${don.tongTien.toStringAsFixed(0)} đ"),
                   trailing: isCancelable
                       ? TextButton(
                           onPressed: () async {
-                            final message = await HuyDonService.huyDonHang(
-                                don.donhangId);
+                            final message = await HuyDonService.huyDonHang(don.donhangId);
+                            if (!context.mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(message)),
                             );
                             fetchDonHang();
                           },
-                          child: const Text("Hủy đơn",
-                              style: TextStyle(color: Colors.red)),
+                          child: const Text("Hủy đơn", style: TextStyle(color: Colors.red)),
                         )
                       : const Icon(Icons.chevron_right),
                   onTap: () {

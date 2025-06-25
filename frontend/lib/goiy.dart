@@ -10,11 +10,11 @@ void showGoiYTraiCayDialog(BuildContext context, String mucTieu) async {
   List<SanPham> goiY = danhSach.where((sp) {
     switch (mucTieu) {
       case 'Tăng cân':
-        return (sp.duong ?? 0) > 10 && (sp.tinhbot ?? 0) > 10;
+        return (sp.duong ?? 0) > 5 && (sp.tinhbot ?? 0) > 10;
       case 'Giảm cân':
-        return (sp.chatxo ?? 0) > 2 && (sp.duong ?? 0) < 10 && (sp.tinhbot ?? 0) < 15;
+        return (sp.chatxo ?? 0) > 2 && (sp.duong ?? 0) < 20 && (sp.tinhbot ?? 0) < 20;
       case 'Duy trì':
-        return (sp.vitamina ?? 0) > 20 && (sp.vitaminc ?? 0) > 20;
+        return (sp.vitamina ?? 0) > 10 && (sp.vitaminc ?? 0) > 10;
       default:
         return false;
     }

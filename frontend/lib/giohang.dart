@@ -57,6 +57,37 @@ class _GiohangState extends State<Giohang> {
       }
     });
   }
+  Future<String?> kiemTraTonKho(List<ProductItemModel> items) async {
+  final url = Uri.parse('http://127.0.0.1:8000/api/kiemtra-tonkho');
+
+  final body = {
+    'items': items.map((e) => {
+      'id': e.id,
+      'productName': e.productName,
+      'quantity': e.quantity,
+    }).toList(),
+  };
+
+  final response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: json.encode(body),
+  );
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    if (data['status'] == 'fail') {
+      final errors = data['errors'] as List;
+      return errors.map((e) =>
+        '• ${e['productName']}: còn ${e['tonKho']}, yêu cầu ${e['requested']}'
+      ).join('\n');
+    }
+    return null;
+  }
+
+  return 'Lỗi kiểm tra tồn kho.';
+}
+
 
   Future<void> loadUserIdAndCart() async {
     final prefs = await SharedPreferences.getInstance();
@@ -405,40 +436,60 @@ class _GiohangState extends State<Giohang> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      final selected = choThanhToan
-                          .where((e) => e.isSelected)
-                          .toList();
-                      if (selected.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  'Vui lòng chọn ít nhất 1 sản phẩm để thanh toán')),
-                        );
-                        return;
-                      }
+               Expanded(
+  child: ElevatedButton.icon(
+    onPressed: () async {
+      final selected = choThanhToan.where((e) => e.isSelected).toList();
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DiaChiGiaoHangScreen(
-                              itemsToBuy: selected),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.payment),
-                    label: const Text("Thanh toán"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
-                    ),
-                  ),
-                ),
+      if (selected.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Vui lòng chọn ít nhất 1 sản phẩm để thanh toán'),
+          ),
+        );
+        return;
+      }
+
+      // Kiểm tra tồn kho từ server
+      final errorMessage = await kiemTraTonKho(selected);
+      if (errorMessage != null) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Không đủ số lượng'),
+            content: Text(errorMessage),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      // Không có lỗi -> đi tới màn hình địa chỉ giao hàng
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DiaChiGiaoHangScreen(itemsToBuy: selected),
+        ),
+      );
+    },
+    icon: const Icon(Icons.payment),
+    label: const Text("Thanh toán"),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.orange,
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+      ),
+    ),
+  ),
+),
+
               ],
             ),
           ),

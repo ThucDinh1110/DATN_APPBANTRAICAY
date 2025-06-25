@@ -68,74 +68,105 @@ class HomeController extends Controller
         return response()->json($grouped->values());
     }
 
-    public function taoDonHang(Request $request)
-    {
-        $userId = $request->user_id;
-        $selectedItems = is_string($request->items) ? json_decode($request->items, true) : $request->items;
+ public function taoDonHang(Request $request)
+{
+    $userId = $request->user_id;
+    $selectedItems = is_string($request->items) ? json_decode($request->items, true) : $request->items;
 
-        if (!is_array($selectedItems) || count($selectedItems) === 0) {
-            return response()->json(['message' => 'Không có sản phẩm nào được chọn'], 400);
-        }
-
-        // Tìm giỏ hàng hiện tại
-        $giohang = DB::table('giohang')
-            ->where('IDuser', $userId)
-            ->where('Trangthai', 1)
-            ->first();
-
-        if (!$giohang) {
-            return response()->json(['message' => 'Không tìm thấy giỏ hàng'], 404);
-        }
-
-        // Tính tổng tiền theo các sản phẩm được chọn
-        $tongtien = 0;
-        foreach ($selectedItems as $item) {
-            $gia = DB::table('chitietsanpham')
-                ->where('Idsp', $item['sanpham_id'])
-                ->value('Gia');
-            $tongtien += $gia * $item['soluong'];
-        }
-
-        // Sinh mã đơn hàng
-        $randomCode = 'OV' . now()->format('ymdHis') . rand(100, 999);
-
-        // Tạo đơn hàng
-        $donhangId = DB::table('donhang')->insertGetId([
-            'IDuser'       => $userId,
-            'DiachigiaoID' => $request->diachigiao_id,
-            'ThanhtoanID'  => $request->thanhtoan_id,
-            'KhuyenmaiID'  => $request->khuyenmai_id,
-            'Ngaydat'      => now(),
-            'Tongtien'     => $tongtien,
-            'Trangthai'    => 'Chờ duyệt',
-            'Ghichu'       => $request->ghichu,
-            'MaDonHang'    => $randomCode
-        ]);
-
-        // Thêm chi tiết đơn hàng và xóa sản phẩm khỏi giỏ hàng
-        foreach ($selectedItems as $item) {
-            DB::table('chitietdonhang')->insert([
-                'DonhangID' => $donhangId,
-                'SanphamID' => $item['sanpham_id'],
-                'Soluong'   => $item['soluong']
-            ]);
-
-            // Xóa từng sản phẩm khỏi chi tiết giỏ hàng
-            DB::table('chitietgiohang')
-                ->where('IDgiohang', $giohang->IDgiohang)
-                ->where('SanphamID', $item['sanpham_id'])
-                ->delete();
-        }
-
-        return response()->json([
-            'message'    => 'Đặt hàng thành công',
-            'DonhangID'  => $donhangId,
-            'MaDonHang'  => $randomCode,
-            'TongTien'   => $tongtien
-        ]);
+    if (!is_array($selectedItems) || count($selectedItems) === 0) {
+        return response()->json(['message' => 'Không có sản phẩm nào được chọn'], 400);
     }
 
-    
+    $giohang = DB::table('giohang')
+        ->where('IDuser', $userId)
+        ->where('Trangthai', 1)
+        ->first();
+
+    if (!$giohang) {
+        return response()->json(['message' => 'Không tìm thấy giỏ hàng'], 404);
+    }
+
+    $tongtien = 0;
+
+    // Kiểm tra tồn kho
+    foreach ($selectedItems as $item) {
+        $sanphamId = $item['sanpham_id'];
+        $soluong = $item['soluong'];
+
+        $gia = DB::table('chitietsanpham')->where('Idsp', $sanphamId)->value('Gia');
+        $tongtien += $gia * $soluong;
+
+        $tonKho = DB::table('kho')->where('SanphamID', $sanphamId)->value('Soluongton');
+
+        if ($tonKho === null) {
+            return response()->json([
+                'message' => "Không tìm thấy thông tin tồn kho cho sản phẩm ID $sanphamId"
+            ], 404);
+        }
+
+        if ($soluong > $tonKho) {
+            return response()->json([
+                'message' => "Số lượng sản phẩm không đủ",
+                'sanpham_id' => $sanphamId,
+                'soluong_yeucau' => $soluong,
+                'soluong_conlai' => $tonKho
+            ], 400);
+        }
+    }
+
+    // Tạo đơn nếu đủ hàng
+    $randomCode = 'OV' . now()->format('ymdHis') . rand(100, 999);
+
+    $donhangId = DB::table('donhang')->insertGetId([
+        'IDuser'       => $userId,
+        'DiachigiaoID' => $request->diachigiao_id,
+        'ThanhtoanID'  => $request->thanhtoan_id,
+        'KhuyenmaiID'  => $request->khuyenmai_id,
+        'Ngaydat'      => now(),
+        'Tongtien'     => $tongtien,
+        'Trangthai'    => 'Chờ duyệt',
+        'Ghichu'       => $request->ghichu,
+        'MaDonHang'    => $randomCode
+    ]);
+
+    foreach ($selectedItems as $item) {
+        $sanphamId = $item['sanpham_id'];
+        $soluong = $item['soluong'];
+
+        DB::table('chitietdonhang')->insert([
+            'DonhangID' => $donhangId,
+            'SanphamID' => $sanphamId,
+            'Soluong'   => $soluong
+        ]);
+
+        DB::table('kho')
+            ->where('SanphamID', $sanphamId)
+            ->decrement('Soluongton', $soluong);
+
+        $soLuongTon = DB::table('kho')
+            ->where('SanphamID', $sanphamId)
+            ->value('Soluongton');
+
+        if ($soLuongTon < 0) {
+            DB::table('sanpham')
+                ->where('Idsp', $sanphamId)
+                ->update(['Trangthai' => 0]);
+        }
+
+        DB::table('chitietgiohang')
+            ->where('IDgiohang', $giohang->IDgiohang)
+            ->where('SanphamID', $sanphamId)
+            ->delete();
+    }
+
+    return response()->json([
+        'message'    => 'Đặt hàng thành công',
+        'DonhangID'  => $donhangId,
+        'MaDonHang'  => $randomCode,
+        'TongTien'   => $tongtien
+    ]);
+}
+
     public function huyDonHang(Request $request)
 {
     $data = $request->json()->all();

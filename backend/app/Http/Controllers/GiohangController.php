@@ -127,5 +127,46 @@ public function countCartItems(Request $request)
 
     return response()->json(['count' => $totalQuantity]);
 }
+public function kiemTraTonKho(Request $request)
+{
+    $items = $request->input('items');
+    $errors = [];
+
+    foreach ($items as $item) {
+        $id = $item['id'];
+        $soluongMua = $item['quantity'];
+
+        $tonKho = DB::table('kho')
+            ->where('SanphamID', $id)
+            ->value('Soluongton');
+
+        if ($tonKho === null) {
+            $errors[] = [
+                'id' => $id,
+                'productName' => $item['productName'],
+                'tonKho' => 0,
+                'requested' => $soluongMua,
+                'message' => 'Không tìm thấy sản phẩm trong kho',
+            ];
+        } elseif ($soluongMua > $tonKho) {
+            $errors[] = [
+                'id' => $id,
+                'productName' => $item['productName'],
+                'tonKho' => $tonKho,
+                'requested' => $soluongMua,
+                'message' => "Chỉ còn $tonKho sản phẩm",
+            ];
+        }
+    }
+
+    if (count($errors) > 0) {
+        return response()->json([
+            'status' => 'fail',
+            'errors' => $errors
+        ]);
+    }
+
+    return response()->json(['status' => 'success']);
+}
 
 }

@@ -12,6 +12,9 @@ use App\Http\Controllers\NhapHangController;
 use App\Http\Controllers\Admincontroller;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\DanhmucController;
+//kiemtratonkho
+Route::post('/kiemtra-tonkho', [GioHangController::class, 'kiemTraTonKho']);
+
 //danhthu
 Route::get('/thongke/doanhthu', [HomeController::class, 'thongKeDoanhThu']);
 //danhmuc
