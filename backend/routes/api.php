@@ -12,6 +12,8 @@ use App\Http\Controllers\NhapHangController;
 use App\Http\Controllers\Admincontroller;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\DanhmucController;
+//danhthu
+Route::get('/thongke/doanhthu', [HomeController::class, 'thongKeDoanhThu']);
 //danhmuc
 Route::get('/danhmucs', [DanhmucController::class, 'getAll']);
 //adminsanpham

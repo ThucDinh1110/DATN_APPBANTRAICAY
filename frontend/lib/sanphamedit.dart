@@ -13,6 +13,7 @@ class EditSanPhamPage extends StatefulWidget {
 }
 
 class _EditSanPhamPageState extends State<EditSanPhamPage> {
+  late TextEditingController _idController;
   late TextEditingController _tenController;
   late TextEditingController _giaController;
   late TextEditingController _donviController;
@@ -32,6 +33,7 @@ class _EditSanPhamPageState extends State<EditSanPhamPage> {
   void initState() {
     super.initState();
     final sp = widget.sanPham;
+    _idController = TextEditingController(text: sp.id.toString());
     _tenController = TextEditingController(text: sp.ten);
     _giaController = TextEditingController(text: sp.gia.toString());
     _donviController = TextEditingController(text: sp.donvi);
@@ -72,7 +74,6 @@ class _EditSanPhamPageState extends State<EditSanPhamPage> {
   }
 
   Future<void> _saveChanges() async {
-    // ✅ Kiểm tra các trường bắt buộc
     if (_tenController.text.trim().isEmpty ||
         _giaController.text.trim().isEmpty ||
         _donviController.text.trim().isEmpty ||
@@ -116,17 +117,18 @@ class _EditSanPhamPageState extends State<EditSanPhamPage> {
   Widget _buildSection(String title, List<Widget> children) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8),
-       shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: BorderSide(color: Colors.grey.shade300, width: 1),
-                ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: Colors.grey.shade300, width: 1),
+      ),
       color: Colors.white,
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title,
+            Text(
+              title,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green[800]),
             ),
             SizedBox(height: 12),
@@ -138,12 +140,13 @@ class _EditSanPhamPageState extends State<EditSanPhamPage> {
   }
 
   Widget _buildTextField(String label, TextEditingController controller,
-      {TextInputType type = TextInputType.text, String? hint}) {
+      {TextInputType type = TextInputType.text, String? hint, bool readOnly = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
         controller: controller,
         keyboardType: type,
+        readOnly: readOnly,
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
@@ -180,6 +183,7 @@ class _EditSanPhamPageState extends State<EditSanPhamPage> {
 
   @override
   void dispose() {
+    _idController.dispose();
     _tenController.dispose();
     _giaController.dispose();
     _donviController.dispose();
@@ -213,67 +217,50 @@ class _EditSanPhamPageState extends State<EditSanPhamPage> {
         child: Column(
           children: [
             _buildSection('Thông tin cơ bản', [
+              _buildTextField('ID', _idController, readOnly: true),
               _buildTextField('Tên sản phẩm', _tenController),
-              _buildTextField('Giá', _giaController,
-                  type: TextInputType.numberWithOptions(decimal: true),
-                  hint: 'VND'),
-             Padding(
-  padding: const EdgeInsets.symmetric(vertical: 8),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        'Đường dẫn hình ảnh:',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      SizedBox(height: 4),
-      Container(
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: SelectableText(
-          widget.sanPham.hinhanh ?? 'Không có dữ liệu',
-          style: TextStyle(fontSize: 14, color: Colors.black87),
-        ),
-      ),
-    ],
-  ),
-),
-
+              _buildTextField('Giá', _giaController, type: TextInputType.numberWithOptions(decimal: true), hint: 'VND'),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Đường dẫn hình ảnh:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(height: 4),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: SelectableText(
+                        widget.sanPham.hinhanh ?? 'Không có dữ liệu',
+                        style: TextStyle(fontSize: 14, color: Colors.black87),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               _buildTextField('Đơn vị', _donviController, hint: 'kg, gói, hộp...'),
-              _buildTextField('Số lượng tồn', _soluongtonController,
-                  type: TextInputType.number),
-              _buildTextField('Trạng thái', _trangthaiController,
-                  type: TextInputType.number, hint: '1: Hiển thị, 0: Ẩn'),
+              _buildTextField('Số lượng tồn', _soluongtonController, type: TextInputType.number),
+              _buildTextField('Trạng thái', _trangthaiController, type: TextInputType.number, hint: '1: Hiển thị, 0: Ẩn'),
             ]),
-
             _buildSection('Mô tả sản phẩm', [
               _buildTextField('Mô tả', _motaController, hint: 'Mô tả chi tiết sản phẩm'),
             ]),
-
             _buildSection('Thông tin dinh dưỡng', [
-              _buildTextField('Vitamin A', _vitaminaController,
-                  type: TextInputType.number, hint: 'mg/100g'),
-              _buildTextField('Vitamin C', _vitamincController,
-                  type: TextInputType.number, hint: 'mg/100g'),
-              _buildTextField('Chất xơ', _chatxoController,
-                  type: TextInputType.number, hint: 'g/100g'),
-              _buildTextField('Đường', _duongController,
-                  type: TextInputType.number, hint: 'g/100g'),
-              _buildTextField('Tinh bột', _tinhbotController,
-                  type: TextInputType.number, hint: 'g/100g'),
+              _buildTextField('Vitamin A', _vitaminaController, type: TextInputType.number, hint: 'mg/100g'),
+              _buildTextField('Vitamin C', _vitamincController, type: TextInputType.number, hint: 'mg/100g'),
+              _buildTextField('Chất xơ', _chatxoController, type: TextInputType.number, hint: 'g/100g'),
+              _buildTextField('Đường', _duongController, type: TextInputType.number, hint: 'g/100g'),
+              _buildTextField('Tinh bột', _tinhbotController, type: TextInputType.number, hint: 'g/100g'),
             ]),
-
             _buildSection('Danh mục sản phẩm', [
-              Text('Chọn danh mục phù hợp:',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+              Text('Chọn danh mục phù hợp:', style: TextStyle(fontSize: 14, color: Colors.grey[600])),
               SizedBox(height: 8),
               _buildMultiSelectChips(),
             ]),
-
             SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
