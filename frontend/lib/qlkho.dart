@@ -199,11 +199,12 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Nhập hàng bằng Excel'),
+        title: Text('Nhập hàng bằng Excel',style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.teal,
         centerTitle: true,
         elevation: 4,
         shadowColor: Colors.teal.withOpacity(0.3),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -273,8 +274,8 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
               SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: chonFileExcel,
-                icon: Icon(Icons.upload_file),
-                label: Text('Chọn file Excel'),
+                icon: Icon(Icons.upload_file,color: Colors.white,),
+                label: Text('Chọn file Excel',style:TextStyle(color:  Colors.white),),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.teal,
                   padding: EdgeInsets.symmetric(vertical: 14),

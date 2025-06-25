@@ -11,7 +11,13 @@ use App\Http\Controllers\DiachiController;
 use App\Http\Controllers\NhapHangController;
 use App\Http\Controllers\Admincontroller;
 use App\Http\Controllers\ImageController;
-//nhap ảnh
+use App\Http\Controllers\DanhmucController;
+//danhmuc
+Route::get('/danhmucs', [DanhmucController::class, 'getAll']);
+//adminsanpham
+Route::get('/sanpham/full', [SanphamController::class, 'getFullData']);
+Route::put('/sanpham/{id}', [SanphamController::class, 'update']);
+
 Route::post('/upload-image', [ImageController::class, 'upload']);
 Route::get('/images', [ImageController::class, 'index']);
 Route::delete('/images/{id}', [ImageController::class, 'delete']);

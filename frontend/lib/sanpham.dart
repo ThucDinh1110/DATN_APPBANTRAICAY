@@ -1,8 +1,11 @@
+import 'dart:ffi';
+
 class SanPham {
   final int id;
   final String ten;
   final double gia;
   final String donvi;
+  final bool trangthai;
   final String? hinhanh;
   final String? mota;
   final double? vitamina;
@@ -19,6 +22,7 @@ class SanPham {
     required this.ten,
     required this.gia,
     required this.donvi,
+    required this.trangthai,
     required this.hinhanh,
     required this.mota, 
     required this.vitamina,
@@ -37,6 +41,7 @@ class SanPham {
       ten: json['Tensp'],
       gia: double.tryParse(json['Gia'].toString()) ?? 0.0,
       donvi: json['Donvi'] ?? '',
+       trangthai: json['Trangthai'] == 1,
       hinhanh: json['Hinhanh'],
       mota: json['Mota'],
       vitamina: json['VitaminA'] != null ? double.tryParse(json['VitaminA'].toString()) : null,

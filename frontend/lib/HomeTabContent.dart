@@ -26,10 +26,10 @@ class _HomeTabContentState extends State<HomeTabContent> {
   double? maxGia;
   Map<String, List<SanPham>> danhMucMap = {};
   final List<String> imageList = [
-  'assets/anh1.jpg',
-  'assets/anh2.jpg',
-  'assets/anh3.jpg',
-  'assets/anh4.jpg',
+  'qc1.jpg',
+  'qc2.jpg',
+  'qc3.jpg',
+  'qc4.jpg',
 ];
 
 
@@ -311,12 +311,25 @@ class _HomeTabContentState extends State<HomeTabContent> {
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  imageList[index],
-                  fit: BoxFit.cover,
-                ),
-              ),
+  borderRadius: BorderRadius.circular(20),
+  child: Container(
+    width: 200,
+    height: 140, // Cố định chiều cao
+    color: Colors.grey.shade200, // Màu nền khi ảnh đang tải
+    child: Image.network(
+      'http://127.0.0.1:8000/storage/images/${imageList[index]}',
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) =>
+          const Icon(Icons.broken_image, color: Colors.red),
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return const Center(child: CircularProgressIndicator());
+      },
+    ),
+  ),
+),
+
+
             ),
           );
         },
