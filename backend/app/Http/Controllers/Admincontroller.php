@@ -48,9 +48,9 @@ public function khoa_moTaiKhoan(Request $request)
     return response()->json(['message' => 'Cập nhật trạng thái tài khoản thành công']);
 }
 
-    public function getDanhSachDonHangTatCa(Request $request)
+   public function getDanhSachDonHangTatCa(Request $request)
 {
-    $trangThai = $request->query('trangthai'); // lọc theo trạng thái nếu cần
+    $trangThai = $request->query('trangthai');
 
     $query = DB::table('donhang')
         ->join('chitietdonhang', 'donhang.DonhangID', '=', 'chitietdonhang.DonhangID')
@@ -58,8 +58,10 @@ public function khoa_moTaiKhoan(Request $request)
         ->join('chitietsanpham', 'sanpham.Idsp', '=', 'chitietsanpham.Idsp')
         ->leftJoin('diachigiaohang', 'donhang.DiachigiaoID', '=', 'diachigiaohang.DiachigiaoID')
         ->leftJoin('user', 'donhang.IDuser', '=', 'user.UserID')
+        ->leftJoin('thanhtoan', 'donhang.ThanhtoanID', '=', 'thanhtoan.ThanhtoanID') // ✅ join thêm bảng thanh toán
         ->select(
             'donhang.DonhangID',
+            'donhang.MaDonHang',
             'donhang.Ngaydat',
             'donhang.Tongtien',
             'donhang.Trangthai',
@@ -69,7 +71,8 @@ public function khoa_moTaiKhoan(Request $request)
             'chitietdonhang.Soluong',
             'chitietsanpham.Gia',
             'user.Hoten as TenNguoiDung',
-            'user.Email as EmailNguoiDung'
+            'user.Email as EmailNguoiDung',
+            'thanhtoan.Phuongthuc as PhuongthucThanhToan' // ✅ tên phương thức thanh toán
         );
 
     if ($trangThai) {
@@ -79,19 +82,19 @@ public function khoa_moTaiKhoan(Request $request)
     $donHangs = $query->get();
 
     if ($donHangs->isEmpty()) {
-        //return response()->json(['message' => 'Không có đơn hàng'], 404);
-         return response()->json([], 200);
+        return response()->json([], 200);
     }
 
-    // Gom đơn hàng theo DonhangID
     $grouped = $donHangs->groupBy('DonhangID')->map(function ($items) {
         return [
             'DonhangID' => $items[0]->DonhangID,
+            'MaDonHang' => $items[0]->MaDonHang ?? '',
             'Ngaydat' => $items[0]->Ngaydat,
             'Tongtien' => $items[0]->Tongtien,
             'Trangthai' => $items[0]->Trangthai,
             'Diachi' => $items[0]->Diachi ?? '',
             'Ghichu' => $items[0]->Ghichu ?? '',
+            'PhuongthucThanhToan' => $items[0]->PhuongthucThanhToan ?? '', // ✅ thêm vào JSON trả về
             'NguoiDung' => [
                 'Hoten' => $items[0]->TenNguoiDung ?? '',
                 'Email' => $items[0]->EmailNguoiDung ?? '',
@@ -108,6 +111,7 @@ public function khoa_moTaiKhoan(Request $request)
 
     return response()->json(array_values($grouped->values()->toArray()));
 }
+
 
 public function capNhatTrangThaiDon(Request $request){
     $donhangId = $request->input('donhang_id');

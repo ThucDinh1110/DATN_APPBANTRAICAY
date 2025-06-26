@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th6 25, 2025 lúc 04:30 PM
+-- Thời gian đã tạo: Th6 26, 2025 lúc 05:45 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -90,7 +90,14 @@ INSERT INTO `chitietdonhang` (`ChitietdhID`, `DonhangID`, `SanphamID`, `Soluong`
 (49, 46, 1, 10),
 (50, 47, 1, 10),
 (51, 48, 3, 20),
-(52, 49, 1, 10);
+(52, 49, 1, 10),
+(53, 50, 1, 1),
+(54, 51, 2, 1),
+(55, 52, 2, 1),
+(56, 52, 4, 1),
+(57, 53, 3, 1),
+(58, 53, 5, 1),
+(59, 54, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -110,7 +117,8 @@ CREATE TABLE `chitietgiohang` (
 --
 
 INSERT INTO `chitietgiohang` (`ChitietgiohangID`, `IDgiohang`, `SanphamID`, `Soluong`) VALUES
-(37, 6, 1, 10);
+(37, 6, 1, 0),
+(41, 5, 6, 0);
 
 -- --------------------------------------------------------
 
@@ -310,12 +318,17 @@ INSERT INTO `donhang` (`DonhangID`, `IDuser`, `KhuyenmaiID`, `ThanhtoanID`, `Dia
 (41, 8, NULL, 1, 5, '2025-06-25 11:24:05', 225000.00, 'Đã hủy', 're', 'OV250625112405325'),
 (42, 9, NULL, 1, 6, '2025-06-25 11:28:28', 25000.00, 'Đã hủy', NULL, 'OV250625112828997'),
 (43, 9, NULL, 1, 6, '2025-06-25 11:37:29', 453000.00, 'Đã duyệt', 'cc', 'OV250625113729638'),
-(44, 9, NULL, 1, 6, '2025-06-25 13:02:50', 360000.00, 'Chờ duyệt', NULL, 'OV250625130250540'),
+(44, 9, NULL, 1, 6, '2025-06-25 13:02:50', 360000.00, 'Đã hủy', NULL, 'OV250625130250540'),
 (45, 9, NULL, 1, 6, '2025-06-25 13:32:33', 90000.00, 'Chờ duyệt', NULL, 'OV250625133233558'),
 (46, 9, NULL, 1, 6, '2025-06-25 13:37:24', 450000.00, 'Chờ duyệt', NULL, 'OV250625133724772'),
-(47, 9, NULL, 1, 6, '2025-06-25 13:45:05', 450000.00, 'Chờ duyệt', NULL, 'OV250625134505357'),
+(47, 9, NULL, 1, 6, '2025-06-25 13:45:05', 450000.00, 'Đã hủy', NULL, 'OV250625134505357'),
 (48, 9, NULL, 1, 6, '2025-06-25 13:59:55', 500000.00, 'Chờ duyệt', NULL, 'OV250625135955635'),
-(49, 8, NULL, 1, 5, '2025-06-25 14:10:06', 450000.00, 'Chờ duyệt', NULL, 'OV250625141006128');
+(49, 8, NULL, 1, 5, '2025-06-25 14:10:06', 450000.00, 'Chờ duyệt', NULL, 'OV250625141006128'),
+(50, 8, NULL, 1, 5, '2025-06-26 02:51:49', 45000.00, 'Chờ duyệt', NULL, 'OV250626025149391'),
+(51, 8, NULL, 1, 5, '2025-06-26 03:03:15', 30000.00, 'Chờ duyệt', NULL, 'OV250626030315972'),
+(52, 8, NULL, 1, 5, '2025-06-26 03:12:07', 80000.00, 'Chờ duyệt', NULL, 'OV250626031207111'),
+(53, 9, NULL, 1, 6, '2025-06-26 03:19:15', 43000.00, 'Đã duyệt', 'chuoine', 'OV250626031915274'),
+(54, 9, NULL, 1, 6, '2025-06-26 03:34:23', 30000.00, 'Đã hủy', NULL, 'OV250626033423341');
 
 -- --------------------------------------------------------
 
@@ -370,7 +383,8 @@ INSERT INTO `images` (`id`, `name`, `path`, `created_at`, `updated_at`) VALUES
 (9, 'kiwi.jpg', 'storage/images/kiwi.jpg', '2025-06-25 02:35:49', '2025-06-25 02:35:49'),
 (10, 'qc1.jpg', 'storage/images/qc1.jpg', '2025-06-25 02:36:04', '2025-06-25 02:36:04'),
 (11, 'qc2.jpg', 'storage/images/qc2.jpg', '2025-06-25 02:36:11', '2025-06-25 02:36:11'),
-(12, 'nho_den.jpg', 'storage/images/nho_den.jpg', '2025-06-25 07:23:54', '2025-06-25 07:23:54');
+(12, 'nho_den.jpg', 'storage/images/nho_den.jpg', '2025-06-25 07:23:54', '2025-06-25 07:23:54'),
+(14, 'qc3.jpg', 'storage/images/qc3.jpg', '2025-06-25 19:01:47', '2025-06-25 19:01:47');
 
 -- --------------------------------------------------------
 
@@ -394,11 +408,11 @@ INSERT INTO `kho` (`KhoID`, `SanphamID`, `Soluongton`, `Donvi`, `Ngaycapnhat`) V
 (1, 201, 12, 'kg', '2025-06-25'),
 (2, 202, 24, 'kg', '2025-06-25'),
 (3, 203, 80, 'kg', '2025-06-25'),
-(4, 1, 1, 'kg', '2025-06-25'),
-(5, 2, 300, 'kg', '2025-06-25'),
-(6, 3, 200, 'kg', '2025-06-25'),
-(7, 4, 100, 'kg', '2025-06-25'),
-(8, 5, 50, 'kg', '2025-06-25'),
+(4, 1, 0, 'kg', '2025-06-25'),
+(5, 2, 297, 'kg', '2025-06-25'),
+(6, 3, 199, 'kg', '2025-06-25'),
+(7, 4, 99, 'kg', '2025-06-25'),
+(8, 5, 49, 'kg', '2025-06-25'),
 (9, 6, 20, 'kg', '2025-06-25'),
 (14, 7, 12, 'kg', '2025-06-25'),
 (15, 8, 10, 'kg', '2025-06-25'),
@@ -751,13 +765,13 @@ ALTER TABLE `user_thongtinnguoidung`
 -- AUTO_INCREMENT cho bảng `chitietdonhang`
 --
 ALTER TABLE `chitietdonhang`
-  MODIFY `ChitietdhID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `ChitietdhID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT cho bảng `chitietgiohang`
 --
 ALTER TABLE `chitietgiohang`
-  MODIFY `ChitietgiohangID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `ChitietgiohangID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT cho bảng `chitietphieunhap`
@@ -787,7 +801,7 @@ ALTER TABLE `diachigiaohang`
 -- AUTO_INCREMENT cho bảng `donhang`
 --
 ALTER TABLE `donhang`
-  MODIFY `DonhangID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `DonhangID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT cho bảng `giohang`
@@ -799,7 +813,7 @@ ALTER TABLE `giohang`
 -- AUTO_INCREMENT cho bảng `images`
 --
 ALTER TABLE `images`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT cho bảng `kho`

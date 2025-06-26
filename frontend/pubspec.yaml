@@ -16,6 +16,7 @@ dependencies:
   shared_preferences: ^2.2.2
   image_picker: ^1.0.4
   file_selector: ^1.0.3
+  qr_flutter: ^4.0.0
 
   mime: any
   path: any

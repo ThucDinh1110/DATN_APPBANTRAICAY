@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'qr_code_screen.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -36,13 +37,14 @@ class ThanhToanScreen extends StatefulWidget {
   final String diachi;
   final String ghichu;
 
-  const ThanhToanScreen(
-      {super.key,
-      required this.itemsToBuy,
-      required this.hoten,
-      required this.sdt,
-      required this.diachi,
-      required this.ghichu});
+  const ThanhToanScreen({
+    super.key,
+    required this.itemsToBuy,
+    required this.hoten,
+    required this.sdt,
+    required this.diachi,
+    required this.ghichu,
+  });
 
   @override
   State<ThanhToanScreen> createState() => _ThanhToanScreenState();
@@ -59,8 +61,7 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
   @override
   Widget build(BuildContext context) {
     int totalAmount = _calculateTotalAmount();
-    double discountAmount = totalAmount * 0.1;
-    double finalAmount = totalAmount - discountAmount;
+    double finalAmount = totalAmount.toDouble();
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8E1),
@@ -126,11 +127,6 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
                   ]),
                   const SizedBox(height: 4),
                   Row(children: [
-                    const Text("💸 "),
-                    Text("Giảm giá: -${discountAmount.toStringAsFixed(0)} đ")
-                  ]),
-                  const SizedBox(height: 8),
-                  Row(children: [
                     const Text("✅ "),
                     Text("Thành tiền: ${finalAmount.toStringAsFixed(0)} đ",
                         style: const TextStyle(
@@ -144,7 +140,13 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
             const SizedBox(height: 25),
             CustomButton(
               text: "Thanh Toán",
-              onPressed: () => _submitOrder(finalAmount.toInt()),
+              onPressed: () {
+                if (_selectedPaymentMethod == 1) {
+                  _confirmChuyenKhoan(finalAmount.toInt());
+                } else {
+                  _submitOrder(finalAmount.toInt());
+                }
+              },
             ),
           ],
         ),
@@ -183,6 +185,48 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
     );
   }
 
+  void _confirmChuyenKhoan(int finalAmount) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Xác nhận thanh toán'),
+        content: const Text(
+          'Bạn chắc chắn muốn sử dụng phương thức chuyển khoản? Sau khi xác nhận, bạn sẽ được chuyển sang màn hình hiển thị mã QR để thanh toán.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Huỷ'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showQrForChuyenKhoan(finalAmount);
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showQrForChuyenKhoan(int finalAmount) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => QrCodeScreen(
+          finalAmount: finalAmount,
+          paymentMethod: _selectedPaymentMethod,
+          hoten: widget.hoten,
+          sdt: widget.sdt,
+          diachi: widget.diachi,
+          ghichu: widget.ghichu,
+          itemsToBuy: widget.itemsToBuy,
+        ),
+      ),
+    );
+  }
+
   Future<void> _submitOrder(int finalAmount) async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id');
@@ -192,7 +236,6 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
       return;
     }
 
-    // Gọi API lấy DiachigiaoID
     final diachiGiaoId = await _getDiaChiGiaoID(userId);
     if (diachiGiaoId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
