@@ -30,6 +30,9 @@ class _ibmState extends State<ibm> with SingleTickerProviderStateMixin {
     _chieucaoController = TextEditingController(text: widget.chieucao);
     _cannangController = TextEditingController(text: widget.cannang);
 
+    _chieucaoController.addListener(_calculateBMI);
+    _cannangController.addListener(_calculateBMI);
+
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -39,6 +42,10 @@ class _ibmState extends State<ibm> with SingleTickerProviderStateMixin {
       parent: _animationController,
       curve: Curves.fastOutSlowIn,
     );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _calculateBMI(); // Tính lần đầu nếu có sẵn dữ liệu
+    });
   }
 
   @override
@@ -50,48 +57,60 @@ class _ibmState extends State<ibm> with SingleTickerProviderStateMixin {
   }
 
   void _calculateBMI() {
-    FocusScope.of(context).unfocus();
-
     final double? chieucao = double.tryParse(_chieucaoController.text.trim());
     final double? cannang = double.tryParse(_cannangController.text.trim());
 
     if (chieucao == null || cannang == null || chieucao <= 0 || cannang <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng nhập chiều cao và cân nặng hợp lệ'),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      setState(() {
+        _bmi = null;
+        _bmiCategory = "";
+      });
       return;
     }
 
     final chieucaoM = chieucao / 100;
     final bmi = cannang / (chieucaoM * chieucaoM);
-    setState(() {
-      _bmi = double.parse(bmi.toStringAsFixed(1));
-      if (_bmi! < 18.5) {
-        _bmiCategory = "Gầy";
-      } else if (_bmi! < 24.9) {
-        _bmiCategory = "Bình thường";
-      } else if (_bmi! < 29.9) {
-        _bmiCategory = "Thừa cân";
-      } else {
-        _bmiCategory = "Béo phì";
-      }
-    });
+    final newBmi = double.parse(bmi.toStringAsFixed(1));
 
-    widget.onSave(_chieucaoController.text.trim(), _cannangController.text.trim());
-    _animationController.reset();
-    _animationController.forward();
+    if (newBmi != _bmi) {
+      setState(() {
+        _bmi = newBmi;
+        if (_bmi! < 18.5) {
+          _bmiCategory = "Gầy";
+        } else if (_bmi! < 24.9) {
+          _bmiCategory = "Bình thường";
+        } else if (_bmi! < 29.9) {
+          _bmiCategory = "Thừa cân";
+        } else {
+          _bmiCategory = "Béo phì";
+        }
+      });
+
+      widget.onSave(_chieucaoController.text.trim(), _cannangController.text.trim());
+      _animationController.reset();
+      _animationController.forward();
+    }
   }
 
   Color _getBMIColor() {
     if (_bmi == null) return Colors.grey;
-    if (_bmi! < 18.5) return const Color(0xFF2196F3); // Blue
-    if (_bmi! < 24.9) return const Color(0xFF4CAF50); // Green
-    if (_bmi! < 29.9) return const Color(0xFFFF9800); // Orange
-    return const Color(0xFFF44336); // Red
+    if (_bmi! < 18.5) return const Color(0xFF2196F3);
+    if (_bmi! < 24.9) return const Color(0xFF4CAF50);
+    if (_bmi! < 29.9) return const Color(0xFFFF9800);
+    return const Color(0xFFF44336);
+  }
+
+  Expanded _buildScaleSegment(Color color, {required int flex}) {
+    return Expanded(
+      flex: flex,
+      child: Container(
+        height: 24,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+        ),
+      ),
+    );
   }
 
   Widget _buildBMIScale(BuildContext context) {
@@ -155,19 +174,6 @@ class _ibmState extends State<ibm> with SingleTickerProviderStateMixin {
     );
   }
 
-  Expanded _buildScaleSegment(Color color, {required int flex}) {
-    return Expanded(
-      flex: flex,
-      child: Container(
-        height: 24,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-        ),
-      ),
-    );
-  }
-
   Widget _buildResultCard() {
     return ScaleTransition(
       scale: _animation,
@@ -227,7 +233,7 @@ class _ibmState extends State<ibm> with SingleTickerProviderStateMixin {
             ],
           ),
         ),
-      color: Colors.white,
+        color: Colors.white,
       ),
     );
   }
@@ -237,14 +243,14 @@ class _ibmState extends State<ibm> with SingleTickerProviderStateMixin {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title:  Text("TÍNH CHỈ SỐ BMI",style: TextStyle(color: Colors.white),),
+        title: const Text("TÍNH CHỈ SỐ BMI", style: TextStyle(color: Colors.white)),
         centerTitle: true,
         backgroundColor: const Color(0xFF4A90E2),
         elevation: 0,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
         ),
-          iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -254,6 +260,7 @@ class _ibmState extends State<ibm> with SingleTickerProviderStateMixin {
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              color: Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -266,8 +273,6 @@ class _ibmState extends State<ibm> with SingleTickerProviderStateMixin {
                         color: Color(0xFF4A90E2),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                   
                     const SizedBox(height: 20),
                     TextField(
                       controller: _chieucaoController,
@@ -300,40 +305,15 @@ class _ibmState extends State<ibm> with SingleTickerProviderStateMixin {
                         contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _calculateBMI,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4A90E2),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 4,
-                        ),
-                        child: const Text(
-                          "TÍNH CHỈ SỐ BMI",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
-               color: Colors.white,
             ),
             if (_bmi != null) _buildResultCard(),
             const SizedBox(height: 20),
             const Card(
-            
               elevation: 4,
-              
+              color: Colors.white,
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Column(
@@ -358,7 +338,6 @@ class _ibmState extends State<ibm> with SingleTickerProviderStateMixin {
                   ],
                 ),
               ),
-               color: Colors.white,
             ),
           ],
         ),

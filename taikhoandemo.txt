@@ -4,3 +4,6 @@ admin123@
 123123@
 0363958888
 123123@
+flutter build apk --debug
+php artisan serve --host=0.0.0.0 --port=8000
+ipconfig

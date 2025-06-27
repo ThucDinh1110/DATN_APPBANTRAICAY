@@ -37,19 +37,32 @@ class _HomeTabContentState extends State<HomeTabContent> {
   final TextEditingController _maxGiaController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _futureSanPhams = SanPhamService.fetchSanPhams();
-    _scrollController.addListener(() {
-      double current = _scrollController.offset;
-      if (current > _lastOffset + 10) {
-        widget.onScrollDirectionChange?.call(true);
-      } else if (current < _lastOffset - 10) {
-        widget.onScrollDirectionChange?.call(false);
-      }
-      _lastOffset = current;
-    });
-  }
+ @override
+void initState() {
+  super.initState();
+  _futureSanPhams = SanPhamService.fetchSanPhams();
+
+  _scrollController.addListener(() {
+    double current = _scrollController.offset;
+
+    // Gọi callback nếu có
+    if (current > _lastOffset + 10) {
+      widget.onScrollDirectionChange?.call(true);
+    } else if (current < _lastOffset - 10) {
+      widget.onScrollDirectionChange?.call(false);
+    }
+    _lastOffset = current;
+
+    // ✅ Nếu cuộn lên đầu thì load lại danh sách sản phẩm
+    if (_scrollController.position.pixels <= 0) {
+      // Gọi API để cập nhật lại
+      setState(() {
+        _futureSanPhams = SanPhamService.fetchSanPhams();
+      });
+    }
+  });
+}
+
 
   @override
   void dispose() {

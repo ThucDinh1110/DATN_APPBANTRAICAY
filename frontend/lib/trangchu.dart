@@ -100,7 +100,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea( 
+    
+   child:  Scaffold(
       backgroundColor: const Color(0xFFFDFDFD),
       body: _currentIndex == 0
           ? Column(
@@ -143,6 +145,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+    )
     );
   }
 
@@ -236,5 +239,6 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+    
   }
 }

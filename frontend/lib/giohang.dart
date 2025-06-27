@@ -169,7 +169,10 @@ class _GiohangState extends State<Giohang> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+
+    
+   child:  Scaffold(
        appBar: PreferredSize(
   preferredSize: const Size.fromHeight(60),
   child: ClipRRect(
@@ -498,6 +501,7 @@ class _GiohangState extends State<Giohang> {
         ],
       ),
       backgroundColor: Colors.white,
+   ),
     );
   }
 }
