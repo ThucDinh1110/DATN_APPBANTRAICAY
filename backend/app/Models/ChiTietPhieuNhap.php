@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Models\NhapHang;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 class ChiTietPhieuNhap extends Model
 {
     protected $table = 'chitietphieunhap';
-    protected $primaryKey = 'ChitietphieunhapID';
     public $timestamps = false;
 
     protected $fillable = [
@@ -15,6 +14,16 @@ class ChiTietPhieuNhap extends Model
         'SanphamID',
         'Soluongnhap',
         'Dongianhap',
-        'Donvi'
+        'Donvi',
     ];
+
+    public function sanpham()
+    {
+        return $this->belongsTo(Sanpham::class, 'SanphamID');
+    }
+
+    public function phieuNhap()
+    {
+        return $this->belongsTo(PhieuNhap::class, 'PhieunhapID');
+    }
 }

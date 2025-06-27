@@ -16,7 +16,8 @@ use App\Http\Controllers\DanhmucController;
 Route::post('/kiemtra-tonkho', [GioHangController::class, 'kiemTraTonKho']);
 
 //danhthu
-Route::get('/thongke/doanhthu', [HomeController::class, 'thongKeDoanhThu']);
+Route::get('/admin/doanhthu', [Admincontroller::class, 'thongKeDoanhThu']);
+
 //danhmuc
 Route::get('/danhmucs', [DanhmucController::class, 'getAll']);
 //adminsanpham
@@ -28,7 +29,9 @@ Route::get('/images', [ImageController::class, 'index']);
 Route::delete('/images/{id}', [ImageController::class, 'delete']);
 //nhaphang
 Route::post('/nhaphang', [NhapHangController::class, 'nhapHang']);
-//
+Route::get('/phieunhap', [NhapHangController::class, 'getDanhSachPhieuNhap']);
+Route::get('/phieunhap/{id}', [NhapHangController::class, 'getChiTietPhieuNhap']);
+
 Route::post('/them', [GiohangController::class, 'them']);
 // Load Sản phẩm
 Route::get('/sanpham', [SanphamController::class, 'getAll']);

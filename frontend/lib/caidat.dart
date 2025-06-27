@@ -72,7 +72,7 @@ class CaiDatPage extends StatelessWidget {
                   (route) => false,
                 );
               },
-              icon: const Icon(Icons.logout),
+              icon: const Icon(Icons.logout,color: Colors.white,),
               label: const Text("Đăng xuất"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,

@@ -108,8 +108,9 @@ class _DanhSachDiaChiScreenState extends State<DanhSachDiaChiScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Chọn địa chỉ nhận hàng"),
+        title: const Text("Chọn địa chỉ nhận hàng",style: TextStyle(color: Colors.white),),
         backgroundColor:  Color.fromRGBO(95, 179, 249, 1),
+         foregroundColor: Colors.white,
           shape: const RoundedRectangleBorder(
     borderRadius: BorderRadius.vertical(
       bottom: Radius.circular(24), // bo cong góc dưới

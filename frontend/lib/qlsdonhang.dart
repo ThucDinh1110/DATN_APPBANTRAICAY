@@ -289,7 +289,9 @@ class _QuanLyDonHangAdminState extends State<QuanLyDonHangAdmin> {
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Quản lý đơn hàng (Admin)'),
+          title: const Text('Quản lý đơn hàng (Admin)',style: TextStyle(color: Colors.white)),
+          backgroundColor: Color(0xFF26A69A),
+           iconTheme: IconThemeData(color: Colors.white),
           bottom: const TabBar(
             isScrollable: true,
             tabs: [

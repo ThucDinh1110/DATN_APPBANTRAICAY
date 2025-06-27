@@ -1,7 +1,8 @@
+import 'package:apptraicay/qlkhohang.dart';
+import 'package:apptraicay/thongke.dart';
 import 'package:flutter/material.dart';
 import 'dangnhap.dart';
 import 'qlkhachhang.dart';
-import 'qlkho.dart';
 import 'qlsanpham.dart';
 import 'qlsdonhang.dart';
 import 'image_gallery_page.dart';
@@ -61,9 +62,34 @@ class _HomeManagementPageState extends State<HomeManagementPage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => NhapHangExcelPage()),
+                    MaterialPageRoute(builder: (context) => NhapHangTabPage()),
                   );
                 },
+              ),
+               SizedBox(
+                width: MediaQuery.of(context).size.width - 40,
+                child: ElevatedButton.icon(
+                  icon: Icon(Icons.image,color: Colors.white,),
+                  label: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    child: Text(
+                      'Thống Kê',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) =>ThongKeDoanhThuPage ()),
+                  );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 62, 31, 235),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 4,
+                  ),
+                ),
               ),
               _buildMenuButton(
                 icon: Icons.shopping_basket,
@@ -87,7 +113,7 @@ class _HomeManagementPageState extends State<HomeManagementPage> {
                   );
                 },
               ),
-
+             
               // Nút chiếm 100% chiều ngang
               SizedBox(
                 width: MediaQuery.of(context).size.width - 40,

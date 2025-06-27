@@ -213,8 +213,8 @@ class _HomePageState extends State<HomePage> {
                   ),
                   if (_cartItemCount > 0)
                     Positioned(
-                      right: 0,
-                      top: -6,
+                      right: 2,
+                      top: 2,
                       child: Container(
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(

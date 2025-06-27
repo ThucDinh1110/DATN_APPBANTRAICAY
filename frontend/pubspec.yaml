@@ -17,7 +17,8 @@ dependencies:
   image_picker: ^1.0.4
   file_selector: ^1.0.3
   qr_flutter: ^4.0.0
-
+  fl_chart: ^0.66.0
+  intl: ^0.18.1 
   mime: any
   path: any
 

@@ -6,6 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
+use App\Models\PhieuNhap;
+use App\Models\Sanpham;
+
+
+
+
+
 class NhapHangController extends Controller
 {
     public function nhapHang(Request $request)
@@ -112,4 +119,43 @@ class NhapHangController extends Controller
             ], 500);
         }
     }
+  // API 2: Lấy danh sách phiếu nhập
+ public function getDanhSachPhieuNhap()
+{
+    $ds = PhieuNhap::with('chiTiet')->orderBy('PhieunhapID', 'desc')->get();
+
+    // Tải trước toàn bộ sản phẩm
+    $sanphamMap = Sanpham::pluck('Tensp', 'Idsp'); // [Idsp => Tensp]
+
+    foreach ($ds as $phieu) {
+        $phieu->chiTiet->transform(function ($item) use ($sanphamMap) {
+            $item->Tensp = $sanphamMap[$item->SanphamID] ?? 'Không xác định';
+            return $item;
+        });
+    }
+
+    return response()->json($ds);
+}
+
+
+
+
+    //  API 3: Lấy chi tiết phiếu nhập theo ID
+   public function getChiTietPhieuNhap($id)
+{
+    $phieu = PhieuNhap::with('chiTiet')->find($id);
+
+    if (!$phieu) {
+        return response()->json(['message' => 'Không tìm thấy phiếu nhập'], 404);
+    }
+
+    // Gắn tên sản phẩm vào từng chi tiết
+    $phieu->chiTiet->transform(function ($item) {
+        $sanpham = Sanpham::find($item->SanphamID);
+        $item->Tensp = $sanpham ? $sanpham->Tensp : null;
+        return $item;
+    });
+
+    return response()->json($phieu);
+}
 }

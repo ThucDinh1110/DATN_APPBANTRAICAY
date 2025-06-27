@@ -127,4 +127,45 @@ public function capNhatTrangThaiDon(Request $request){
         return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
     }
 }
+public function thongKeDoanhThu(Request $request)
+{
+    $fromDate = $request->query('from_date');
+    $toDate = $request->query('to_date');
+
+    $query = DB::table('donhang');
+    if ($fromDate && $toDate) {
+        $query->whereBetween('Ngaydat', [$fromDate . ' 00:00:00', $toDate . ' 23:59:59']);
+    }
+    $doanhThuDuTinhRaw = (clone $query)->sum('Tongtien');
+
+    $donhanghuyRaw = (clone $query)
+        ->whereIn('Trangthai', ['Đã hủy', 'Đơn hàng đã hủy', 'Hủy tạm thời'])
+        ->sum('Tongtien');
+
+    $choduyetRaw = (clone $query)
+        ->where('Trangthai', 'Chờ duyệt')
+        ->sum('Tongtien');
+
+    $daduyetRaw = (clone $query)
+        ->where('Trangthai', 'Đã duyệt')
+        ->sum('Tongtien');
+
+    $danggiaoRaw = (clone $query)
+        ->where('Trangthai', 'Đang giao')
+        ->sum('Tongtien');
+
+    $doanhThuThucTeRaw = (clone $query)
+        ->where('Trangthai', 'Đã mua')
+        ->sum('Tongtien');
+
+    return response()->json([
+        'doanhThuDuTinh' => number_format($doanhThuDuTinhRaw, 0, ',', '.'),
+        'doanhThuThucTe' => number_format($doanhThuThucTeRaw, 0, ',', '.'),
+        'donhanghuy'     => number_format($donhanghuyRaw, 0, ',', '.'),
+        'choduyet'       => number_format($choduyetRaw, 0, ',', '.'),
+        'daduyet'        => number_format($daduyetRaw, 0, ',', '.'),
+        'danggiao'       => number_format($danggiaoRaw, 0, ',', '.'),
+    ]);
+}
+
 }

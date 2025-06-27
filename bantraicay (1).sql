@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th6 26, 2025 lúc 05:45 AM
+-- Thời gian đã tạo: Th6 27, 2025 lúc 08:26 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -97,7 +97,7 @@ INSERT INTO `chitietdonhang` (`ChitietdhID`, `DonhangID`, `SanphamID`, `Soluong`
 (56, 52, 4, 1),
 (57, 53, 3, 1),
 (58, 53, 5, 1),
-(59, 54, 2, 1);
+(60, 55, 3, 1);
 
 -- --------------------------------------------------------
 
@@ -118,7 +118,9 @@ CREATE TABLE `chitietgiohang` (
 
 INSERT INTO `chitietgiohang` (`ChitietgiohangID`, `IDgiohang`, `SanphamID`, `Soluong`) VALUES
 (37, 6, 1, 0),
-(41, 5, 6, 0);
+(41, 5, 6, 0),
+(48, 5, 3, 1),
+(50, 6, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -163,7 +165,10 @@ INSERT INTO `chitietphieunhap` (`ChitietphieunhapID`, `PhieunhapID`, `SanphamID`
 (26, 7, 9, 20, 25000.00, 'kg'),
 (27, 7, 10, 12, 18000.00, 'kg'),
 (28, 7, 5, 10, 50000.00, 'kg'),
-(29, 8, 11, 300, 90000.00, 'hộp');
+(29, 8, 11, 300, 90000.00, 'hộp'),
+(30, 9, 11, 300, 90000.00, 'hộp'),
+(31, 10, 11, 300, 90000.00, 'hộp'),
+(32, 11, 11, 300, 90000.00, 'hộp');
 
 -- --------------------------------------------------------
 
@@ -277,9 +282,9 @@ CREATE TABLE `donhang` (
 --
 
 INSERT INTO `donhang` (`DonhangID`, `IDuser`, `KhuyenmaiID`, `ThanhtoanID`, `DiachigiaoID`, `Ngaydat`, `Tongtien`, `Trangthai`, `GhiChu`, `MaDonHang`) VALUES
-(3, 2, NULL, 2, 2, '2025-06-18 14:14:57', 170000.00, 'Đang giao', NULL, 'OV250618141457897'),
+(3, 2, NULL, 2, 2, '2025-06-18 14:14:57', 170000.00, 'Đã mua', NULL, 'OV250618141457897'),
 (4, 6, NULL, 2, 1, '2025-06-19 10:32:10', 300000.00, 'Đã hủy', NULL, 'OV250619103210638'),
-(5, 6, NULL, 2, 1, '2025-06-19 11:29:46', 180000.00, 'Đã duyệt', NULL, 'OV250619112946249'),
+(5, 6, NULL, 2, 1, '2025-06-19 11:29:46', 180000.00, 'Đã mua', NULL, 'OV250619112946249'),
 (6, 6, NULL, 1, 1, '2025-06-20 04:35:22', 70000.00, 'Đã hủy', 'giao sớm nhất có thể nha', 'OV250620043522686'),
 (7, 6, NULL, 2, 3, '2025-06-20 09:26:02', 100000.00, 'Đơn hàng đã hủy', NULL, 'OV250620092602219'),
 (8, 6, NULL, 1, 3, '2025-06-20 10:50:08', 36000.00, 'Đang giao', NULL, 'OV250620105008187'),
@@ -319,7 +324,7 @@ INSERT INTO `donhang` (`DonhangID`, `IDuser`, `KhuyenmaiID`, `ThanhtoanID`, `Dia
 (42, 9, NULL, 1, 6, '2025-06-25 11:28:28', 25000.00, 'Đã hủy', NULL, 'OV250625112828997'),
 (43, 9, NULL, 1, 6, '2025-06-25 11:37:29', 453000.00, 'Đã duyệt', 'cc', 'OV250625113729638'),
 (44, 9, NULL, 1, 6, '2025-06-25 13:02:50', 360000.00, 'Đã hủy', NULL, 'OV250625130250540'),
-(45, 9, NULL, 1, 6, '2025-06-25 13:32:33', 90000.00, 'Chờ duyệt', NULL, 'OV250625133233558'),
+(45, 9, NULL, 1, 6, '2025-06-25 13:32:33', 90000.00, 'Đã duyệt', NULL, 'OV250625133233558'),
 (46, 9, NULL, 1, 6, '2025-06-25 13:37:24', 450000.00, 'Chờ duyệt', NULL, 'OV250625133724772'),
 (47, 9, NULL, 1, 6, '2025-06-25 13:45:05', 450000.00, 'Đã hủy', NULL, 'OV250625134505357'),
 (48, 9, NULL, 1, 6, '2025-06-25 13:59:55', 500000.00, 'Chờ duyệt', NULL, 'OV250625135955635'),
@@ -328,7 +333,8 @@ INSERT INTO `donhang` (`DonhangID`, `IDuser`, `KhuyenmaiID`, `ThanhtoanID`, `Dia
 (51, 8, NULL, 1, 5, '2025-06-26 03:03:15', 30000.00, 'Chờ duyệt', NULL, 'OV250626030315972'),
 (52, 8, NULL, 1, 5, '2025-06-26 03:12:07', 80000.00, 'Chờ duyệt', NULL, 'OV250626031207111'),
 (53, 9, NULL, 1, 6, '2025-06-26 03:19:15', 43000.00, 'Đã duyệt', 'chuoine', 'OV250626031915274'),
-(54, 9, NULL, 1, 6, '2025-06-26 03:34:23', 30000.00, 'Đã hủy', NULL, 'OV250626033423341');
+(54, 9, NULL, 1, 6, '2025-06-26 03:34:23', 30000.00, 'Đã hủy', NULL, 'OV250626033423341'),
+(55, 9, NULL, 1, 6, '2025-06-27 02:35:38', 25000.00, 'Chờ duyệt', 'chuooi', 'OV250627023538530');
 
 -- --------------------------------------------------------
 
@@ -410,7 +416,7 @@ INSERT INTO `kho` (`KhoID`, `SanphamID`, `Soluongton`, `Donvi`, `Ngaycapnhat`) V
 (3, 203, 80, 'kg', '2025-06-25'),
 (4, 1, 0, 'kg', '2025-06-25'),
 (5, 2, 297, 'kg', '2025-06-25'),
-(6, 3, 199, 'kg', '2025-06-25'),
+(6, 3, 198, 'kg', '2025-06-25'),
 (7, 4, 99, 'kg', '2025-06-25'),
 (8, 5, 49, 'kg', '2025-06-25'),
 (9, 6, 20, 'kg', '2025-06-25'),
@@ -418,7 +424,7 @@ INSERT INTO `kho` (`KhoID`, `SanphamID`, `Soluongton`, `Donvi`, `Ngaycapnhat`) V
 (15, 8, 10, 'kg', '2025-06-25'),
 (16, 9, 20, 'kg', '2025-06-25'),
 (17, 10, 12, 'kg', '2025-06-25'),
-(18, 11, 285, 'hộp', '2025-06-25');
+(18, 11, 1185, 'hộp', '2025-06-27');
 
 -- --------------------------------------------------------
 
@@ -480,7 +486,10 @@ INSERT INTO `phieunhap` (`PhieunhapID`, `Ngaynhap`, `Nhacungcap`, `Nguoinhap`, `
 (4, '2025-06-25', 'á', 's', 1216000.00, NULL),
 (5, '2025-06-25', 's', 's', 2432000.00, NULL),
 (7, '2025-06-25', 'h', 'h', 1932000.00, NULL),
-(8, '2025-06-25', 'dau', 'dau', 27000000.00, NULL);
+(8, '2025-06-25', 'dau', 'dau', 27000000.00, NULL),
+(9, '2025-06-27', 'hai', 'nh', 27000000.00, NULL),
+(10, '2025-06-27', 'ss', 's', 27000000.00, NULL),
+(11, '2025-06-27', 's', 's', 27000000.00, NULL);
 
 -- --------------------------------------------------------
 
@@ -765,19 +774,19 @@ ALTER TABLE `user_thongtinnguoidung`
 -- AUTO_INCREMENT cho bảng `chitietdonhang`
 --
 ALTER TABLE `chitietdonhang`
-  MODIFY `ChitietdhID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `ChitietdhID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT cho bảng `chitietgiohang`
 --
 ALTER TABLE `chitietgiohang`
-  MODIFY `ChitietgiohangID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `ChitietgiohangID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT cho bảng `chitietphieunhap`
 --
 ALTER TABLE `chitietphieunhap`
-  MODIFY `ChitietphieunhapID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `ChitietphieunhapID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT cho bảng `chitietsanpham`
@@ -801,7 +810,7 @@ ALTER TABLE `diachigiaohang`
 -- AUTO_INCREMENT cho bảng `donhang`
 --
 ALTER TABLE `donhang`
-  MODIFY `DonhangID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `DonhangID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT cho bảng `giohang`
@@ -837,7 +846,7 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT cho bảng `phieunhap`
 --
 ALTER TABLE `phieunhap`
-  MODIFY `PhieunhapID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `PhieunhapID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT cho bảng `sanpham`

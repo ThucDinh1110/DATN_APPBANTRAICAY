@@ -260,7 +260,7 @@ class _GiohangState extends State<Giohang> {
                             ),
                             title: Text(product.productName),
                             subtitle: Text(
-                                'Giá: ${product.price}đ x ${product.quantity}'),
+                                'Giá: ${product.price} VNĐ x ${product.quantity}', style:TextStyle(color: Colors.red) ,),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -410,7 +410,7 @@ class _GiohangState extends State<Giohang> {
                   ],
                 ),
                 Text(
-                  '${choThanhToan.where((e) => e.isSelected).fold<double>(0, (sum, item) => sum + item.price * item.quantity)}đ',
+                  '${choThanhToan.where((e) => e.isSelected).fold<double>(0, (sum, item) => sum + item.price * item.quantity)} VNĐ',
                   style:
                       const TextStyle(fontSize: 18, color: Colors.redAccent),
                 ),
@@ -424,10 +424,10 @@ class _GiohangState extends State<Giohang> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.add_shopping_cart),
+                    icon: const Icon(Icons.add_shopping_cart,color:Colors.white),
                     label: const Text("Mua tiếp"),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Color.fromRGBO(95, 179, 249, 1),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
@@ -477,7 +477,7 @@ class _GiohangState extends State<Giohang> {
         ),
       );
     },
-    icon: const Icon(Icons.payment),
+    icon: const Icon(Icons.payment,color:Colors.white,),
     label: const Text("Thanh toán"),
     style: ElevatedButton.styleFrom(
       backgroundColor: Colors.orange,

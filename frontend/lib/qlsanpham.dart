@@ -38,11 +38,11 @@ class _AdminSanPhamPageState extends State<AdminSanPhamPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Quản lý sản phẩm (Admin)', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
+        title: Text('Quản lý sản phẩm (Admin)', style: TextStyle(color: Colors.white)),
+        backgroundColor:const Color(0xFFFF7043),
         elevation: 1,
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       backgroundColor: Colors.white,
       body: FutureBuilder<List<SanPham>>(
@@ -97,35 +97,58 @@ class _AdminSanPhamPageState extends State<AdminSanPhamPage> {
                                 Text(sp.ten,
                                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                 Text('Giá: ${sp.gia.toStringAsFixed(0)} ${sp.donvi}'),
-                                Row(
-                                  children: [
-                                    Text('Tồn kho: ${sp.soluongton}'),
-                                    if (sp.soluongton < 20)
-                                      Container(
-                                        margin: EdgeInsets.only(left: 8),
-                                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red[100],
-                                          borderRadius: BorderRadius.circular(6),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.warning,
-                                                size: 16, color: Colors.red[800]),
-                                            SizedBox(width: 4),
-                                            Text(
-                                              'Cảnh báo: gần hết',
-                                              style: TextStyle(
-                                                color: Colors.red[800],
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                  ],
-                                ),
+                              Row(
+  children: [
+    Text('Tồn kho: ${sp.soluongton}'),
+    if (sp.soluongton == 0)
+      Container(
+        margin: EdgeInsets.only(left: 8),
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.block, size: 16, color: Colors.black87),
+            SizedBox(width: 4),
+            Text(
+              'Hết hàng',
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      )
+    else if (sp.soluongton < 20)
+      Container(
+        margin: EdgeInsets.only(left: 8),
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.red[100],
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.warning, size: 16, color: Colors.red[800]),
+            SizedBox(width: 4),
+            Text(
+              'Cảnh báo: gần hết',
+              style: TextStyle(
+                color: Colors.red[800],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+  ],
+),
+
                                 if (sp.danhmuc.isNotEmpty)
                                   Text('Danh mục: ${sp.danhmuc.join(', ')}'),
                               ],

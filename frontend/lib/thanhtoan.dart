@@ -64,13 +64,19 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
     double finalAmount = totalAmount.toDouble();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8E1),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color(0xFFFF7043),
         title: const Text("Thanh Toán", style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
+       foregroundColor: Colors.white,
+       centerTitle: true,
+        shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(
+      bottom: Radius.circular(24), // bo cong góc dưới
+    ),
+    ),
       ),
+      
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -123,12 +129,12 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
                 children: [
                   Row(children: [
                     const Text("🧾 "),
-                    Text("Tổng tiền: ${totalAmount.toString()} đ")
+                    Text("Tổng tiền: ${totalAmount.toString()} VNĐ")
                   ]),
                   const SizedBox(height: 4),
                   Row(children: [
                     const Text("✅ "),
-                    Text("Thành tiền: ${finalAmount.toStringAsFixed(0)} đ",
+                    Text("Thành tiền: ${finalAmount.toStringAsFixed(0)} VNĐ",
                         style: const TextStyle(
                             fontSize: 16,
                             color: Color(0xFFFF5722),
@@ -189,9 +195,9 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Xác nhận thanh toán'),
+        title: const Text('Xác nhận thanh toán',style:TextStyle(color: Colors.red),),
         content: const Text(
-          'Bạn chắc chắn muốn sử dụng phương thức chuyển khoản? Sau khi xác nhận, bạn sẽ được chuyển sang màn hình hiển thị mã QR để thanh toán.',
+          'Bạn Chắc Chắn Thanh Toán Bằng Phương Thức Chuyển Khoản',
         ),
         actions: [
           TextButton(

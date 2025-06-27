@@ -94,9 +94,16 @@ class _DiaChiGiaoHangScreenState extends State<DiaChiGiaoHangScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nhập địa chỉ giao hàng'),
-        backgroundColor: Colors.orangeAccent,
+        title: const Text('Nhập địa chỉ giao hàng',style: TextStyle(color: Colors.white),),
+        backgroundColor:const Color(0xFFFF7043), foregroundColor: Colors.white,
+        centerTitle: true,
+        shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(
+      bottom: Radius.circular(24), // bo cong góc dưới
+    ),
+    ),
       ),
+      
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -208,7 +215,7 @@ class _DiaChiGiaoHangScreenState extends State<DiaChiGiaoHangScreen> {
                           );
                         }
                       : null,
-                  icon: const Icon(Icons.payment),
+                  icon: const Icon(Icons.payment,color:Colors.white),
                   label: const Text("Thanh toán"),
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,

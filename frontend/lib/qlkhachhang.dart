@@ -188,7 +188,9 @@ class _QuanLyKhachHangAdminState extends State<QuanLyKhachHangAdmin> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Quản lý khách hàng (Admin)"),
+        backgroundColor: Color(0xFF43A047),
+        title: const Text("Quản lý khách hàng (Admin)",style: TextStyle(color: Colors.white),),
+         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: customers.isEmpty
           ? const Center(child: Text("Chưa có khách hàng nào"))

@@ -57,7 +57,7 @@ class _UploadImagePageState extends State<UploadImagePage> {
         _loadImages();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Tải ảnh thành công'),
-          backgroundColor: Colors.green,
+          backgroundColor:Colors.deepPurple,
         ));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -115,7 +115,7 @@ class _UploadImagePageState extends State<UploadImagePage> {
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Xoá ảnh thành công'),
-          backgroundColor: Colors.green,
+          backgroundColor:Colors.deepPurple,
         ));
         _loadImages();
       } else {
@@ -137,7 +137,7 @@ class _UploadImagePageState extends State<UploadImagePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Quản lý hình ảnh', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.green[700],
+        backgroundColor:Colors.deepPurple[700],
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
       ),
@@ -186,7 +186,7 @@ class _UploadImagePageState extends State<UploadImagePage> {
                             Expanded(
                               child: ElevatedButton.icon(
                                 onPressed: _chonAnh,
-                                icon: Icon(Icons.image_search),
+                                icon: Icon(Icons.image_search,color:Colors.white,),
                                 label: Text('Chọn ảnh'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blueGrey,
@@ -206,10 +206,10 @@ class _UploadImagePageState extends State<UploadImagePage> {
                                         height: 18,
                                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                                       )
-                                    : Icon(Icons.cloud_upload),
+                                    : Icon(Icons.cloud_upload,color:Colors.white,),
                                 label: Text(_isUploading ? 'Đang tải...' : 'Tải lên'),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
+                                  backgroundColor:Colors.deepPurple,
                                   foregroundColor: Colors.white,
                                   padding: EdgeInsets.symmetric(vertical: 14),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

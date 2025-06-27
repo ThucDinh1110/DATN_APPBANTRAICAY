@@ -156,7 +156,7 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
                     _controller.reset();
                   });
                 },
-                child: Text('Đóng', style: TextStyle(color: Colors.teal)),
+                child: Text('Đóng', style: TextStyle(color: Colors.black,)),
               ),
             ],
             shape: RoundedRectangleBorder(
@@ -173,7 +173,7 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Đóng', style: TextStyle(color: Colors.teal)),
+                child: Text('Đóng', style: TextStyle(color: Colors.black,)),
               ),
             ],
             shape: RoundedRectangleBorder(
@@ -197,16 +197,7 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Nhập hàng bằng Excel',style: TextStyle(color: Colors.white),),
-        backgroundColor: Colors.teal,
-        centerTitle: true,
-        elevation: 4,
-        shadowColor: Colors.teal.withOpacity(0.3),
-        iconTheme: IconThemeData(color: Colors.white),
-      ),
-      body: Padding(
+    return  Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
@@ -272,12 +263,13 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
                 ),
               ),
               SizedBox(height: 16),
+              
               ElevatedButton.icon(
                 onPressed: chonFileExcel,
                 icon: Icon(Icons.upload_file,color: Colors.white,),
                 label: Text('Chọn file Excel',style:TextStyle(color:  Colors.white),),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
+                  backgroundColor: Colors.blueGrey,
                   padding: EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -326,7 +318,7 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
                                   padding: const EdgeInsets.all(12),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.list, color: Colors.teal),
+                                      Icon(Icons.list, color: Colors.black,),
                                       SizedBox(width: 8),
                                       Text(
                                         "Danh sách sản phẩm",
@@ -341,7 +333,7 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
                                           "${danhSachSanPham.length} sản phẩm",
                                           style: TextStyle(color: Colors.white),
                                         ),
-                                        backgroundColor: Colors.teal,
+                                        backgroundColor: Colors.blueGrey,
                                       ),
                                     ],
                                   ),
@@ -366,11 +358,11 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
                                           child: ListTile(
                                             leading: CircleAvatar(
                                               backgroundColor:
-                                                  Colors.teal[100],
+                                        Colors.grey,
                                               child: Text(
                                                 '${sp["SanphamID"] ?? "-"}',
                                                 style: TextStyle(
-                                                    color: Colors.teal),
+                                                    color: Colors.white,),
                                               ),
                                             ),
                                             title: Text(
@@ -412,10 +404,10 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
                           ),
                         )
                       : Icon(Icons.cloud_upload),
-                  label: Text(_isLoading ? "Đang gửi..." : "Gửi dữ liệu"),
-                  onPressed: _isLoading ? null : guiApiNhapHang,
+                  label: Text(_isLoading ? "Đang gửi..." : "Gửi dữ liệu",style: TextStyle(color: Colors.white),),
+                   onPressed: _isLoading ? null : guiApiNhapHang,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.blueGrey,
                     minimumSize: Size(double.infinity, 48),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -426,7 +418,7 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
             ],
           ),
         ),
-      ),
+      
     );
   }
 }
