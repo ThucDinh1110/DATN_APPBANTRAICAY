@@ -3,9 +3,10 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
-
+import 'api_config.dart';
 class ImageService {
-  static const String baseUrl = 'http://localhost:8000'; // Đổi thành IP thật nếu cần
+  static final String baseUrl = ApiConfig.baseUrl;
+ 
 
   static Future<void> uploadImage(File imageFile) async {
     final uri = Uri.parse('$baseUrl/api/upload-image');

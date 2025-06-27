@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import 'api_config.dart';
 class Customer {
   int userId;
   String name;
@@ -58,7 +58,7 @@ class _QuanLyKhachHangAdminState extends State<QuanLyKhachHangAdmin> {
 
   Future<void> fetchCustomers() async {
     try {
-      final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/getDanhSachUser'));
+      final response = await http.get(Uri.parse('${ApiConfig.baseUrl}/api/getDanhSachUser'));
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
@@ -75,7 +75,7 @@ class _QuanLyKhachHangAdminState extends State<QuanLyKhachHangAdmin> {
     Future<void> khoaMoTaiKhoan(int userId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://127.0.0.1:8000/api/khoa_moTaiKhoan'),
+        Uri.parse('${ApiConfig.baseUrl}/api/khoa_moTaiKhoan'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'user_id': userId}),
       );

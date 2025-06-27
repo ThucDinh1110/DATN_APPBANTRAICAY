@@ -3,7 +3,7 @@ import 'package:apptraicay/dangnhap.dart';
 import 'package:apptraicay/matkhaumoi.dart';
 import 'package:apptraicay/welcome.dart';
 import 'package:flutter/material.dart';
-
+import 'api_config.dart';
 class forgotpasswordPage extends StatefulWidget {
   const forgotpasswordPage({super.key});
 

@@ -6,7 +6,7 @@ import 'package:mime/mime.dart';
 import 'package:file_selector/file_selector.dart';
 import 'dart:convert';
 import 'package:path/path.dart' as path;
-
+import 'api_config.dart';
 class UploadImagePage extends StatefulWidget {
   @override
   _UploadImagePageState createState() => _UploadImagePageState();
@@ -16,7 +16,7 @@ class _UploadImagePageState extends State<UploadImagePage> {
   File? _image;
   bool _isUploading = false;
   List<Map<String, dynamic>> _images = [];
-  final String host = 'http://127.0.0.1:8000';
+  final String host = '${ApiConfig.baseUrl}';
 
   @override
   void initState() {

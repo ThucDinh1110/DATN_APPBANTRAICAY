@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'qr_code_screen.dart';
+import 'api_config.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -254,7 +255,7 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
         .toList();
 
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/taoDonHang'),
+      Uri.parse('${ApiConfig.baseUrl}/api/taoDonHang'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'user_id': userId,
@@ -281,7 +282,7 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
 
   Future<int?> _getDiaChiGiaoID(int userId) async {
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/getDiaChiGiaoID?user_id=$userId'),
+      Uri.parse('${ApiConfig.baseUrl}/api/getDiaChiGiaoID?user_id=$userId'),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

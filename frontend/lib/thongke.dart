@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
-
+import 'api_config.dart';
 class ThongKeDoanhThuPage extends StatefulWidget {
   @override
   _ThongKeDoanhThuPageState createState() => _ThongKeDoanhThuPageState();
@@ -35,7 +35,7 @@ class _ThongKeDoanhThuPageState extends State<ThongKeDoanhThuPage> {
       errorMessage = '';
     });
 
-    String baseUrl = 'http://127.0.0.1:8000/api/admin/doanhthu';
+    String baseUrl = '${ApiConfig.baseUrl}/api/admin/doanhthu';
     String query = '';
     if (fromDate != null && toDate != null) {
       query =

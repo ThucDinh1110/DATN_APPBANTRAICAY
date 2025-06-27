@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'qlkho.dart';
 import 'danhsach_phieunhap_page.dart';
-
+import 'api_config.dart';
 class NhapHangTabPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

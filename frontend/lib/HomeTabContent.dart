@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'sanpham.dart';
 import 'sanpham_service.dart';
 import 'chitietsanpham.dart';
-
+import 'api_config.dart';
 class HomeTabContent extends StatefulWidget {
   final String keyword;
   final Function(bool isScrollingDown)? onScrollDirectionChange;
@@ -317,7 +317,7 @@ class _HomeTabContentState extends State<HomeTabContent> {
     height: 140, // Cố định chiều cao
     color: Colors.grey.shade200, // Màu nền khi ảnh đang tải
     child: Image.network(
-      'http://127.0.0.1:8000/storage/images/${imageList[index]}',
+      '${ApiConfig.baseUrl}/storage/images/${imageList[index]}',
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) =>
           const Icon(Icons.broken_image, color: Colors.red),
@@ -467,7 +467,7 @@ class _HomeTabContentState extends State<HomeTabContent> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                          Image.network(
-  'http://127.0.0.1:8000/storage/images/${sp.hinhanh}',
+  '${ApiConfig.baseUrl}/storage/images/${sp.hinhanh}',
   height: 120,
   width: double.infinity,
   fit: BoxFit.cover,

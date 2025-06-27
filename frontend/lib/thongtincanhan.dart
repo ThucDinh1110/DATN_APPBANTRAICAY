@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ibm.dart';
 import 'goiy.dart';
-
+import 'api_config.dart';
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -43,7 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://127.0.0.1:8000/api/getUserProfile?user_id=$userId'),
+        Uri.parse('${ApiConfig.baseUrl}/api/getUserProfile?user_id=$userId'),
       );
 
       if (response.statusCode == 200) {
@@ -82,7 +82,7 @@ class _ProfilePageState extends State<ProfilePage> {
       return;
     }
 
-    final url = Uri.parse('http://127.0.0.1:8000/api/updateUserProfile');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/updateUserProfile');
 
     try {
       final response = await http.post(

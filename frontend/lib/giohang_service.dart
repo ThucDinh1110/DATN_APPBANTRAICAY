@@ -1,13 +1,13 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'api_config.dart';
 class GioHangService {
   static Future<bool> themVaoGioHang({
     required int userId,
     required int productId,
     required int soluong,
   }) async {
-    final url = Uri.parse('http://127.0.0.1:8000/api/them'); // thay bằng IP thật
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/them'); // thay bằng IP thật
 
     final response = await http.post(
       url,

@@ -3,7 +3,7 @@ import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import 'api_config.dart';
 class NhapHangExcelPage extends StatefulWidget {
   @override
   _NhapHangExcelPageState createState() => _NhapHangExcelPageState();
@@ -133,7 +133,7 @@ class _NhapHangExcelPageState extends State<NhapHangExcelPage>
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8000/api/nhaphang'),
+        Uri.parse('${ApiConfig.baseUrl}/api/nhaphang'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(body),
       );

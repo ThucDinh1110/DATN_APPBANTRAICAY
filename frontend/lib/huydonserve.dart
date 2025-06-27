@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'donhang.dart';
-
+import 'api_config.dart';
 class HuyDonService {
   static Future<String> huyDonHang(int donhangId) async {
     try {
@@ -10,7 +10,7 @@ class HuyDonService {
       final userId = prefs.getInt('user_id');
       if (userId == null) return 'Không tìm thấy user';
 
-      final url = Uri.parse('http://127.0.0.1:8000/api/huyDonHang');
+      final url = Uri.parse('${ApiConfig.baseUrl}/api/huyDonHang');
 
       final response = await http.post(
         url,

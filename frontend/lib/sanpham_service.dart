@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'sanpham.dart';
-
+import 'api_config.dart';
 class SanPhamService {
   // Dành cho người dùng đã đăng nhập (chỉ sản phẩm hoạt động)
   static Future<List<SanPham>> fetchSanPhams() async {
@@ -14,7 +14,7 @@ class SanPhamService {
       throw Exception('Bạn chưa đăng nhập.');
     }
 
-    final url = Uri.parse('http://127.0.0.1:8000/api/sanpham');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/sanpham');
 
     final response = await http.get(url);
     if (response.statusCode == 200) {
@@ -27,7 +27,7 @@ class SanPhamService {
 
   // Dành cho admin: lấy toàn bộ sản phẩm (cả đã ẩn)
   static Future<List<SanPham>> fetchAllSanPhams() async {
-    final url = Uri.parse('http://127.0.0.1:8000/api/sanpham/full');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/sanpham/full');
 
     final response = await http.get(url);
     if (response.statusCode == 200) {
@@ -39,7 +39,7 @@ class SanPhamService {
   }
 
   static Future<void> updateSanPham(int id, Map<String, dynamic> data) async {
-  final url = Uri.parse('http://127.0.0.1:8000/api/sanpham/$id');
+  final url = Uri.parse('${ApiConfig.baseUrl}/api/sanpham/$id');
 
   final response = await http.put(
     url,

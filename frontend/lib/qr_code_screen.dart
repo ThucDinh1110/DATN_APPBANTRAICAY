@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'giohang.dart';
-
+import 'api_config.dart';
 class QrCodeScreen extends StatefulWidget {
   final int finalAmount;
   final int paymentMethod;
@@ -48,7 +48,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     }
 
     final diachiRes = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/getDiaChiGiaoID?user_id=$userId'),
+      Uri.parse('${ApiConfig.baseUrl}/api/getDiaChiGiaoID?user_id=$userId'),
     );
 
     if (diachiRes.statusCode != 200) {
@@ -63,7 +63,7 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
         .toList();
 
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/taoDonHang'),
+      Uri.parse('${ApiConfig.baseUrl}/api/taoDonHang'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'user_id': userId,

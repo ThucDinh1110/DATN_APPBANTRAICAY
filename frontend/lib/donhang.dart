@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'api_config.dart';
 
 class ProductItemModel {
   final String productName;
@@ -65,7 +66,7 @@ class _DonhangState extends State<Donhang> {
     if (userId == null) return;
 
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8000/api/getDanhSachDonHang?user_id=$userId'),
+      Uri.parse('${ApiConfig.baseUrl}/api/getDanhSachDonHang?user_id=$userId'),
     );
 
     if (response.statusCode == 200) {

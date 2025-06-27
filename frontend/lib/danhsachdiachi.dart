@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'api_config.dart';
 
 class DanhSachDiaChiScreen extends StatefulWidget {
   final int userId;
@@ -30,7 +31,7 @@ class _DanhSachDiaChiScreenState extends State<DanhSachDiaChiScreen> {
 
   Future<void> fetchDiaChi() async {
     final res = await http.get(
-      Uri.parse("http://127.0.0.1:8000/api/getDanhSachDiaChiGiaoID?user_id=${widget.userId}"),
+      Uri.parse("${ApiConfig.baseUrl}/api/getDanhSachDiaChiGiaoID?user_id=${widget.userId}"),
     );
     if (res.statusCode == 200) {
       final data = List<Map<String, dynamic>>.from(jsonDecode(res.body));
@@ -47,7 +48,7 @@ class _DanhSachDiaChiScreenState extends State<DanhSachDiaChiScreen> {
 
   Future<void> setDefault(int diachiId) async {
     final response = await http.post(
-      Uri.parse("http://127.0.0.1:8000/api/setDefaultAddress"),
+      Uri.parse("${ApiConfig.baseUrl}/api/setDefaultAddress"),
       body: {
         "user_id": widget.userId.toString(),
         "dia_chi_id": diachiId.toString(),

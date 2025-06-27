@@ -10,6 +10,7 @@ import 'thongtincanhan.dart';
 import 'HomeTabContent.dart';
 import 'sanpham.dart';
 import 'sanpham_service.dart';
+import 'api_config.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -64,7 +65,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://127.0.0.1:8000/api/countCartItems?user_id=$userId'),
+        Uri.parse('${ApiConfig.baseUrl}/api/countCartItems?user_id=$userId'),
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -84,7 +85,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://127.0.0.1:8000/api/getUserProfile?user_id=$userId'),
+        Uri.parse('${ApiConfig.baseUrl}/api/getUserProfile?user_id=$userId'),
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

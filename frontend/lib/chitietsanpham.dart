@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'sanpham.dart';
 import 'giohang_service.dart';
+import 'api_config.dart';
 
 class chitietsppage extends StatefulWidget {
   final SanPham sanPham;
@@ -15,7 +16,7 @@ class chitietsppage extends StatefulWidget {
 
 class _chitietsppageState extends State<chitietsppage> {
   int quantity = 1;
-  final String host = 'http://127.0.0.1:8000'; // Laravel local API
+  final String host = '${ApiConfig.baseUrl}'; // Laravel local API
 
   @override
   Widget build(BuildContext context) {

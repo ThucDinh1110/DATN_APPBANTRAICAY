@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'giohang_service.dart';
+import 'api_config.dart';
 
 class ProductItemModel {
   final String productName;
@@ -58,7 +59,7 @@ class _GiohangState extends State<Giohang> {
     });
   }
   Future<String?> kiemTraTonKho(List<ProductItemModel> items) async {
-  final url = Uri.parse('http://127.0.0.1:8000/api/kiemtra-tonkho');
+  final url = Uri.parse('${ApiConfig.baseUrl}/api/kiemtra-tonkho');
 
   final body = {
     'items': items.map((e) => {
@@ -108,7 +109,7 @@ class _GiohangState extends State<Giohang> {
   Future<void> fetchCart() async {
     if (userId == null) return;
 
-    final url = Uri.parse('http://127.0.0.1:8000/api/getCart');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/getCart');
 
     try {
       final response = await http.post(url, body: {

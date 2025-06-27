@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import 'api_config.dart';
 class ProductItem {
   final String tenSp;
   final int soLuong;
@@ -91,7 +91,7 @@ class _QuanLyDonHangAdminState extends State<QuanLyDonHangAdmin> {
   Future<void> fetchDonHangAdmin() async {
     try {
       final response = await http.get(
-        Uri.parse('http://127.0.0.1:8000/api/getDanhSachDonHangTatCa'),
+        Uri.parse('${ApiConfig.baseUrl}/api/getDanhSachDonHangTatCa'),
       );
 
       if (response.statusCode == 200) {
@@ -133,7 +133,7 @@ class _QuanLyDonHangAdminState extends State<QuanLyDonHangAdmin> {
 
   void capNhatTrangThai(int donhangId, String trangThaiMoi) async {
     final res = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/capNhatTrangThaiDon'),
+      Uri.parse('${ApiConfig.baseUrl}/api/capNhatTrangThaiDon'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'donhang_id': donhangId,

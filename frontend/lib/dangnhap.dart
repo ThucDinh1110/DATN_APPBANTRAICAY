@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'api_config.dart';
 
 import 'dangky.dart';
 import 'quanly.dart';
@@ -55,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    final url = Uri.parse('http://127.0.0.1:8000/api/login');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/login');
 
     try {
       final response = await http.post(

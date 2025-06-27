@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'sanpham.dart'; // import class SanPham
 import 'sanpham_service.dart'; // import service lấy dữ liệu
 import 'chitietsanpham.dart'; // import màn hình chi tiết sản phẩm
-
+import 'api_config.dart';
 void showGoiYTraiCayDialog(BuildContext context, String mucTieu) async {
   List<SanPham> danhSach = await SanPhamService.fetchSanPhams();
-  const String apiUrl = 'http://127.0.0.1:8000/storage/images/'; // Laravel API image base
+final String apiUrl = '${ApiConfig.baseUrl}/storage/images/';
+ // Laravel API image base
 
   List<SanPham> goiY = danhSach.where((sp) {
     switch (mucTieu) {

@@ -5,6 +5,7 @@ import 'package:apptraicay/matkhaumoi.dart';
 import 'package:apptraicay/trangchu.dart';
 import 'package:apptraicay/welcome.dart';
 import 'package:flutter/material.dart';
+import 'api_config.dart';
 
 class changepasswordPage extends StatefulWidget {
   const changepasswordPage({super.key});

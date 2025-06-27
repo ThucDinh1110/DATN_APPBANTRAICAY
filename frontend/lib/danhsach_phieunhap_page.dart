@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'api_config.dart';
 class DanhSachPhieuNhapPage extends StatefulWidget {
   @override
   _DanhSachPhieuNhapPageState createState() => _DanhSachPhieuNhapPageState();
@@ -19,7 +19,7 @@ class _DanhSachPhieuNhapPageState extends State<DanhSachPhieuNhapPage> {
 
   Future<void> fetchPhieuNhap() async {
     try {
-      final res = await http.get(Uri.parse('http://localhost:8000/api/phieunhap'));
+      final res = await http.get(Uri.parse('${ApiConfig.baseUrl}/api/phieunhap'));
       if (res.statusCode == 200) {
         final List data = jsonDecode(res.body);
         setState(() {
@@ -33,7 +33,7 @@ class _DanhSachPhieuNhapPageState extends State<DanhSachPhieuNhapPage> {
   }
 
   void showChiTiet(BuildContext context, int id) async {
-    final res = await http.get(Uri.parse('http://localhost:8000/api/phieunhap/$id'));
+    final res = await http.get(Uri.parse('${ApiConfig.baseUrl}/api/phieunhap/$id'));
     if (res.statusCode == 200) {
       final data = jsonDecode(res.body);
       final List chitiet = data['chi_tiet'] ?? data['chiTiet'] ?? [];

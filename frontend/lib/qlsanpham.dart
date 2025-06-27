@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'sanpham.dart';
 import 'sanpham_service.dart';
 import 'sanphamedit.dart';
-
+import 'api_config.dart';
 class AdminSanPhamPage extends StatefulWidget {
   @override
   _AdminSanPhamPageState createState() => _AdminSanPhamPageState();
@@ -81,7 +81,7 @@ class _AdminSanPhamPageState extends State<AdminSanPhamPage> {
                             borderRadius: BorderRadius.circular(8),
                             child: sp.hinhanh != null && sp.hinhanh!.isNotEmpty
                                 ? Image.network(
-                                    'http://127.0.0.1:8000/storage/images/${sp.hinhanh}',
+                                    '${ApiConfig.baseUrl}/storage/images/${sp.hinhanh}',
                                     width: 70,
                                     height: 70,
                                     fit: BoxFit.cover,
