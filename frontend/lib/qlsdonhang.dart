@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:async'; // Thêm import này để dùng Timer
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'api_config.dart';
+
 class ProductItem {
   final String tenSp;
   final int soLuong;
@@ -81,11 +83,19 @@ class _QuanLyDonHangAdminState extends State<QuanLyDonHangAdmin> {
   List<DonHangAdmin> daMua = [];
   List<DonHangAdmin> daHuy = [];
   String keyword = '';
+  Timer? _autoRefreshTimer;
 
   @override
   void initState() {
     super.initState();
     fetchDonHangAdmin();
+    _autoRefreshTimer = Timer.periodic(Duration(seconds: 30), (_) => fetchDonHangAdmin());
+  }
+
+  @override
+  void dispose() {
+    _autoRefreshTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> fetchDonHangAdmin() async {
@@ -289,9 +299,9 @@ class _QuanLyDonHangAdminState extends State<QuanLyDonHangAdmin> {
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Quản lý đơn hàng (Admin)',style: TextStyle(color: Colors.white)),
-          backgroundColor: Color(0xFF26A69A),
-           iconTheme: IconThemeData(color: Colors.white),
+          title: const Text('Quản lý đơn hàng (Admin)', style: TextStyle(color: Colors.white)),
+          backgroundColor: const Color(0xFF26A69A),
+          iconTheme: const IconThemeData(color: Colors.white),
           bottom: const TabBar(
             isScrollable: true,
             tabs: [

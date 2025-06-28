@@ -17,6 +17,7 @@ Route::post('/kiemtra-tonkho', [GioHangController::class, 'kiemTraTonKho']);
 
 //danhthu
 Route::get('/admin/doanhthu', [Admincontroller::class, 'thongKeDoanhThu']);
+Route::get('/admin/doanhthu-theo-thang', [Admincontroller::class, 'thongKeDoanhThuTheoThang']);
 
 //danhmuc
 Route::get('/danhmucs', [DanhmucController::class, 'getAll']);

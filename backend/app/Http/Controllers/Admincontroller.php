@@ -167,5 +167,40 @@ public function thongKeDoanhThu(Request $request)
         'danggiao'       => number_format($danggiaoRaw, 0, ',', '.'),
     ]);
 }
+public function thongKeDoanhThuTheoThang(Request $request)
+{
+    $year = $request->query('year');
+
+    if (!$year || !is_numeric($year)) {
+        return response()->json(['error' => 'Vui lòng cung cấp năm hợp lệ.'], 400);
+    }
+
+    $result = [];
+
+    for ($month = 1; $month <= 12; $month++) {
+        // Doanh thu thực tế: chỉ tính đơn "Đã mua"
+        $doanhThuThucTe = DB::table('donhang')
+            ->whereYear('Ngaydat', $year)
+            ->whereMonth('Ngaydat', $month)
+            ->where('Trangthai', 'Đã mua')
+            ->sum('Tongtien');
+
+        // Doanh thu dự tính: tính tổng tất cả đơn
+        $doanhThuDuTinh = DB::table('donhang')
+            ->whereYear('Ngaydat', $year)
+            ->whereMonth('Ngaydat', $month)
+            ->sum('Tongtien');
+
+        $result[$month] = [
+            'du_tinh' => $doanhThuDuTinh,
+            'thuc_te' => $doanhThuThucTe
+        ];
+    }
+
+    return response()->json([
+        'year' => $year,
+        'data' => $result
+    ]);
+}
 
 }
