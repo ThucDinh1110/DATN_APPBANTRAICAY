@@ -1,12 +1,10 @@
+// flutter/lib/qr_code_screen.dart
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'giohang.dart';
 import 'api_config.dart';
-import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 
 class QrCodeScreen extends StatefulWidget {
   final int finalAmount;
@@ -99,21 +97,27 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     Navigator.pop(context);
   }
 
-  Future<void> downloadQrImage(String url, String fileName) async {
-    try {
-      final dir = await getApplicationDocumentsDirectory();
-      final filePath = '${dir.path}/$fileName.png';
-
-      await Dio().download(url, filePath);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('✅ Đã lưu mã QR vào: $filePath')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('❌ Lỗi lưu ảnh: $e')),
-      );
-    }
+  void _xacNhanDaThanhToan() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Xác nhận thanh toán"),
+        content: const Text("Bạn đã hoàn thành thanh toán chưa?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Chưa"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Đóng dialog
+              Navigator.popUntil(context, (route) => route.isFirst); // Quay về trang chính
+            },
+            child: const Text("Rồi"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -130,10 +134,10 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
     );
 
     return WillPopScope(
-      onWillPop: () async => false, // ⛔ Chặn back
+      onWillPop: () async => false,
       child: Scaffold(
         appBar: AppBar(
-          automaticallyImplyLeading: false, // ⛔ Ẩn nút back
+          automaticallyImplyLeading: false,
           title: const Text("Mã QR Chuyển Khoản", style: TextStyle(color: Colors.white)),
           backgroundColor: const Color(0xFFFF7043),
           centerTitle: true,
@@ -145,8 +149,8 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  "Quét mã bằng app ngân hàng để chuyển khoản:",
-                  style: TextStyle(fontSize: 16),
+                  "Vui lòng chụp màn hình mã QR bên dưới và mở app ngân hàng để chuyển khoản.",
+                  style: TextStyle(fontSize: 25,color: Colors.red),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
@@ -159,28 +163,14 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
                 Text("Số tiền: ${widget.finalAmount} VND"),
                 Text("Nội dung: ${_maDonHang!}"),
                 const SizedBox(height: 30),
-                Row(children: [
-                  Expanded(child: 
-                  ElevatedButton.icon(
-                  onPressed: () => downloadQrImage(qrImageUrl, _maDonHang!),
-                  icon: const Icon(Icons.download, color: Colors.white),
-                  label: const Text("Lưu mã QR", style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                ),),
-               
-                Expanded(child: 
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                  onPressed: () {
-                    Navigator.popUntil(context, (route) => route.isFirst);
-                  },
+                  onPressed: _xacNhanDaThanhToan,
                   child: const Text(
                     "✅ Đã Thanh Toán",
                     style: TextStyle(color: Colors.white),
                   ),
-                ),),
-                ],)
-                
+                ),
               ],
             ),
           ),

@@ -8,7 +8,7 @@ class ApiConfig {
     }
 
     if (Platform.isAndroid) {
-      return "http://192.168.1.52:8000"; // Đổi IP này thành IP máy bạn
+      return "http://192.168.1.61:8000"; // Đổi IP này thành IP máy bạn
     }
 
     if (Platform.isIOS) {
