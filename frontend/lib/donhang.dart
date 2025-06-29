@@ -121,9 +121,11 @@ class _DonhangState extends State<Donhang> {
   }
 
   Widget _buildOrderStatusList(String title, List<DonHangModel> donHangs) {
-    return donHangs.isEmpty
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+    return  donHangs.isEmpty
         ? Center(child: Text("Không có đơn nào trong mục '$title'"))
         : ListView.builder(
+          padding: EdgeInsets.only(bottom:bottomInset + 60),
             itemCount: donHangs.length,
             itemBuilder: (context, index) {
               final don = donHangs[index];
@@ -204,6 +206,7 @@ class _DonhangState extends State<Donhang> {
                   _buildOrderStatusList("Đang giao", dangGiao),
                   _buildOrderStatusList("Đã mua", daMua),
                   _buildOrderStatusList("Đơn hàng đã hủy", donHangDaHuy),
+                
                 ],
               ),
             ),

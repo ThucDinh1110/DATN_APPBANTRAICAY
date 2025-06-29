@@ -5,7 +5,7 @@ import 'api_config.dart';
 class NhapHangTabPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: 
+    return 
     
     DefaultTabController(
       length: 2,
@@ -26,12 +26,13 @@ class NhapHangTabPage extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
+            
             NhapHangExcelPage(),
             DanhSachPhieuNhapPage(),
           ],
         ),
       ),
-    ),
+    
     );
   }
 }

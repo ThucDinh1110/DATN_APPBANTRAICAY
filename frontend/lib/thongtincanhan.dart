@@ -179,6 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+       final bottomInset = MediaQuery.of(context).viewPadding.bottom;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -203,7 +204,7 @@ class _ProfilePageState extends State<ProfilePage> {
         child: _isLoading
             ? const Center(child: CircularProgressIndicator(color: Colors.white))
             : SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 100, 16, 16),
+            padding: EdgeInsets.fromLTRB(16, 100, 16, bottomInset + 60),
                 child: Column(
                   children: [
                     // Avatar
@@ -349,6 +350,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ),
+                   
                   ],
                 ),
               ),

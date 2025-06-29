@@ -20,7 +20,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
- 
   int _currentIndex = 0;
   int _cartItemCount = 0;
   String _searchKeyword = '';
@@ -32,8 +31,7 @@ class _HomePageState extends State<HomePage> {
     if (_isBottomBarVisible != !isScrollingDown) {
       setState(() {
         _isBottomBarVisible = !isScrollingDown;
-         fetchCartItemCount();
-        
+        fetchCartItemCount();
       });
     }
   }
@@ -42,8 +40,6 @@ class _HomePageState extends State<HomePage> {
         HomeTabContent(
           keyword: _searchKeyword,
           onScrollDirectionChange: _handleScroll,
-          
-          
         ),
         const ProfilePage(),
         const Donhang(),
@@ -54,7 +50,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     fetchCartItemCount();
-
     fetchTenNguoiDung();
   }
 
@@ -100,56 +95,65 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea( 
-    
-   child:  Scaffold(
+    return Scaffold(
       backgroundColor: const Color(0xFFFDFDFD),
-      body: _currentIndex == 0
-          ? Column(
-              children: [
-                _buildHomeAppBar(),
-                Expanded(child: _tabs[_currentIndex]),
-              ],
-            )
-          : _tabs[_currentIndex],
-      bottomNavigationBar: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        height: _isBottomBarVisible ? kBottomNavigationBarHeight : 0,
-        child: Wrap(
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-              child: BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
-                currentIndex: _currentIndex,
-                backgroundColor: Colors.grey[200],
-                selectedItemColor: const Color.fromRGBO(95, 179, 249, 1),
-                unselectedItemColor: Colors.black,
-                selectedFontSize: 14,
-                unselectedFontSize: 13,
-                selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-                unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400),
-                showUnselectedLabels: true,
-                onTap: (index) => setState(() => _currentIndex = index),
-                items: const [
-                  BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Trang chủ'),
-                  BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Thông tin'),
-                  BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), label: 'Đơn hàng'),
-                  BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: 'Cài đặt'),
-                ],
+      extendBody: true,
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              _currentIndex == 0 ? _buildHomeAppBar(context) : const SizedBox(),
+              Expanded(child: _tabs[_currentIndex]),
+            ],
+          ),
+          if (_isBottomBarVisible)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                top: false,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                  child: BottomNavigationBar(
+                    type: BottomNavigationBarType.fixed,
+                    currentIndex: _currentIndex,
+                    backgroundColor: Colors.grey[200],
+                    selectedItemColor: const Color.fromRGBO(95, 179, 249, 1),
+                    unselectedItemColor: Colors.black,
+                    selectedFontSize: 14,
+                    unselectedFontSize: 13,
+                    selectedLabelStyle:
+                        const TextStyle(fontWeight: FontWeight.w600),
+                    unselectedLabelStyle:
+                        const TextStyle(fontWeight: FontWeight.w400),
+                    showUnselectedLabels: true,
+                    onTap: (index) => setState(() => _currentIndex = index),
+                    items: const [
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.home_outlined), label: 'Trang chủ'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.person_outline), label: 'Thông tin'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.receipt_long_outlined),
+                          label: 'Đơn hàng'),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.settings_outlined),
+                          label: 'Cài đặt'),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
-    )
     );
   }
 
-  Widget _buildHomeAppBar() {
+  Widget _buildHomeAppBar(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
         color: Color.fromRGBO(95, 179, 249, 1),
@@ -158,7 +162,12 @@ class _HomePageState extends State<HomePage> {
           bottomRight: Radius.circular(24),
         ),
       ),
-      padding: const EdgeInsets.only(top: 25, left: 16, right: 16, bottom: 20),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 16,
+        left: 16,
+        right: 16,
+        bottom: 20,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -206,11 +215,13 @@ class _HomePageState extends State<HomePage> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.shopping_cart_outlined, color: Colors.orange),
+                      icon: const Icon(Icons.shopping_cart_outlined,
+                          color: Colors.orange),
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const Giohang()),
+                          MaterialPageRoute(
+                              builder: (context) => const Giohang()),
                         ).then((_) => fetchCartItemCount());
                       },
                     ),
@@ -228,7 +239,8 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: Text(
                           '$_cartItemCount',
-                          style: const TextStyle(color: Colors.white, fontSize: 11),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 11),
                         ),
                       ),
                     ),
@@ -239,6 +251,5 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-    
   }
 }

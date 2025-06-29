@@ -1,4 +1,3 @@
-// flutter/lib/qr_code_screen.dart
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -98,27 +97,53 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
   }
 
   void _xacNhanDaThanhToan() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Xác nhận thanh toán"),
-        content: const Text("Bạn đã hoàn thành thanh toán chưa?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Chưa"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Đóng dialog
-              Navigator.popUntil(context, (route) => route.isFirst); // Quay về trang chính
-            },
-            child: const Text("Rồi"),
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: Colors.orange.shade50,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Row(
+        children: [
+          Icon(Icons.check_circle_outline, color: Colors.green, size: 30),
+          const SizedBox(width: 10),
+          const Text(
+            "Xác nhận thanh toán",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
       ),
-    );
-  }
+      content: const Text(
+        "Bạn đã hoàn thành chuyển khoản chưa?",
+        style: TextStyle(fontSize: 18),
+      ),
+      actionsAlignment: MainAxisAlignment.spaceEvenly,
+      actions: [
+        ElevatedButton.icon(
+          icon: const Icon(Icons.cancel_outlined),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.grey.shade400,
+            foregroundColor: Colors.white,
+          ),
+          onPressed: () => Navigator.pop(context),
+          label: const Text("Chưa"),
+        ),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.check),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+            Navigator.popUntil(context, (route) => route.isFirst);
+          },
+          label: const Text("Đã thanh toán"),
+        ),
+      ],
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -146,36 +171,93 @@ class _QrCodeScreenState extends State<QrCodeScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
-                  "Vui lòng chụp màn hình mã QR bên dưới và mở app ngân hàng để chuyển khoản.",
-                  style: TextStyle(fontSize: 25,color: Colors.red),
+                Icon(Icons.qr_code_scanner, color: Colors.deepOrange, size: 60),
+                const SizedBox(height: 10),
+                Text(
+                  "Lưu lại mã QR Code khi cần",
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepOrange.shade800,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
-                Image.network(qrImageUrl, width: 250),
-                const SizedBox(height: 20),
-                const Text("Số tài khoản: 1023400991"),
-                const Text("Ngân hàng: Vietcombank"),
-                const Text("Chủ TK: Nguyễn Phương Nam"),
-                const SizedBox(height: 10),
-                Text("Số tiền: ${widget.finalAmount} VND"),
-                Text("Nội dung: ${_maDonHang!}"),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                  onPressed: _xacNhanDaThanhToan,
-                  child: const Text(
-                    "✅ Đã Thanh Toán",
-                    style: TextStyle(color: Colors.white),
+                Card(
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Image.network(qrImageUrl, width: 250),
+                        const SizedBox(height: 20),
+                        InfoRow(label: "💳 Số tài khoản:", value: "1023400991"),
+                        InfoRow(label: "🏦 Ngân hàng:", value: "Vietcombank"),
+                        InfoRow(label: "👤 Chủ tài khoản:", value: "Nguyễn Phương Nam"),
+                        const Divider(thickness: 1),
+                        InfoRow(label: "💸 Số tiền:", value: "${widget.finalAmount} VND", highlight: true),
+                        InfoRow(label: "📝 Nội dung:", value: _maDonHang!, highlight: true),
+                      ],
+                    ),
                   ),
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.check_circle_outline,color:Colors.white,),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF5722),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                  onPressed: _xacNhanDaThanhToan,
+                  label: const Text(" Tôi đã thanh toán"),
                 ),
               ],
             ),
           ),
         ),
         backgroundColor: Colors.white,
+      ),
+    );
+  }
+}
+
+class InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool highlight;
+
+  const InfoRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.highlight = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Flexible(flex: 3, child: Text(label)),
+          const SizedBox(width: 5),
+          Flexible(
+            flex: 5,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
+                color: highlight ? Colors.red.shade700 : Colors.black87,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

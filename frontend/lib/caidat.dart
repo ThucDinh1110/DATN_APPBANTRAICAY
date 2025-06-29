@@ -81,6 +81,7 @@ class CaiDatPage extends StatelessWidget {
               ),
             ),
           ),
+          SizedBox(height: 60)
         ],
       ),
        backgroundColor: Colors.white,

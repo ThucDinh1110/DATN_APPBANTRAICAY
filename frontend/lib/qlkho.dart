@@ -406,6 +406,7 @@ SanphamID\tTensp\tDanhmucID\tTendanhmuc\tSoluongnhap\tDongianhap\tDonvi\tHinhanh
                 ),
               ),
             ],
+            SizedBox(height: 20,)
           ],
         ),
       ),

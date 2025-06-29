@@ -192,30 +192,80 @@ class _ThanhToanScreenState extends State<ThanhToanScreen> {
     );
   }
 
-  void _confirmChuyenKhoan(int finalAmount) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Xác nhận thanh toán',style:TextStyle(color: Colors.red),),
-        content: const Text(
-          'Bạn Chắc Chắn Thanh Toán Bằng Phương Thức Chuyển Khoản',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Huỷ'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _showQrForChuyenKhoan(finalAmount);
-            },
-            child: const Text('OK'),
+ void _confirmChuyenKhoan(int finalAmount) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: Colors.yellow.shade50,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      contentPadding: const EdgeInsets.all(20),
+      title: Row(
+        children: [
+     
+          SizedBox(width: 10),
+          Flexible(
+            child: Text(
+              'XÁC NHẬN THANH TOÁN',
+              style: TextStyle(
+                color: Colors.red.shade900,
+                fontWeight: FontWeight.w900,
+                fontSize: 20,
+              ),
+            ),
           ),
         ],
       ),
-    );
-  }
+      content: SingleChildScrollView(
+        child: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: ' Một khi bạn xác nhận, ',
+                style: TextStyle(color: Colors.black87, fontSize: 18),
+              ),
+              TextSpan(
+                text: 'đơn hàng của bạn sẽ được đặt\n',
+                style: TextStyle(
+                    color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              TextSpan(
+                text: 'và ',
+                style: TextStyle(color: Colors.black87, fontSize: 18),
+              ),
+              TextSpan(
+                text: 'KHÔNG THỂ thay đổi phương thức thanh toán!',
+                style: TextStyle(
+                    color: Colors.red.shade800,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actionsAlignment: MainAxisAlignment.spaceEvenly,
+      actions: [
+        ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey.shade400, foregroundColor: Colors.white),
+          icon: Icon(Icons.close),
+          label: Text('Huỷ'),
+          onPressed: () => Navigator.pop(context),
+        ),
+        ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade700, foregroundColor: Colors.white),
+          icon: Icon(Icons.check_circle_outline),
+          label: Text('Xác Nhận'),
+          onPressed: () {
+            Navigator.pop(context);
+            _showQrForChuyenKhoan(finalAmount);
+          },
+        ),
+      ],
+    ),
+  );
+}
 
   void _showQrForChuyenKhoan(int finalAmount) {
     Navigator.push(
